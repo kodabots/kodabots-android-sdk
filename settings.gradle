@@ -1,0 +1,3 @@
+include ':core'
+include ':sample'
+rootProject.name = "KodaBotsSDK"

@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">KodaBotsSDK</string>
+    <string name="activity_main_controls_expander">CONTROLS</string>
+    <string name="activity_main_controls_initialize_webview">INITIALIZE WEBVIEW</string>
+    <string name="activity_main_controls_get_unread_count">GET UNREAD COUNT</string>
+    <string name="activity_main_controls_sync_profile">SYNC PROFILE</string>
+    <string name="activity_main_controls_send_block">SEND BLOCK</string>
+    <string name="activity_main_controls_simulate_error">SIMULATE ERROR</string>
+    <string name="activity_main_snackbar_not_initialized">WEBVIEW NOT INITIALIZED</string>
+    <string name="activity_main_dialog_set_block_id">Set blockId</string>
+    <string name="activity_main_dialog_sync_profile">Sync profile</string>
+    <string name="activity_main_dialog_sync_profile_first_name">First Name</string>
+    <string name="activity_main_dialog_sync_profile_last_name">Last Name</string>
+    <string name="activity_main_dialog_sync_profile_custom_key">Custom key</string>
+    <string name="activity_main_unread_count">Unread messages: %1$s</string>
+</resources>
