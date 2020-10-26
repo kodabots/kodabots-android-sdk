@@ -38,7 +38,7 @@ android {
             debuggable false
             matchingFallbacks = 'debug'
             buildConfigField "String", "BASE_URL", "\"https://web.kodabots.com/mobile\""
-            buildConfigField "String", "REST_BASE_URL", "\"https://chatbot-mxwaxhdter.kodabots.com/sdk\""
+            buildConfigField "String", "REST_BASE_URL", "\"https://chatbot-mxwaxhdter.kodabots.com\""
             buildConfigField "String", "API_VERSION", "\"v1\""
             buildConfigField "String", "REST_API_VERSION", "\"v1\""
         }
