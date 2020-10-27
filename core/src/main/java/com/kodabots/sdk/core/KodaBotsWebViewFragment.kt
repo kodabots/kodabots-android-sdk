@@ -186,7 +186,7 @@ class KodaBotsWebViewFragment : Fragment() {
     fun sendBlock(blockId: String): Boolean {
         return if (isReady) {
             fragment_koda_bots_webview.callJavascript(
-                "KodaBots.setBlock(${blockId});"
+                "KodaBots.sentBlock(\"${blockId}\");"
             )
             true
         } else {
@@ -197,12 +197,12 @@ class KodaBotsWebViewFragment : Fragment() {
     fun syncProfile(userProfile: UserProfile): Boolean {
         return if (isReady) {
             fragment_koda_bots_webview.callJavascript(
-                "KodaBots.syncUserProfile(\"${
+                "KodaBots.syncUserProfile(${
                     Json.encodeToString(
                         UserProfile.serializer(),
                         KodaBotsSDK.gatherPhoneData(requireContext(), userProfile)!!
                     )
-                }\");"
+                });"
             )
             true
         } else {
