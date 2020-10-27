@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
                     if (kodaBotsFragment?.syncProfile(UserProfile().apply {
                             this.first_name = firstName
                             this.last_name = lastName
-                            this.custom_key = customKey
+                            this.custom_parameters["custom_key"] = customKey
                         }) == false || kodaBotsFragment == null) {
                         Snackbar.make(
                             activity_main_root,
