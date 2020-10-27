@@ -14,6 +14,7 @@ class UserProfile {
     var locale: String? = null
     var model: String? = null
     var manufacturer: String? = null
+    var custom_parameters:HashMap<String,String> = HashMap()
 }
 
 @Serializable
