@@ -1,12 +1,27 @@
 # Koda Bots SDK
 ## 1. Installation guide
-- Add 
+- Add folowing code to your root ```build.gradle``` file
 ```
-include ':core'
-project(':core').projectDir = new File('<PATH_TO_CORE_PROJECT_OF_SDK>')
+  allprojects {
+     repositories {
+         .
+         .
+         .
+         maven {
+             url "https://packages.fream.pl/repository/maven-kodabots-releases/"
+             credentials {
+                 username "<ASK KODABOTS FOR USERNAME>"
+                 password "<ASK KODABOTS FOR PASSWORD>"
+             }
+         }
+         .
+         .
+         .
+     }
+  }
 ```
-Into root ```settings.gradle```
-- Add ```implementation project(':core')``` into your project level ```build.gradle``` dependencies
+- Add dependency to your project level ```build.gradle``` file <br>
+```implementation 'com.kodabots.sdk:kodabots-core:1.0.0'```
 - In your ```AndroidManifest.xml``` you need to add Client Token provided by KODA Bots as in example below
 ```
 <application>

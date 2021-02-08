@@ -76,9 +76,9 @@ object KodaBotsSDK {
                 val result = PermissionManager.requestPermissions(
                     activity, requestCode,
                     Manifest.permission.INTERNET,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.MODIFY_AUDIO_SETTINGS
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+//                    Manifest.permission.RECORD_AUDIO,
+//                    Manifest.permission.MODIFY_AUDIO_SETTINGS
                 )
 
                 when (result) {
@@ -111,8 +111,8 @@ object KodaBotsSDK {
                 activity, requestCode,
                 Manifest.permission.INTERNET,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.MODIFY_AUDIO_SETTINGS
+//                Manifest.permission.RECORD_AUDIO,
+//                Manifest.permission.MODIFY_AUDIO_SETTINGS
             )
             return when (result) {
                 is PermissionResult.PermissionGranted -> {
@@ -137,8 +137,8 @@ object KodaBotsSDK {
         context,
         Manifest.permission.INTERNET,
         Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.MODIFY_AUDIO_SETTINGS
+//        Manifest.permission.RECORD_AUDIO,
+//        Manifest.permission.MODIFY_AUDIO_SETTINGS
     )
 
     fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
