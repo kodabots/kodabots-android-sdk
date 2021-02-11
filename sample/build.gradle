@@ -24,12 +24,12 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
-            debuggable true
-            matchingFallbacks = 'debug'
+            debuggable false
+            matchingFallbacks = 'release'
         }
         debug {
             //applicationIdSuffix '.debug'
-            minifyEnabled false
+            minifyEnabled true
             debuggable true
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -37,13 +37,20 @@ android {
         }
         stage {
             applicationIdSuffix '.stage'
-            minifyEnabled false
+            minifyEnabled true
             debuggable true
             signingConfig signingConfigs.debug
             matchingFallbacks = 'debug'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
     applicationVariants.all { variant ->
         variant.outputs.all {
@@ -55,9 +62,9 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(":core")
+//    implementation 'com.kodabots.sdk:kodabots-core:1.0.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.cardview:cardview:1.0.0'

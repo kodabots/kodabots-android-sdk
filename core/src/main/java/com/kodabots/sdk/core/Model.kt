@@ -1,8 +1,10 @@
 package com.kodabots.sdk.core
 
+import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Keep
 class UserProfile {
     var first_name: String? = null
     var last_name: String? = null
@@ -17,6 +19,7 @@ class UserProfile {
 }
 
 @Serializable
+@Keep
 class GetUnreadCountResponse {
     var status: String? = null
     var message: String? = null
@@ -24,6 +27,7 @@ class GetUnreadCountResponse {
 }
 
 @Serializable
+@Keep
 class GetUnreadCountResponseData {
     var unread_counter: Int? = null
 }
