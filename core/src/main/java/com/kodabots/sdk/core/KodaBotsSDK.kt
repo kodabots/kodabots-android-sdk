@@ -66,6 +66,7 @@ object KodaBotsSDK {
         return userProfile
     }
 
+    /*
     fun requestPermissions(
         activity: AppCompatActivity,
         requestCode: Int,
@@ -100,8 +101,9 @@ object KodaBotsSDK {
                 callback.invoke(PermissionRequestResult.GRANTED)
             }
         }
-    }
+    }*/
 
+    /*
     suspend fun requestPermissions(
         activity: AppCompatActivity,
         requestCode: Int
@@ -132,7 +134,8 @@ object KodaBotsSDK {
             return PermissionRequestResult.GRANTED
         }
     }
-
+*/
+    /*
     fun hasPermissions(context: Context): Boolean = EasyPermissions.hasPermissions(
         context,
         Manifest.permission.INTERNET,
@@ -140,6 +143,8 @@ object KodaBotsSDK {
 //        Manifest.permission.RECORD_AUDIO,
 //        Manifest.permission.MODIFY_AUDIO_SETTINGS
     )
+
+     */
 
     fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
         if (KodaBotsPreferences.userId != null && clientToken != null) {

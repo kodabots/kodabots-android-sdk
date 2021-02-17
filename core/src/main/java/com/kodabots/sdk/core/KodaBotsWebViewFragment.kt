@@ -123,6 +123,13 @@ class KodaBotsWebViewFragment : Fragment() {
                         data
                     )
                 )
+            } else {
+                chromeClient.filePathCallback?.onReceiveValue(
+                    WebChromeClient.FileChooserParams.parseResult(
+                        resultCode,
+                        null
+                    )
+                )
             }
         }
     }

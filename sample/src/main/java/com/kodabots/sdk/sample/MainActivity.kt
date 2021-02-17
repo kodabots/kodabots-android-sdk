@@ -130,8 +130,8 @@ class MainActivity : AppCompatActivity() {
             }
             activity_main_controls_expander.callOnClick()
         }
-        GlobalScope.async(Dispatchers.Main) {
-            KodaBotsSDK.requestPermissions(this@MainActivity, PERMISSIONS_REQUEST_CODE)
-        }
+//        GlobalScope.async(Dispatchers.Main) {
+//            KodaBotsSDK.requestPermissions(this@MainActivity, PERMISSIONS_REQUEST_CODE)
+//        }
     }
 }

@@ -55,9 +55,9 @@ class KodaBotsChromeClient(val fragment: Fragment) : WebChromeClient() {
     }
 
     override fun onPermissionRequest(request: PermissionRequest) {
-        if (KodaBotsSDK.hasPermissions(fragment.requireContext())) {
+//        if (KodaBotsSDK.hasPermissions(fragment.requireContext())) {
             request.grant(request.resources)
-        }
+//        }
     }
 
     override fun onShowFileChooser(

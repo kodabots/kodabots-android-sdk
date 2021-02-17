@@ -3,6 +3,7 @@ package com.kodabots.sdk.core
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import androidx.security.crypto.MasterKeys
 
 object KodaBotsPreferences {
@@ -15,11 +16,14 @@ object KodaBotsPreferences {
         set(version) = preferences.edit().putInt(PREF_VERSION, version).apply()
 
     fun initialize(context: Context) {
-        val masterKeyAlias: String = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
         preferences = EncryptedSharedPreferences.create(
-            PREFERENCES_NAME,
-            masterKeyAlias,
             context,
+            PREFERENCES_NAME,
+            masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
