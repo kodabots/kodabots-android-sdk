@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="went_wrong_button">Retry</string>
+    <string name="went_wrong_message">Meh. Something went wrong.</string>
+</resources>

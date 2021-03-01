@@ -175,19 +175,13 @@ object KodaBotsSDK {
     }
 
     fun generateFragment(
-        userProfile: UserProfile? = null,
-        blockId: String? = null,
-        backgroundColor: Int? = null,
-        progressColor: Int? = null,
-        customAnimationPath: String? = null,
+        config: KodaBotsConfig?=null,
         callbacks: ((KodaBotsCallbacks) -> Unit)? = null
     ): KodaBotsWebViewFragment? {
         return if (isInitialized) KodaBotsWebViewFragment().apply {
-            this.customBackgroundColor = backgroundColor
-            this.customProgressColor = progressColor
-            this.userProfile = userProfile ?: UserProfile()
-            this.blockId = blockId
-            this.customAnimationPath = customAnimationPath
+            config?.let {
+                this.customConfig = it
+            }
             callbacks?.let {
                 this.callbacks = it
             }

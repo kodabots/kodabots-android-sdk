@@ -39,8 +39,11 @@ class MainActivity : AppCompatActivity() {
             if (kodaBotsFragment == null) {
                 kodaBotsFragment = KodaBotsSDK.generateFragment(
                     callbacks = callbacks,
-                    progressColor = Color.RED,
-                    backgroundColor = Color.BLACK
+                    config = KodaBotsConfig().apply {
+                        progressConfig = KodaBotsProgressConfig()
+                        progressConfig?.progressColor = Color.RED
+                        progressConfig?.backgroundColor = Color.WHITE
+                    }
                 )
                 supportFragmentManager.beginTransaction().apply {
                     replace(R.id.activity_main_content_root, kodaBotsFragment!!)

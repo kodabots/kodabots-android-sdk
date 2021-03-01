@@ -6,6 +6,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,20 +16,17 @@ import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.RenderMode
 import com.airbnb.lottie.model.KeyPath
 import kotlinx.android.synthetic.main.fragment_koda_bots_webview.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
+import java.util.concurrent.TimeUnit
 
 class KodaBotsWebViewFragment : Fragment() {
+    private val DEFAULT_WENT_WRONG_TIMEOUT = 20L
     val chromeClient = KodaBotsChromeClient(this@KodaBotsWebViewFragment)
-    var customBackgroundColor: Int? = null
-    var customProgressColor: Int? = null
-    var userProfile: UserProfile? = null
-    var blockId: String? = null
-    var customAnimationPath: String? = null
+    var customConfig:KodaBotsConfig? = KodaBotsConfig()
     var callbacks: (KodaBotsCallbacks) -> Unit = {}
     private var isReady = false
+    private var timeoutDeferred:Deferred<Unit>?=null
     val webviewCallbacks = object : WebviewCallbacks {
         override fun onLoadingFinished() {
             initialize()
@@ -59,28 +57,8 @@ class KodaBotsWebViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        customBackgroundColor?.let {
-            fragment_koda_bots_webview_root.setBackgroundColor(it)
-            fragment_koda_bots_webview_progress_wrapper.setBackgroundColor(it)
-        }
-        fragment_koda_bots_webview_progress.setAnimation(
-            customAnimationPath ?: "default_loader.json"
-        )
-        fragment_koda_bots_webview_progress.repeatCount = 0
-        fragment_koda_bots_webview_progress.setRenderMode(RenderMode.HARDWARE)
-        customProgressColor?.let { color ->
-            fragment_koda_bots_webview_progress.addValueCallback(
-                KeyPath("**"),
-                LottieProperty.COLOR_FILTER,
-                {
-                    PorterDuffColorFilter(
-                        color,
-                        PorterDuff.Mode.SRC_ATOP
-                    )
-                }
-            )
-        }
-        fragment_koda_bots_webview_progress.playAnimation()
+        setupProgress()
+        setupWentWrong()
         fragment_koda_bots_webview.apply {
             settings.apply {
                 this.javaScriptEnabled = true
@@ -109,7 +87,90 @@ class KodaBotsWebViewFragment : Fragment() {
             webViewClient = KodaBotsWebViewClient(webviewCallbacks)
             clearCache(true)
         }.also {
-            it.loadUrl("${BuildConfig.BASE_URL}/mobile/${BuildConfig.API_VERSION}/?token=${KodaBotsSDK.clientToken}")
+            loadUrl()
+        }
+    }
+
+    private fun loadUrl(){
+        fragment_koda_bots_webview.loadUrl("${BuildConfig.BASE_URL}/mobile/${BuildConfig.API_VERSION}/?token=${KodaBotsSDK.clientToken}")
+        timeoutDeferred = GlobalScope.async(Dispatchers.Main + KodaBotsSDK.globalExceptionHandler) {
+            delay(TimeUnit.SECONDS.toMillis(customConfig?.timeoutConfig?.timeout ?: DEFAULT_WENT_WRONG_TIMEOUT))
+            fragment_koda_bots_webview_went_wrong_wrapper.visibility = View.VISIBLE
+            fragment_koda_bots_webview_progress.pauseAnimation()
+            fragment_koda_bots_webview_progress_wrapper.visibility = View.GONE
+        }
+    }
+
+    private fun setupProgress(){
+        customConfig?.progressConfig?.backgroundColor?.let {
+            fragment_koda_bots_webview_root.setBackgroundColor(it)
+            fragment_koda_bots_webview_progress_wrapper.setBackgroundColor(it)
+        }
+        fragment_koda_bots_webview_progress.setAnimation(
+            customConfig?.progressConfig?.customAnimationPath ?: "default_loader.json"
+        )
+        fragment_koda_bots_webview_progress.repeatCount = 0
+        fragment_koda_bots_webview_progress.setRenderMode(RenderMode.HARDWARE)
+        customConfig?.progressConfig?.progressColor?.let { color ->
+            fragment_koda_bots_webview_progress.addValueCallback(
+                KeyPath("**"),
+                LottieProperty.COLOR_FILTER,
+                {
+                    PorterDuffColorFilter(
+                        color,
+                        PorterDuff.Mode.SRC_ATOP
+                    )
+                }
+            )
+        }
+        fragment_koda_bots_webview_progress.playAnimation()
+    }
+
+    private fun setupWentWrong(){
+        customConfig?.timeoutConfig?.let {
+            it.image?.let {
+                fragment_koda_bots_webview_went_wrong_image.setImageDrawable(it)
+            }
+            it.backgroundColor?.let {
+                fragment_koda_bots_webview_went_wrong_wrapper.setBackgroundColor(it)
+            }
+            it.buttonText?.let {
+                fragment_koda_bots_webview_went_wrong_button.text = it
+            }
+            if(it.buttonBackgroundDrawable == null) {
+                it.buttonColor?.let {
+                    fragment_koda_bots_webview_went_wrong_button.setBackgroundColor(it)
+                }
+            } else {
+                fragment_koda_bots_webview_went_wrong_button.background = it.buttonBackgroundDrawable!!
+            }
+            it.buttonFontSize?.let {
+                fragment_koda_bots_webview_went_wrong_button.setTextSize(TypedValue.COMPLEX_UNIT_SP, it)
+            }
+            it.buttonTextColor?.let {
+                fragment_koda_bots_webview_went_wrong_button.setTextColor(it)
+            }
+            it.buttonFont?.let {
+                fragment_koda_bots_webview_went_wrong_button.typeface = it
+            }
+            it.message?.let {
+                fragment_koda_bots_webview_went_wrong_message.text = it
+            }
+            it.messageTextColor?.let {
+                fragment_koda_bots_webview_went_wrong_message.setTextColor(it)
+            }
+            it.messageFont?.let {
+                fragment_koda_bots_webview_went_wrong_message.typeface = it
+            }
+            it.messageFontSize?.let {
+                fragment_koda_bots_webview_went_wrong_message.setTextSize(TypedValue.COMPLEX_UNIT_SP, it)
+            }
+        }
+        fragment_koda_bots_webview_went_wrong_button.setOnClickListener {
+            fragment_koda_bots_webview_went_wrong_wrapper.visibility = View.GONE
+            fragment_koda_bots_webview_progress.playAnimation()
+            fragment_koda_bots_webview_progress_wrapper.visibility = View.VISIBLE
+            loadUrl()
         }
     }
 
@@ -155,16 +216,17 @@ class KodaBotsWebViewFragment : Fragment() {
     private fun initialize() {
         fragment_koda_bots_webview.callJavascript(
             "KodaBots.initialize(${
-                if (userProfile != null) Json.encodeToString(
+                if (customConfig?.userProfile != null) Json.encodeToString(
                     UserProfile.serializer(),
-                    KodaBotsSDK.gatherPhoneData(requireContext(), userProfile)!!
+                    KodaBotsSDK.gatherPhoneData(requireContext(), customConfig?.userProfile)!!
                 ) else null
-            }, ${blockId});"
+            }, ${customConfig?.blockId});"
         )
     }
 
     @JavascriptInterface
     fun onReady(userId: String) {
+        timeoutDeferred?.cancel()
         GlobalScope.launch(Dispatchers.Main + KodaBotsSDK.globalExceptionHandler) {
             KodaBotsPreferences.userId = userId
             fragment_koda_bots_webview_progress.pauseAnimation()
