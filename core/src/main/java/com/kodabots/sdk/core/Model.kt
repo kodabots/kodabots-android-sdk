@@ -15,6 +15,10 @@ class UserProfile {
     var locale: String? = null
     var model: String? = null
     var manufacturer: String? = null
+
+    /**
+     * Parameter used to pass custom data to KodaBots chatbot
+     */
     var custom_parameters:HashMap<String,String> = HashMap()
 }
 

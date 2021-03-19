@@ -27,6 +27,13 @@ object KodaBotsSDK {
     internal var clientToken: String? = null
     private var restApi: KodaBotsRestApi? = null
 
+    /**
+     * Method used to initialize SDK.
+     * Fetches ClientToken from Manifest file.
+     *
+     * @param context
+     * @return Boolean value that indicates init state
+     */
     fun init(context: Context): Boolean {
         clientToken = context.packageManager
             .getApplicationInfo(
@@ -44,6 +51,9 @@ object KodaBotsSDK {
         return isInitialized
     }
 
+    /**
+     * Method used to uninitialize SDK.
+     */
     fun uninitialize() {
         isInitialized = false
     }
@@ -146,6 +156,11 @@ object KodaBotsSDK {
 
      */
 
+    /**
+     * Method used to get unread messages count
+     *
+     * @param callback Callback that returns sealed class with result
+     */
     fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
         if (KodaBotsPreferences.userId != null && clientToken != null) {
             GlobalScope.launch(globalExceptionHandler) {
@@ -166,6 +181,12 @@ object KodaBotsSDK {
         }
     }
 
+
+    /**
+     * Method used to get unread messages count
+     *
+     * @return Sealed class with result
+     */
     suspend fun getUnreadCount(): CallResponse<Int?> {
         return if (KodaBotsPreferences.userId != null && clientToken != null) restApi?.getUnreadCount()
             ?.await()
@@ -174,6 +195,13 @@ object KodaBotsSDK {
         }
     }
 
+    /**
+     * If SDK is initialized, will return KodaBotsWebViewFragment that you can display and use.
+     *
+     * @param config Configuration file for SDK. You can set userProfile, conversation blockId and progress/timeout ui customisation
+     * @param callbacks Callbacks from KodaBots chatbot
+     * @return KodaBotsWebViewFragment
+     */
     fun generateFragment(
         config: KodaBotsConfig?=null,
         callbacks: ((KodaBotsCallbacks) -> Unit)? = null

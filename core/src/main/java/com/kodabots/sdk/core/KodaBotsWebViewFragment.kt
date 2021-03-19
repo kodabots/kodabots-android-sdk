@@ -252,6 +252,12 @@ class KodaBotsWebViewFragment : Fragment() {
         })
     }
 
+    /**
+     * Method used to send conversation blockId
+     *
+     * @param blockId Conversation block id
+     * @return true if invoked
+     */
     fun sendBlock(blockId: String): Boolean {
         return if (isReady) {
             fragment_koda_bots_webview.callJavascript(
@@ -263,6 +269,12 @@ class KodaBotsWebViewFragment : Fragment() {
         }
     }
 
+    /**
+     * Method used to set new user profile
+     *
+     * @param userProfile new user profile
+     * @return true if invoked
+     */
     fun syncProfile(userProfile: UserProfile): Boolean {
         return if (isReady) {
             fragment_koda_bots_webview.callJavascript(
@@ -279,6 +291,11 @@ class KodaBotsWebViewFragment : Fragment() {
         }
     }
 
+    /**
+     * Method used to simulate error
+     *
+     * @return true if invoked
+     */
     fun simulateError():Boolean {
         return if (isReady) {
             fragment_koda_bots_webview.callJavascript(
