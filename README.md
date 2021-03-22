@@ -21,7 +21,7 @@
   }
 ```
 - Add dependency to your project level ```build.gradle``` file <br>
-```implementation 'com.kodabots.sdk:kodabots-core:1.0.4'```
+```implementation 'com.kodabots.sdk:kodabots-core:1.0.7'```
 - In your ```AndroidManifest.xml``` you need to add Client Token provided by KODA Bots as in example below
 ```
 <application>
@@ -29,7 +29,7 @@
 .
 .
 <meta-data android:name="com.kodabots.sdk.ClientToken"
-    android:resource="<YOUR TOKEN GOES HERE>"/>
+    android:value="<YOUR TOKEN GOES HERE>"/>
     
 .
 .
