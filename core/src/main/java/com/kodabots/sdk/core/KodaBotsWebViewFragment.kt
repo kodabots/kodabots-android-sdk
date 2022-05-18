@@ -7,27 +7,25 @@ import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.webkit.*
 import androidx.fragment.app.Fragment
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.RenderMode
 import com.airbnb.lottie.model.KeyPath
-import kotlinx.android.synthetic.main.fragment_koda_bots_webview.*
+import com.kodabots.sdk.core.databinding.FragmentKodaBotsWebviewBinding
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 import java.util.concurrent.TimeUnit
 
-class KodaBotsWebViewFragment : Fragment() {
+class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview) {
+    private var binding: FragmentKodaBotsWebviewBinding? = null
+    private var scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val DEFAULT_WENT_WRONG_TIMEOUT = 20L
-    val chromeClient = KodaBotsChromeClient(this@KodaBotsWebViewFragment)
-    var customConfig:KodaBotsConfig? = KodaBotsConfig()
-    var callbacks: (KodaBotsCallbacks) -> Unit = {}
+    private val chromeClient = KodaBotsChromeClient(this@KodaBotsWebViewFragment)
     private var isReady = false
     private var timeoutDeferred:Deferred<Unit>?=null
-    val webviewCallbacks = object : WebviewCallbacks {
+    private val webviewCallbacks = object : WebviewCallbacks {
         override fun onLoadingFinished() {
             initialize()
         }
@@ -46,20 +44,15 @@ class KodaBotsWebViewFragment : Fragment() {
             }
         }
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? =
-        inflater.inflate(R.layout.fragment_koda_bots_webview, container, false)
-
+    var customConfig:KodaBotsConfig? = KodaBotsConfig()
+    var callbacks: (KodaBotsCallbacks) -> Unit = {}
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding = FragmentKodaBotsWebviewBinding.bind(view)
         setupProgress()
         setupWentWrong()
-        fragment_koda_bots_webview.apply {
+        binding?.fragmentKodaBotsWebview?.apply {
             settings.apply {
                 this.javaScriptEnabled = true
                 this.userAgentString = "KodaBotsSDK " + this.userAgentString
@@ -80,7 +73,7 @@ class KodaBotsWebViewFragment : Fragment() {
             }
             CookieManager.getInstance().apply {
                 setAcceptCookie(true)
-                setAcceptThirdPartyCookies(fragment_koda_bots_webview, true)
+                setAcceptThirdPartyCookies(binding?.fragmentKodaBotsWebview, true)
             }
             addJavascriptInterface(this@KodaBotsWebViewFragment, "android")
             webChromeClient = chromeClient
@@ -91,85 +84,89 @@ class KodaBotsWebViewFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
+
     private fun loadUrl(){
-        fragment_koda_bots_webview.loadUrl("${BuildConfig.BASE_URL}/mobile/${BuildConfig.API_VERSION}/?token=${KodaBotsSDK.clientToken}")
-        timeoutDeferred = GlobalScope.async(Dispatchers.Main + KodaBotsSDK.globalExceptionHandler) {
+        binding?.fragmentKodaBotsWebview?.loadUrl("${BuildConfig.BASE_URL}/mobile/${BuildConfig.API_VERSION}/?token=${KodaBotsSDK.clientToken}")
+        timeoutDeferred = scope.async(Dispatchers.Main + KodaBotsSDK.globalExceptionHandler) {
             delay(TimeUnit.SECONDS.toMillis(customConfig?.timeoutConfig?.timeout ?: DEFAULT_WENT_WRONG_TIMEOUT))
-            fragment_koda_bots_webview_went_wrong_wrapper.visibility = View.VISIBLE
-            fragment_koda_bots_webview_progress.pauseAnimation()
-            fragment_koda_bots_webview_progress_wrapper.visibility = View.GONE
+            binding?.fragmentKodaBotsWebviewWentWrongWrapper?.visibility = View.VISIBLE
+            binding?.fragmentKodaBotsWebviewProgress?.pauseAnimation()
+            binding?.fragmentKodaBotsWebviewProgressWrapper?.visibility = View.GONE
         }
     }
 
     private fun setupProgress(){
         customConfig?.progressConfig?.backgroundColor?.let {
-            fragment_koda_bots_webview_root.setBackgroundColor(it)
-            fragment_koda_bots_webview_progress_wrapper.setBackgroundColor(it)
+            binding?.fragmentKodaBotsWebviewRoot?.setBackgroundColor(it)
+            binding?.fragmentKodaBotsWebviewProgressWrapper?.setBackgroundColor(it)
         }
-        fragment_koda_bots_webview_progress.setAnimation(
+        binding?.fragmentKodaBotsWebviewProgress?.setAnimation(
             customConfig?.progressConfig?.customAnimationPath ?: "default_loader.json"
         )
-        fragment_koda_bots_webview_progress.repeatCount = 0
-        fragment_koda_bots_webview_progress.setRenderMode(RenderMode.HARDWARE)
+        binding?.fragmentKodaBotsWebviewProgress?.repeatCount = 0
+        binding?.fragmentKodaBotsWebviewProgress?.setRenderMode(RenderMode.HARDWARE)
         customConfig?.progressConfig?.progressColor?.let { color ->
-            fragment_koda_bots_webview_progress.addValueCallback(
+            binding?.fragmentKodaBotsWebviewProgress?.addValueCallback(
                 KeyPath("**"),
-                LottieProperty.COLOR_FILTER,
-                {
-                    PorterDuffColorFilter(
-                        color,
-                        PorterDuff.Mode.SRC_ATOP
-                    )
-                }
-            )
+                LottieProperty.COLOR_FILTER
+            ) {
+                PorterDuffColorFilter(
+                    color,
+                    PorterDuff.Mode.SRC_ATOP
+                )
+            }
         }
-        fragment_koda_bots_webview_progress.playAnimation()
+        binding?.fragmentKodaBotsWebviewProgress?.playAnimation()
     }
 
     private fun setupWentWrong(){
         customConfig?.timeoutConfig?.let {
             it.image?.let {
-                fragment_koda_bots_webview_went_wrong_image.setImageDrawable(it)
+                binding?.fragmentKodaBotsWebviewWentWrongImage?.setImageDrawable(it)
             }
             it.backgroundColor?.let {
-                fragment_koda_bots_webview_went_wrong_wrapper.setBackgroundColor(it)
+                binding?.fragmentKodaBotsWebviewWentWrongWrapper?.setBackgroundColor(it)
             }
             it.buttonText?.let {
-                fragment_koda_bots_webview_went_wrong_button.text = it
+                binding?.fragmentKodaBotsWebviewWentWrongButton?.text = it
             }
             if(it.buttonBackgroundDrawable == null) {
                 it.buttonColor?.let {
-                    fragment_koda_bots_webview_went_wrong_button.setBackgroundColor(it)
+                    binding?.fragmentKodaBotsWebviewWentWrongButton?.setBackgroundColor(it)
                 }
             } else {
-                fragment_koda_bots_webview_went_wrong_button.background = it.buttonBackgroundDrawable!!
+                binding?.fragmentKodaBotsWebviewWentWrongButton?.background = it.buttonBackgroundDrawable!!
             }
             it.buttonFontSize?.let {
-                fragment_koda_bots_webview_went_wrong_button.setTextSize(TypedValue.COMPLEX_UNIT_SP, it)
+                binding?.fragmentKodaBotsWebviewWentWrongButton?.setTextSize(TypedValue.COMPLEX_UNIT_SP, it)
             }
             it.buttonTextColor?.let {
-                fragment_koda_bots_webview_went_wrong_button.setTextColor(it)
+                binding?.fragmentKodaBotsWebviewWentWrongButton?.setTextColor(it)
             }
             it.buttonFont?.let {
-                fragment_koda_bots_webview_went_wrong_button.typeface = it
+                binding?.fragmentKodaBotsWebviewWentWrongButton?.typeface = it
             }
             it.message?.let {
-                fragment_koda_bots_webview_went_wrong_message.text = it
+                binding?.fragmentKodaBotsWebviewWentWrongMessage?.text = it
             }
             it.messageTextColor?.let {
-                fragment_koda_bots_webview_went_wrong_message.setTextColor(it)
+                binding?.fragmentKodaBotsWebviewWentWrongMessage?.setTextColor(it)
             }
             it.messageFont?.let {
-                fragment_koda_bots_webview_went_wrong_message.typeface = it
+                binding?.fragmentKodaBotsWebviewWentWrongMessage?.typeface = it
             }
             it.messageFontSize?.let {
-                fragment_koda_bots_webview_went_wrong_message.setTextSize(TypedValue.COMPLEX_UNIT_SP, it)
+                binding?.fragmentKodaBotsWebviewWentWrongMessage?.setTextSize(TypedValue.COMPLEX_UNIT_SP, it)
             }
         }
-        fragment_koda_bots_webview_went_wrong_button.setOnClickListener {
-            fragment_koda_bots_webview_went_wrong_wrapper.visibility = View.GONE
-            fragment_koda_bots_webview_progress.playAnimation()
-            fragment_koda_bots_webview_progress_wrapper.visibility = View.VISIBLE
+        binding?.fragmentKodaBotsWebviewWentWrongButton?.setOnClickListener {
+            binding?.fragmentKodaBotsWebviewWentWrongWrapper?.visibility = View.GONE
+            binding?.fragmentKodaBotsWebviewProgress?.playAnimation()
+            binding?.fragmentKodaBotsWebviewProgressWrapper?.visibility = View.VISIBLE
             loadUrl()
         }
     }
@@ -197,8 +194,9 @@ class KodaBotsWebViewFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+        scope.cancel()
         if (isReady) {
-            fragment_koda_bots_webview.callJavascript(
+            binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.onPause();"
             )
         }
@@ -206,15 +204,16 @@ class KodaBotsWebViewFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         if (isReady) {
-            fragment_koda_bots_webview.callJavascript(
+            binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.onResume();"
             )
         }
     }
 
     private fun initialize() {
-        fragment_koda_bots_webview.callJavascript(
+        binding?.fragmentKodaBotsWebview?.callJavascript(
             "KodaBots.initialize(${
                 if (customConfig?.userProfile != null) Json.encodeToString(
                     UserProfile.serializer(),
@@ -227,10 +226,10 @@ class KodaBotsWebViewFragment : Fragment() {
     @JavascriptInterface
     fun onReady(userId: String) {
         timeoutDeferred?.cancel()
-        GlobalScope.launch(Dispatchers.Main + KodaBotsSDK.globalExceptionHandler) {
+        scope.launch(Dispatchers.Main + KodaBotsSDK.globalExceptionHandler) {
             KodaBotsPreferences.userId = userId
-            fragment_koda_bots_webview_progress.pauseAnimation()
-            fragment_koda_bots_webview_progress_wrapper.visibility = View.GONE
+            binding?.fragmentKodaBotsWebviewProgress?.pauseAnimation()
+            binding?.fragmentKodaBotsWebviewProgressWrapper?.visibility = View.GONE
             isReady = true
         }
     }
@@ -260,7 +259,7 @@ class KodaBotsWebViewFragment : Fragment() {
      */
     fun sendBlock(blockId: String): Boolean {
         return if (isReady) {
-            fragment_koda_bots_webview.callJavascript(
+            binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.sentBlock(\"${blockId}\");"
             )
             true
@@ -277,7 +276,7 @@ class KodaBotsWebViewFragment : Fragment() {
      */
     fun syncProfile(userProfile: UserProfile): Boolean {
         return if (isReady) {
-            fragment_koda_bots_webview.callJavascript(
+            binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.syncUserProfile(${
                     Json.encodeToString(
                         UserProfile.serializer(),
@@ -298,7 +297,7 @@ class KodaBotsWebViewFragment : Fragment() {
      */
     fun simulateError():Boolean {
         return if (isReady) {
-            fragment_koda_bots_webview.callJavascript(
+            binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.simulateError();"
             )
             true

@@ -34,6 +34,9 @@ class SingleEditTextDialog(context: Context) {
         view?.findViewById<TextView>(R.id.dialog_edittext_title)?.text = title
     }
 
+    fun setInitialValue(text:String){
+        view?.findViewById<TextInputLayout>(R.id.dialog_edittext_input)?.editText?.setText(text)
+    }
 
     fun createDialog(callback: (String) -> Unit): AlertDialog {
         outerCallback = callback

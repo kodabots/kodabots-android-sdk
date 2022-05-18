@@ -5,16 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.kodabots.sdk.core.*
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import com.kodabots.sdk.sample.databinding.ActivityMainBinding
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+    val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     val PERMISSIONS_REQUEST_CODE = 123
     var kodaBotsFragment: KodaBotsWebViewFragment? = null
     val callbacks: (KodaBotsCallbacks) -> Unit = {
@@ -30,35 +28,49 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        activity_main_controls_expander.setOnClickListener {
-            activity_main_controls_wrapper.visibility =
-                if (activity_main_controls_wrapper.visibility == View.GONE) View.VISIBLE else View.GONE
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.activityMainControlsExpander.setOnClickListener {
+            binding.activityMainControlsWrapper.visibility =
+                if (binding.activityMainControlsWrapper.visibility == View.GONE) View.VISIBLE else View.GONE
         }
-        activity_main_controls_initialize_webview.setOnClickListener {
-            if (kodaBotsFragment == null) {
-                kodaBotsFragment = KodaBotsSDK.generateFragment(
-                    callbacks = callbacks,
-                    config = KodaBotsConfig().apply {
-                        progressConfig = KodaBotsProgressConfig()
-                        progressConfig?.progressColor = Color.RED
-                        progressConfig?.backgroundColor = Color.WHITE
-                    }
+        binding.activityMainControlsInitializeWebview.setOnClickListener {
+            SingleEditTextDialog(this).apply {
+                setText(
+                    resources.getString(R.string.dialog_set_token),
+                    null
                 )
-                supportFragmentManager.beginTransaction().apply {
-                    replace(R.id.activity_main_content_root, kodaBotsFragment!!)
-                    commit()
+                setInitialValue(KodaBotsSDK.clientToken?:"")
+            }.also {
+                it.createDialog {
+                    KodaBotsSDK.clientToken = it
+                }
+                it.mDialog?.setOnDismissListener {
+                    if (kodaBotsFragment == null) {
+                        kodaBotsFragment = KodaBotsSDK.generateFragment(
+                            callbacks = callbacks,
+                            config = KodaBotsConfig().apply {
+                                progressConfig = KodaBotsProgressConfig()
+                                progressConfig?.progressColor = Color.RED
+                                progressConfig?.backgroundColor = Color.WHITE
+                            }
+                        )
+                        supportFragmentManager.beginTransaction().apply {
+                            replace(R.id.activity_main_content_root, kodaBotsFragment!!)
+                            commit()
+                        }
+                    }
                 }
             }
-            activity_main_controls_expander.callOnClick()
+            binding.activityMainControlsExpander.callOnClick()
         }
-        activity_main_controls_get_unread_count.setOnClickListener {
-            GlobalScope.launch {
-                KodaBotsSDK.getUnreadCount()?.let {
+        binding.activityMainControlsGetUnreadCount.setOnClickListener {
+            scope.launch {
+                KodaBotsSDK.getUnreadCount().let {
                     when (it) {
                         is CallResponse.Success -> {
                             Snackbar.make(
-                                activity_main_root,
+                                binding.activityMainRoot,
                                 String.format(
                                     resources.getString(R.string.activity_main_unread_count),
                                     it.value
@@ -76,9 +88,9 @@ class MainActivity : AppCompatActivity() {
 
                 }
             }
-            activity_main_controls_expander.callOnClick()
+            binding.activityMainControlsExpander.callOnClick()
         }
-        activity_main_controls_sync_profile.setOnClickListener {
+        binding.activityMainControlsSyncProfile.setOnClickListener {
             ThreeEditTextDialog(this).apply {
                 setText(
                     resources.getString(R.string.activity_main_dialog_sync_profile),
@@ -95,16 +107,16 @@ class MainActivity : AppCompatActivity() {
                             this.custom_parameters["custom_key"] = customKey
                         }) == false || kodaBotsFragment == null) {
                         Snackbar.make(
-                            activity_main_root,
+                            binding.activityMainRoot,
                             resources.getString(R.string.activity_main_controls_initialize_webview),
                             Snackbar.LENGTH_LONG
                         ).show()
                     }
                 }
             }
-            activity_main_controls_expander.callOnClick()
+            binding.activityMainControlsExpander.callOnClick()
         }
-        activity_main_controls_send_block.setOnClickListener {
+        binding.activityMainControlsSendBlock.setOnClickListener {
             SingleEditTextDialog(this).apply {
                 setText(
                     resources.getString(R.string.activity_main_dialog_sync_profile),
@@ -114,27 +126,32 @@ class MainActivity : AppCompatActivity() {
                 it.createDialog {
                     if (kodaBotsFragment?.sendBlock(it) == false || kodaBotsFragment == null) {
                         Snackbar.make(
-                            activity_main_root,
+                            binding.activityMainRoot,
                             resources.getString(R.string.activity_main_controls_initialize_webview),
                             Snackbar.LENGTH_LONG
                         ).show()
                     }
                 }
             }
-            activity_main_controls_expander.callOnClick()
+            binding.activityMainControlsExpander.callOnClick()
         }
-        activity_main_controls_simulate_error.setOnClickListener {
+        binding.activityMainControlsSimulateError.setOnClickListener {
             if (kodaBotsFragment?.simulateError() == false || kodaBotsFragment == null) {
                 Snackbar.make(
-                    activity_main_root,
+                    binding.activityMainRoot,
                     resources.getString(R.string.activity_main_controls_initialize_webview),
                     Snackbar.LENGTH_LONG
                 ).show()
             }
-            activity_main_controls_expander.callOnClick()
+            binding.activityMainControlsExpander.callOnClick()
         }
-//        GlobalScope.async(Dispatchers.Main) {
+//        scope.async(Dispatchers.Main) {
 //            KodaBotsSDK.requestPermissions(this@MainActivity, PERMISSIONS_REQUEST_CODE)
 //        }
+    }
+
+    override fun onDestroy() {
+        scope.cancel()
+        super.onDestroy()
     }
 }

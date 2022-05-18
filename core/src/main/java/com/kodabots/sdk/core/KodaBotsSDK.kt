@@ -1,19 +1,13 @@
 package com.kodabots.sdk.core
 
-import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.webkit.WebView
-import androidx.appcompat.app.AppCompatActivity
-import com.eazypermissions.common.model.PermissionResult
-import com.eazypermissions.coroutinespermission.PermissionManager
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import pub.devrel.easypermissions.EasyPermissions
 import java.util.*
 
 
@@ -24,7 +18,11 @@ object KodaBotsSDK {
 
     var isInitialized = false
         private set
-    internal var clientToken: String? = null
+
+    /**
+     * Change this field only for debug
+     */
+    var clientToken: String? = null
     private var restApi: KodaBotsRestApi? = null
 
     /**
@@ -50,6 +48,8 @@ object KodaBotsSDK {
 
         return isInitialized
     }
+
+
 
     /**
      * Method used to uninitialize SDK.
@@ -208,7 +208,7 @@ object KodaBotsSDK {
     ): KodaBotsWebViewFragment? {
         return if (isInitialized) KodaBotsWebViewFragment().apply {
             config?.let {
-                this.customConfig = it
+                customConfig = it
             }
             callbacks?.let {
                 this.callbacks = it
