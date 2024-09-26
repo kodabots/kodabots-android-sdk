@@ -53,8 +53,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    applicationVariants.all { variant ->
-        variant.outputs.all {
+
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
             outputFileName = "KodaBotsSDKSample_${variant.name.capitalize()}_${getWorkingBranch().toUpperCase().replace("FEATURE/", "")}_${variant.versionName}_VC${variant.versionCode}_${getDateTime()}.apk"
         }
     }
