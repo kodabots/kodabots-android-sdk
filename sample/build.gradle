@@ -6,6 +6,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
     defaultConfig {
         applicationId "com.kodabots.sdk.sample"
         namespace "com.kodabots.sdk.sample"
@@ -16,6 +18,7 @@ android {
         versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["KODA_AI_CLIENT_TOKEN"] = properties.get("KODA_AI_CLIENT_TOKEN")
     }
 
     buildTypes {
