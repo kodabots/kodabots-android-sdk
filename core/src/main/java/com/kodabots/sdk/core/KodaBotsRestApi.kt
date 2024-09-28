@@ -2,37 +2,35 @@ package com.kodabots.sdk.core
 
 import android.util.Log
 import io.ktor.client.HttpClient
-import io.ktor.client.features.HttpTimeout
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
-import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.logging.Logger
-import io.ktor.client.features.logging.Logging
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.url
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 internal class KodaBotsRestApi {
-    private val CODE_UNAUTHORIZED = 401
-    private val CODE_FORBIDDEN = 403
-    private val jsonMapper = Json {
-        encodeDefaults = true
-        ignoreUnknownKeys = true
-        isLenient = true
-        allowStructuredMapKeys = true
-        prettyPrint = true
-        useArrayPolymorphism = false
-        classDiscriminator = "type"
-    }
     private val client = HttpClient {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer()
+        expectSuccess = true
+
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    encodeDefaults = true
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                    allowStructuredMapKeys = true
+                    prettyPrint = true
+                    useArrayPolymorphism = false
+                    classDiscriminator = "type"
+                }
+            )
         }
         install(HttpTimeout) {
             requestTimeoutMillis = 15000
@@ -47,46 +45,44 @@ internal class KodaBotsRestApi {
         }
     }
 
-    internal fun getUnreadCount() =
-        GlobalScope.async(Dispatchers.Default + KodaBotsSDK.globalExceptionHandler) {
-            try {
-                val result: HttpResponse = client.get {
-                    url("${BuildConfig.REST_BASE_URL}/sdk/${BuildConfig.REST_API_VERSION}/unread-counter")
-                    headers {
-                        this.append("kodabots-bot-token", KodaBotsSDK.clientToken ?: "")
-                        this.append("kodabots-bot-user-id", KodaBotsPreferences.userId ?: "")
-                    }
+    internal suspend fun getUnreadCount() =
+        try {
+            val unreadCountResponse: GetUnreadCountResponse = client.get {
+                url(endpoint(UNREAD_MESSAGES))
+                headers {
+                    append(Header.BOT_TOKEN, KodaBotsSDK.clientToken ?: "")
+                    append(Header.USER_ID, KodaBotsPreferences.userId ?: "")
                 }
-                when {
-                    checkIfUnauthorized(result) -> {
-                        CallResponse.Error(Exception("Unauthorized"))
-                    }
+            }.body()
 
-                    checkIfForbidden(result) -> {
-                        CallResponse.Error(Exception("Forbidden"))
-                    }
-
-                    else -> {
-                        try {
-                            val resp = jsonMapper.decodeFromString(
-                                GetUnreadCountResponse.serializer(),
-                                result.readText(null)
-                            )
-                            CallResponse.Success(resp.response?.unread_counter)
-                        } catch (e: Exception) {
-                            CallResponse.Error(Exception("Unable to parse response"))
-                        }
-                    }
-                }
-            } catch (t: Throwable) {
-                CallResponse.Error(Exception(t.message))
+            CallResponse.Success(unreadCountResponse.response?.unread_counter)
+        } catch (e: ClientRequestException) {
+            val exception = when (e.response.status.value) {
+                CODE_UNAUTHORIZED -> Exception("Unauthorized")
+                CODE_FORBIDDEN -> Exception("Forbidden")
+                else -> Exception(e.message)
             }
+
+            CallResponse.Error(exception)
+        } catch (t: Throwable) {
+
+            CallResponse.Error(Exception(t.message))
         }
 
+    companion object {
+        private const val CODE_UNAUTHORIZED = 401
+        private const val CODE_FORBIDDEN = 403
+        private const val BASE_URL =
+            "${BuildConfig.REST_BASE_URL}/sdk/${BuildConfig.REST_API_VERSION}"
 
-    private fun checkIfUnauthorized(response: HttpResponse): Boolean =
-        response.status.value == CODE_UNAUTHORIZED
+        /** Endpoints paths */
+        const val UNREAD_MESSAGES = "/unread-counter"
+    }
 
-    private fun checkIfForbidden(response: HttpResponse): Boolean =
-        response.status.value == CODE_FORBIDDEN
+    private object Header {
+        const val USER_ID = "kodabots-bot-user-id"
+        const val BOT_TOKEN = "kodabots-bot-token"
+    }
+
+    private fun endpoint(relativePath: String) = BASE_URL + relativePath
 }

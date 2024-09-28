@@ -98,15 +98,26 @@ dependencies {
         transitive = true
     }
 
-    api('io.ktor:ktor-client-android:1.5.3') {
+    def ktor_version = '2.3.12'
+
+    api("io.ktor:ktor-client-android:$ktor_version") {
         transitive = true
     }
-    api('io.ktor:ktor-client-serialization-jvm:1.5.3') {
+    api("io.ktor:ktor-client-serialization-jvm:$ktor_version") {
         transitive = true
     }
-    api('io.ktor:ktor-client-logging:1.5.3') {
+    api("io.ktor:ktor-client-logging:$ktor_version") {
         transitive = true
     }
+
+    api("io.ktor:ktor-client-content-negotiation:$ktor_version") {
+        transitive = true
+    }
+
+    api("io.ktor:ktor-serialization-kotlinx-json:$ktor_version"){
+        transitive = true
+    }
+
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'

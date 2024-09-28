@@ -6,15 +6,22 @@ import android.os.Build
 import android.util.Log
 import android.webkit.WebView
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Locale
 
 
 object KodaBotsSDK {
+
+    private const val KODA_CLIENT_TOKEN_KEY = "com.kodabots.sdk.ClientToken"
+
     internal val globalExceptionHandler = CoroutineExceptionHandler { _, exception ->
         Log.e("KodaBotsSDK", "Coroutine exception: ${exception.message}")
     }
+
+    private val kodaClientScope = CoroutineScope(SupervisorJob() + globalExceptionHandler)
 
     var isInitialized = false
         private set
@@ -37,7 +44,8 @@ object KodaBotsSDK {
             .getApplicationInfo(
                 context.packageName,
                 PackageManager.GET_META_DATA
-            ).metaData?.getString("com.kodabots.sdk.ClientToken")
+            ).metaData?.getString(KODA_CLIENT_TOKEN_KEY)
+
         if (clientToken != null) {
             isInitialized = true
             restApi = KodaBotsRestApi()
@@ -50,11 +58,11 @@ object KodaBotsSDK {
     }
 
 
-
     /**
      * Method used to uninitialize SDK.
      */
     fun uninitialize() {
+        kodaClientScope.cancel("Koda SDK uninitialized")
         isInitialized = false
     }
 
@@ -83,11 +91,12 @@ object KodaBotsSDK {
      */
     fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
         if (KodaBotsPreferences.userId != null && clientToken != null) {
-            GlobalScope.launch(globalExceptionHandler) {
-                when (val response = restApi?.getUnreadCount()?.await()) {
+            kodaClientScope.launch(globalExceptionHandler) {
+                when (val response = restApi?.getUnreadCount()) {
                     is CallResponse.Success -> {
                         callback.invoke(response)
                     }
+
                     else -> {
                         callback.invoke(
                             response
@@ -108,9 +117,9 @@ object KodaBotsSDK {
      * @return Sealed class with result
      */
     suspend fun getUnreadCount(): CallResponse<Int?> {
-        return if (KodaBotsPreferences.userId != null && clientToken != null) restApi?.getUnreadCount()
-            ?.await()
-            ?: CallResponse.Error(Exception("Rest API not initialized properly")) else {
+        return if (KodaBotsPreferences.userId != null && clientToken != null)
+            restApi?.getUnreadCount()
+                ?: CallResponse.Error(Exception("Rest API not initialized properly")) else {
             CallResponse.Error(Exception("UserID or ClientID are null"))
         }
     }
@@ -123,7 +132,7 @@ object KodaBotsSDK {
      * @return KodaBotsWebViewFragment
      */
     fun generateFragment(
-        config: KodaBotsConfig?=null,
+        config: KodaBotsConfig? = null,
         callbacks: ((KodaBotsCallbacks) -> Unit)? = null
     ): KodaBotsWebViewFragment? {
         return if (isInitialized) KodaBotsWebViewFragment().apply {
@@ -135,15 +144,10 @@ object KodaBotsSDK {
             }
         } else null
     }
-
 }
 
-sealed class CallResponse<T> {
-    class Success<T>(val value: T) : CallResponse<T>()
-    class Error<T>(val exception: Exception) : CallResponse<T>()
-    class Timeout<T> : CallResponse<T>()
-}
 
+// TODO: Remove if no more needed
 enum class PermissionRequestResult {
     GRANTED, DENIED, PERNAMENTLY_DENIED, RATIONAL
 }
