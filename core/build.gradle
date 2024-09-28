@@ -1,7 +1,8 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+apply plugin: "com.google.cloud.artifactregistry.gradle-plugin"
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'maven-publish'
 
 android {
     Properties properties = new Properties()
@@ -90,14 +91,6 @@ dependencies {
         transitive = true
     }
 
-    api('pub.devrel:easypermissions:3.0.0') {
-        transitive = true
-    }
-
-    api('com.vmadalin:easypermissions-ktx:1.0.0') {
-        transitive = true
-    }
-
     api('androidx.security:security-crypto:1.1.0-alpha06') {
         transitive = true
     }
@@ -120,19 +113,30 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
 }
-repositories
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+publishing {
+    repositories {
+        maven {
+            url properties.getProperty("publishUrl")
+        }
+    }
+}
+
+repositories {
+    maven {
+        url properties.getProperty("publishUrl")
+    }
+}
+
+
 afterEvaluate {
     publishing {
-
         repositories {
             maven {
-                Properties properties = new Properties()
-                properties.load(project.rootProject.file("local.properties").newDataInputStream())
                 url properties.getProperty("publishUrl")
-                credentials {
-                    username = properties.getProperty("publishUsername")
-                    password = properties.getProperty("publishPassword")
-                }
             }
         }
         publications {
@@ -140,7 +144,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.kodabots.sdk'
                 artifactId = 'kodabots-core'
-                version = '1.1.0'
+                version = '1.1.1'
             }
         }
     }

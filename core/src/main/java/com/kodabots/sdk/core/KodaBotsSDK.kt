@@ -76,86 +76,6 @@ object KodaBotsSDK {
         return userProfile
     }
 
-    /*
-    fun requestPermissions(
-        activity: AppCompatActivity,
-        requestCode: Int,
-        callback: (PermissionRequestResult) -> Unit
-    ) {
-        GlobalScope.async(globalExceptionHandler) {
-            if (!hasPermissions(activity)) {
-                val result = PermissionManager.requestPermissions(
-                    activity, requestCode,
-                    Manifest.permission.INTERNET,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-//                    Manifest.permission.RECORD_AUDIO,
-//                    Manifest.permission.MODIFY_AUDIO_SETTINGS
-                )
-
-                when (result) {
-                    is PermissionResult.PermissionGranted -> {
-                        callback.invoke(PermissionRequestResult.GRANTED)
-                    }
-                    is PermissionResult.PermissionDenied -> {
-                        callback.invoke(PermissionRequestResult.DENIED)
-                    }
-                    is PermissionResult.ShowRational -> {
-                        requestPermissions(activity, requestCode, callback)
-
-                    }
-                    is PermissionResult.PermissionDeniedPermanently -> {
-                        callback.invoke(PermissionRequestResult.PERNAMENTLY_DENIED)
-                    }
-                }
-            } else {
-                callback.invoke(PermissionRequestResult.GRANTED)
-            }
-        }
-    }*/
-
-    /*
-    suspend fun requestPermissions(
-        activity: AppCompatActivity,
-        requestCode: Int
-    ): PermissionRequestResult {
-        if (!hasPermissions(activity)) {
-            val result = PermissionManager.requestPermissions(
-                activity, requestCode,
-                Manifest.permission.INTERNET,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-//                Manifest.permission.RECORD_AUDIO,
-//                Manifest.permission.MODIFY_AUDIO_SETTINGS
-            )
-            return when (result) {
-                is PermissionResult.PermissionGranted -> {
-                    PermissionRequestResult.GRANTED
-                }
-                is PermissionResult.PermissionDenied -> {
-                    PermissionRequestResult.DENIED
-                }
-                is PermissionResult.ShowRational -> {
-                    requestPermissions(activity, requestCode)
-                }
-                is PermissionResult.PermissionDeniedPermanently -> {
-                    PermissionRequestResult.DENIED
-                }
-            }
-        } else {
-            return PermissionRequestResult.GRANTED
-        }
-    }
-*/
-    /*
-    fun hasPermissions(context: Context): Boolean = EasyPermissions.hasPermissions(
-        context,
-        Manifest.permission.INTERNET,
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-//        Manifest.permission.RECORD_AUDIO,
-//        Manifest.permission.MODIFY_AUDIO_SETTINGS
-    )
-
-     */
-
     /**
      * Method used to get unread messages count
      *
@@ -171,13 +91,13 @@ object KodaBotsSDK {
                     else -> {
                         callback.invoke(
                             response
-                                ?: CallResponse.Error<Int?>(Exception("Rest API not initialized properly"))
+                                ?: CallResponse.Error(Exception("Rest API not initialized properly"))
                         )
                     }
                 }
             }
         } else {
-            callback.invoke(CallResponse.Error<Int?>(Exception("UserID or ClientID are null")))
+            callback.invoke(CallResponse.Error(Exception("UserID or ClientID are null")))
         }
     }
 
@@ -190,8 +110,8 @@ object KodaBotsSDK {
     suspend fun getUnreadCount(): CallResponse<Int?> {
         return if (KodaBotsPreferences.userId != null && clientToken != null) restApi?.getUnreadCount()
             ?.await()
-            ?: CallResponse.Error<Int?>(Exception("Rest API not initialized properly")) else {
-            CallResponse.Error<Int?>(Exception("UserID or ClientID are null"))
+            ?: CallResponse.Error(Exception("Rest API not initialized properly")) else {
+            CallResponse.Error(Exception("UserID or ClientID are null"))
         }
     }
 

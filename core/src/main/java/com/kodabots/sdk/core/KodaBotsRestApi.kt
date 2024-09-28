@@ -1,13 +1,18 @@
 package com.kodabots.sdk.core
 
 import android.util.Log
-import io.ktor.client.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.HttpClient
+import io.ktor.client.features.HttpTimeout
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logger
+import io.ktor.client.features.logging.Logging
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.request.url
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -25,7 +30,7 @@ internal class KodaBotsRestApi {
         useArrayPolymorphism = false
         classDiscriminator = "type"
     }
-    private val client = HttpClient() {
+    private val client = HttpClient {
         install(JsonFeature) {
             serializer = KotlinxSerializer()
         }
@@ -37,7 +42,6 @@ internal class KodaBotsRestApi {
                 override fun log(message: String) {
                     Log.d("KodaBotsSDK", message)
                 }
-
             }
             level = LogLevel.ALL
         }
@@ -55,27 +59,28 @@ internal class KodaBotsRestApi {
                 }
                 when {
                     checkIfUnauthorized(result) -> {
-                        CallResponse.Error<Int?>(Exception("Unauthorized"))
+                        CallResponse.Error(Exception("Unauthorized"))
                     }
+
                     checkIfForbidden(result) -> {
-                        CallResponse.Error<Int?>(Exception("Forbidden"))
+                        CallResponse.Error(Exception("Forbidden"))
                     }
+
                     else -> {
                         try {
                             val resp = jsonMapper.decodeFromString(
                                 GetUnreadCountResponse.serializer(),
                                 result.readText(null)
                             )
-                            CallResponse.Success<Int?>(resp.response?.unread_counter)
+                            CallResponse.Success(resp.response?.unread_counter)
                         } catch (e: Exception) {
-                            CallResponse.Error<Int?>(Exception("Unable to parse response"))
+                            CallResponse.Error(Exception("Unable to parse response"))
                         }
                     }
                 }
             } catch (t: Throwable) {
-                CallResponse.Error<Int?>(Exception(t.message))
+                CallResponse.Error(Exception(t.message))
             }
-
         }
 
 

@@ -12,7 +12,7 @@ fun WebView.callJavascript(function: String) {
     try {
         Log.d("KodaBotsSDK", "Calling Javascript: ${function}")
     } catch (e:Exception){
-        //
+        // Do nothing, ignore
     }
     GlobalScope.launch(Dispatchers.Main) {
         webview.loadUrl("javascript:$function")
