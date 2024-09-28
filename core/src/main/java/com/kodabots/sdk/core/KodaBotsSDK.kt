@@ -21,8 +21,7 @@ object KodaBotsSDK {
         Log.e("KodaBotsSDK", "Coroutine exception: ${exception.message}")
     }
 
-    private val kodaClientScope = CoroutineScope(SupervisorJob() + globalExceptionHandler)
-
+    private var kodaClientScope: CoroutineScope? = null
     var isInitialized = false
         private set
 
@@ -40,6 +39,9 @@ object KodaBotsSDK {
      * @return Boolean value that indicates init state
      */
     fun init(context: Context): Boolean {
+        kodaClientScope?.cancel()
+        kodaClientScope = CoroutineScope(SupervisorJob() + globalExceptionHandler)
+
         clientToken = context.packageManager
             .getApplicationInfo(
                 context.packageName,
@@ -62,7 +64,7 @@ object KodaBotsSDK {
      * Method used to uninitialize SDK.
      */
     fun uninitialize() {
-        kodaClientScope.cancel("Koda SDK uninitialized")
+        kodaClientScope?.cancel("Koda SDK uninitialized")
         isInitialized = false
     }
 
@@ -91,7 +93,7 @@ object KodaBotsSDK {
      */
     fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
         if (KodaBotsPreferences.userId != null && clientToken != null) {
-            kodaClientScope.launch(globalExceptionHandler) {
+            kodaClientScope?.launch(globalExceptionHandler) {
                 when (val response = restApi?.getUnreadCount()) {
                     is CallResponse.Success -> {
                         callback.invoke(response)
