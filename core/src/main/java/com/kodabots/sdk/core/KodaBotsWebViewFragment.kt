@@ -3,6 +3,7 @@ package com.kodabots.sdk.core
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.net.Uri
@@ -73,21 +74,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
 
     private val startForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                chromeClient.filePathCallback?.onReceiveValue(
-                    WebChromeClient.FileChooserParams.parseResult(
-                        result.resultCode,
-                        result.data
-                    )
-                )
-            } else {
-                chromeClient.filePathCallback?.onReceiveValue(
-                    WebChromeClient.FileChooserParams.parseResult(
-                        result.resultCode,
-                        null
-                    )
-                )
-            }
+            handleFileChooserActivityResult(result)
         }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -356,15 +343,48 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         }
     }
 
-    companion object {
-        private const val DEFAULT_WENT_WRONG_TIMEOUT = 20L
-        private const val DEFAULT_LOADER_ASSET = "default_loader.json"
-    }
-
     override fun launchFileChooser(
         intent: Intent
     ) {
         startForResult.launch(intent)
+    }
+
+    private fun handleFileChooserActivityResult(result: ActivityResult) {
+        if (result.resultCode == Activity.RESULT_OK) {
+            if (result.data?.extras != null) {
+                val uri = getBitmapFromIntentExtras(result.data?.extras)
+                chromeClient.filePathCallback?.onReceiveValue(
+                    uri?.let { arrayOf(it) }
+                )
+            } else {
+                chromeClient.filePathCallback?.onReceiveValue(
+                    WebChromeClient.FileChooserParams.parseResult(
+                        result.resultCode,
+                        result.data
+                    )
+                )
+            }
+        } else {
+            chromeClient.filePathCallback?.onReceiveValue(
+                WebChromeClient.FileChooserParams.parseResult(
+                    result.resultCode,
+                    null
+                )
+            )
+        }
+    }
+
+    private fun getBitmapFromIntentExtras(extras: Bundle?) = sdk33OrHigher {
+        extras?.getParcelable("data", Bitmap::class.java)?.let {
+            PhotoUtils(requireContext()).handleBitmap(it)
+        }
+    } ?: extras?.getParcelable<Bitmap>("data")?.let {
+        PhotoUtils(requireContext()).handleBitmap(it)
+    }
+
+    companion object {
+        private const val DEFAULT_WENT_WRONG_TIMEOUT = 20L
+        private const val DEFAULT_LOADER_ASSET = "default_loader.json"
     }
 }
 
