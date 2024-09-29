@@ -77,51 +77,54 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    api 'androidx.core:core-ktx:1.13.1'
-    api 'androidx.appcompat:appcompat:1.7.0'
-    api 'com.google.android.material:material:1.12.0'
-    api 'androidx.cardview:cardview:1.0.0'
-    api 'androidx.constraintlayout:constraintlayout:2.1.4'
+    api libs.kotlin.stdlib
+    api libs.androidx.core
+    api libs.androidx.appcompat
+    api libs.google.material
+    api libs.androidx.cardview
+    api libs.androidx.constraintlayout
 
-    api('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3-native-mt') {
+    api(libs.kotlinx.coroutines.core) {
         transitive = true
     }
-    api('org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1') {
-        transitive = true
-    }
-
-    api('androidx.security:security-crypto:1.1.0-alpha06') {
-        transitive = true
-    }
-    api('com.airbnb.android:lottie:6.4.0') {
+    api(libs.kotlinx.coroutines.android) {
         transitive = true
     }
 
-    def ktor_version = '2.3.12'
-
-    api("io.ktor:ktor-client-android:$ktor_version") {
+    api(libs.androidx.security.crypto) {
         transitive = true
     }
-    api("io.ktor:ktor-client-serialization-jvm:$ktor_version") {
-        transitive = true
-    }
-    api("io.ktor:ktor-client-logging:$ktor_version") {
+    api(libs.lottie) {
         transitive = true
     }
 
-    api("io.ktor:ktor-client-content-negotiation:$ktor_version") {
+    api(libs.ktor.client.core) {
         transitive = true
     }
 
-    api("io.ktor:ktor-serialization-kotlinx-json:$ktor_version"){
+    api(libs.ktor.client.android) {
         transitive = true
     }
 
+    api(libs.ktor.client.serialization.jvm) {
+        transitive = true
+    }
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    api(libs.ktor.client.logging) {
+        transitive = true
+    }
+
+    api(libs.ktor.client.content.negotiation) {
+        transitive = true
+    }
+
+    api(libs.ktor.client.serialization.json) {
+        transitive = true
+    }
+
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.espresso.core
 
 }
 
