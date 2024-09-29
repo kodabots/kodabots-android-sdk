@@ -15,6 +15,8 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.RenderMode
@@ -31,10 +33,14 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.util.concurrent.TimeUnit
 
-class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview) {
+class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), FileChooserLauncher {
     private var binding: FragmentKodaBotsWebviewBinding? = null
     private var scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    private val chromeClient = KodaBotsChromeClient(this@KodaBotsWebViewFragment)
+    private val chromeClient =
+        KodaBotsChromeClient(
+            this@KodaBotsWebViewFragment,
+            this@KodaBotsWebViewFragment
+        )
     private var isReady = false
     private var timeoutDeferred: Deferred<Unit>? = null
 
@@ -64,6 +70,25 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview) {
             }
         }
     }
+
+    private val startForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                chromeClient.filePathCallback?.onReceiveValue(
+                    WebChromeClient.FileChooserParams.parseResult(
+                        result.resultCode,
+                        result.data
+                    )
+                )
+            } else {
+                chromeClient.filePathCallback?.onReceiveValue(
+                    WebChromeClient.FileChooserParams.parseResult(
+                        result.resultCode,
+                        null
+                    )
+                )
+            }
+        }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -216,28 +241,6 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview) {
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == KodaBotsChromeClient.REQUEST_SELECT_FILE) {
-            if (resultCode == Activity.RESULT_OK) {
-                chromeClient.filePathCallback?.onReceiveValue(
-                    WebChromeClient.FileChooserParams.parseResult(
-                        resultCode,
-                        data
-                    )
-                )
-            } else {
-                chromeClient.filePathCallback?.onReceiveValue(
-                    WebChromeClient.FileChooserParams.parseResult(
-                        resultCode,
-                        null
-                    )
-                )
-            }
-        }
-    }
-
     override fun onPause() {
         super.onPause()
         scope.cancel()
@@ -357,6 +360,18 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview) {
         private const val DEFAULT_WENT_WRONG_TIMEOUT = 20L
         private const val DEFAULT_LOADER_ASSET = "default_loader.json"
     }
+
+    override fun launchFileChooser(
+        intent: Intent
+    ) {
+        startForResult.launch(intent)
+    }
+}
+
+interface FileChooserLauncher {
+    fun launchFileChooser(
+        intent: Intent
+    )
 }
 
 sealed class KodaBotsCallbacks {

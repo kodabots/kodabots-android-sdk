@@ -9,23 +9,31 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.FrameLayout
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.fragment.app.Fragment
 
 
-class KodaBotsChromeClient(private val fragment: Fragment) : WebChromeClient() {
+class KodaBotsChromeClient(
+    private val fragment: Fragment,
+    private val fileChooserLauncher: FileChooserLauncher
+) : WebChromeClient() {
     private var customView: View? = null
     private var originalOrientation: Int = 0
-    private var originalSystemUiVisibility: Int = 0
+    private var originalSystemUiBehavior: Int = 0
     private var customViewCallback: CustomViewCallback? = null
 
     var filePathCallback: ValueCallback<Array<Uri?>?>? = null
 
     @SuppressLint("WrongConstant")
     override fun onHideCustomView() {
-        (fragment.requireActivity().window.decorView as FrameLayout).removeView(this.customView)
+        val window = fragment.requireActivity().window
+        (window.decorView as FrameLayout).removeView(this.customView)
         this.customView = null
-        fragment.requireActivity().window.decorView.systemUiVisibility =
-            this.originalSystemUiVisibility
+
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+        insetsController.systemBarsBehavior = this.originalSystemUiBehavior
+
         fragment.requireActivity().requestedOrientation = this.originalOrientation
         this.customViewCallback?.onCustomViewHidden()
         this.customViewCallback = null
@@ -40,15 +48,18 @@ class KodaBotsChromeClient(private val fragment: Fragment) : WebChromeClient() {
             return
         }
         this.customView = paramView
-        this.originalSystemUiVisibility =
-            fragment.requireActivity().window.decorView.systemUiVisibility
         this.originalOrientation = fragment.requireActivity().requestedOrientation
         this.customViewCallback = paramCustomViewCallback
-        (fragment.requireActivity().window.decorView as FrameLayout).addView(
+
+        val window = fragment.requireActivity().window
+
+        (window.decorView as FrameLayout).addView(
             this.customView,
             FrameLayout.LayoutParams(-1, -1)
         )
-        fragment.requireActivity().window.decorView.systemUiVisibility = 3846
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+        this.originalSystemUiBehavior = insetsController.systemBarsBehavior
+        insetsController.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
     override fun onPermissionRequest(request: PermissionRequest) {
@@ -62,18 +73,12 @@ class KodaBotsChromeClient(private val fragment: Fragment) : WebChromeClient() {
     ): Boolean {
         this.filePathCallback = filePathCallback
         try {
-            fragment.startActivityForResult(
-                fileChooserParams.createIntent(),
-                REQUEST_SELECT_FILE,
-                null
+            fileChooserLauncher.launchFileChooser(
+                fileChooserParams.createIntent()
             )
         } catch (e: ActivityNotFoundException) {
             return false
         }
         return true
-    }
-
-    companion object {
-        val REQUEST_SELECT_FILE = 882
     }
 }
