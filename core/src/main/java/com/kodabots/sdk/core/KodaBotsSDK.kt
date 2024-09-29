@@ -147,9 +147,3 @@ object KodaBotsSDK {
         } else null
     }
 }
-
-
-// TODO: Remove if no more needed
-enum class PermissionRequestResult {
-    GRANTED, DENIED, PERNAMENTLY_DENIED, RATIONAL
-}

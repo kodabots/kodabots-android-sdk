@@ -11,6 +11,6 @@
     <string name="activity_main_dialog_sync_profile_first_name">First Name</string>
     <string name="activity_main_dialog_sync_profile_last_name">Last Name</string>
     <string name="activity_main_dialog_sync_profile_custom_key">Custom key</string>
-    <string name="activity_main_unread_count">Unread messages: %1$s</string>
+    <string name="activity_main_unread_count">Unread messages: %1$d</string>
     <string name="dialog_set_token">Set client token</string>
 </resources>

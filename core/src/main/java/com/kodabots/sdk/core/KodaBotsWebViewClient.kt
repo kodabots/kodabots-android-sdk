@@ -5,7 +5,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 
 class KodaBotsWebViewClient(
-    val callback: WebviewCallbacks
+    private val callback: WebviewCallbacks
 ): WebViewClient(){
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
