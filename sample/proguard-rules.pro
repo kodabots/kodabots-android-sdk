@@ -31,3 +31,7 @@
 -keepclasseswithmembers class com.kodabots.sdk.core.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
+
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.concurrent.GuardedBy
+-dontwarn org.slf4j.impl.StaticLoggerBinder

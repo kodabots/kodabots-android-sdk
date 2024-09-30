@@ -11,7 +11,8 @@
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,7 +22,7 @@
 
         <meta-data
             android:name="com.kodabots.sdk.ClientToken"
-            android:value="INSERT_YOUR_TOKEN_HERE" />
+            android:value="${KODA_AI_CLIENT_TOKEN}" />
     </application>
 
 </manifest>
