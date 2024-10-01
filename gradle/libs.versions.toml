@@ -1,0 +1,40 @@
+[versions]
+artifactregistry-gradle-plugin-version = "2.2.1"
+kotlin = "2.0.0"
+core-ktx = "1.13.1"
+appcompat = "1.7.0"
+ktor = "2.3.12"
+lottie = "6.4.0"
+material = "1.12.0"
+cardview = "1.0.0"
+constraintlayout = "2.1.4"
+coroutines-core = "1.4.3-native-mt"
+coroutines-android = "1.8.1"
+easypermissions = "3.0.0"
+junit = "4.13.2"
+androidx-junit = "1.2.1"
+espresso-core = "3.6.1"
+gradle-build-tools = "8.5.2"
+artifactregistry-gradle-plugin = "2.2.1"
+security-crypto = "1.1.0-alpha06"
+
+[libraries]
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines-core" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines-android" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-junit" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+ktor-client-serialization-jvm = { module = "io.ktor:ktor-client-serialization-jvm", version.ref = "ktor" }
+ktor-client-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
