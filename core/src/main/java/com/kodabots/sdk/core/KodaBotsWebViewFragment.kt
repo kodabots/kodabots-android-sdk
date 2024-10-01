@@ -100,9 +100,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
             settings.apply {
                 this.javaScriptEnabled = true
                 this.userAgentString = "KodaBotsSDK " + this.userAgentString
-                this.allowFileAccessFromFileURLs = true
                 this.allowContentAccess = true
-                this.allowUniversalAccessFromFileURLs = true
                 this.allowFileAccess = true
                 this.loadWithOverviewMode = true
                 this.useWideViewPort = true
