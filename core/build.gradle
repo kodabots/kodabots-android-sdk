@@ -11,9 +11,9 @@ android {
     namespace "com.kodabots.sdk.core"
 
     defaultConfig {
-        minSdkVersion 21
-        compileSdk 34
-        targetSdkVersion 34
+        minSdkVersion 23
+        compileSdk 35
+        targetSdkVersion 35
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -133,7 +133,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.kodabots.sdk'
                 artifactId = 'kodabots-core'
-                version = '1.1.1'
+                version = '1.1.2'
             }
         }
     }

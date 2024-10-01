@@ -12,8 +12,8 @@ android {
         applicationId "com.kodabots.sdk.sample"
         namespace "com.kodabots.sdk.sample"
         minSdk 23
-        compileSdk 34
-        targetSdk 34
+        compileSdk 35
+        targetSdk 35
         versionCode 1
         versionName "1.0.0"
 
@@ -23,7 +23,7 @@ android {
 
     buildTypes {
         release {
-            resValue "string", "app_name", "KodaBotsSample"
+            resValue "string", "app_name", "KODA.AI"
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
@@ -31,7 +31,7 @@ android {
             matchingFallbacks = 'release'
         }
         debug {
-            resValue "string", "app_name", "KodaBotsSample Debug"
+            resValue "string", "app_name", "KODA.AI Debug"
             applicationIdSuffix '.debug'
             minifyEnabled false
             debuggable true
@@ -40,7 +40,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         stage {
-            resValue "string", "app_name", "KodaBotsSample Stage"
+            resValue "string", "app_name", "KODA.AI Staging"
             applicationIdSuffix '.stage'
             minifyEnabled false
             debuggable true
