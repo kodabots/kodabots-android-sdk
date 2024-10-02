@@ -1,8 +1,8 @@
-package com.kodabots.sdk.sample
+package ai.koda.mobile.sdk.sample
 
 import android.app.Application
 import android.util.Log
-import com.kodabots.sdk.core.KodaBotsSDK
+import ai.koda.mobile.sdk.core.KodaBotsSDK
 
 class SampleApplication : Application() {
     override fun onCreate() {

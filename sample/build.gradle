@@ -9,9 +9,9 @@ android {
     Properties properties = new Properties()
     properties.load(project.rootProject.file("local.properties").newDataInputStream())
     defaultConfig {
-        applicationId "com.kodabots.sdk.sample"
-        namespace "com.kodabots.sdk.sample"
-        minSdk 23
+        applicationId "ai.koda.mobile.sdk.sample"
+        namespace "ai.koda.mobile.sdk.sample"
+        minSdk 21
         compileSdk 35
         targetSdk 35
         versionCode 1
@@ -36,7 +36,7 @@ android {
             minifyEnabled false
             debuggable true
             signingConfig signingConfigs.debug
-            matchingFallbacks = 'debug'
+            matchingFallbacks = ['debug', 'stage']
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         stage {
@@ -45,7 +45,7 @@ android {
             minifyEnabled false
             debuggable true
             signingConfig signingConfigs.debug
-            matchingFallbacks = 'stage'
+            matchingFallbacks = ['debug', 'stage']
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
         }
@@ -71,7 +71,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(":core")
+    releaseImplementation libs.koda.core
+    debugImplementation libs.koda.core.staging
     implementation libs.kotlin.stdlib
     implementation libs.androidx.core
     implementation libs.androidx.appcompat

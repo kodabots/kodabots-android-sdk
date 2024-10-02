@@ -1,14 +1,24 @@
-package com.kodabots.sdk.sample
+package ai.koda.mobile.sdk.sample
 
+import ai.koda.mobile.sdk.core.CallResponse
+import ai.koda.mobile.sdk.core.KodaBotsCallbacks
+import ai.koda.mobile.sdk.core.KodaBotsConfig
+import ai.koda.mobile.sdk.core.KodaBotsProgressConfig
+import ai.koda.mobile.sdk.core.KodaBotsSDK
+import ai.koda.mobile.sdk.core.KodaBotsWebViewFragment
+import ai.koda.mobile.sdk.core.UserProfile
+import ai.koda.mobile.sdk.sample.databinding.ActivityMainBinding
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import com.kodabots.sdk.core.*
-import com.kodabots.sdk.sample.databinding.ActivityMainBinding
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -20,6 +30,7 @@ class MainActivity : AppCompatActivity() {
             is KodaBotsCallbacks.Event -> {
                 Log.d("KodaBotsSample", "CallbackEvent ${it.type} - ${it.params}")
             }
+
             is KodaBotsCallbacks.Error -> {
                 Log.d("KodaBotsSample", "CallbackError ${it.error}")
             }
@@ -40,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                     resources.getString(R.string.dialog_set_token),
                     null
                 )
-                setInitialValue(KodaBotsSDK.clientToken?:"")
+                setInitialValue(KodaBotsSDK.clientToken ?: "")
             }.also {
                 it.createDialog {
                     KodaBotsSDK.clientToken = it
@@ -78,9 +89,11 @@ class MainActivity : AppCompatActivity() {
                                 Snackbar.LENGTH_LONG
                             ).show()
                         }
+
                         is CallResponse.Error -> {
                             Log.d("KodaBotsSample", "Error: ${it.exception.message}")
                         }
+
                         is CallResponse.Timeout -> {
                             Log.d("KodaBotsSample", "Timeout")
                         }
@@ -145,9 +158,6 @@ class MainActivity : AppCompatActivity() {
             }
             binding.activityMainControlsExpander.callOnClick()
         }
-//        scope.async(Dispatchers.Main) {
-//            KodaBotsSDK.requestPermissions(this@MainActivity, PERMISSIONS_REQUEST_CODE)
-//        }
     }
 
     override fun onDestroy() {

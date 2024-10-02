@@ -8,6 +8,9 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+        maven{
+            url "https://europe-maven.pkg.dev/kodaai-mobile-sdk/kotlin-sdk"
+        }
 
     }
     dependencies {
@@ -25,10 +28,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal()
-        maven {
+        maven{
             url properties.getProperty("publishUrl")
         }
+        gradlePluginPortal()
     }
 }
 

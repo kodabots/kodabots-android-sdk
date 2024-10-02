@@ -1,4 +1,4 @@
-package com.kodabots.sdk.core
+package ai.koda.mobile.sdk.core
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -15,7 +15,7 @@ import java.util.Locale
 
 object KodaBotsSDK {
 
-    private const val KODA_CLIENT_TOKEN_KEY = "com.kodabots.sdk.ClientToken"
+    private const val KODA_CLIENT_TOKEN_KEY = "ai.koda.mobile.sdk.ClientToken"
 
     internal val globalExceptionHandler = CoroutineExceptionHandler { _, exception ->
         Log.e("KodaBotsSDK", "Coroutine exception: ${exception.message}")

@@ -1,5 +1,6 @@
-package com.kodabots.sdk.core
+package ai.koda.mobile.sdk.core
 
+import ai.koda.mobile.sdk.core.databinding.FragmentKodaBotsWebviewBinding
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
@@ -21,7 +22,6 @@ import androidx.fragment.app.Fragment
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.RenderMode
 import com.airbnb.lottie.model.KeyPath
-import com.kodabots.sdk.core.databinding.FragmentKodaBotsWebviewBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers

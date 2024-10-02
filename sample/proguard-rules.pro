@@ -5,9 +5,9 @@
 -allowaccessmodification
 -dontnote
 
--keep class com.kodabots.sdk.core.* { *; }
--keep class com.kodabots.sdk.core.** { *; }
--keep class com.kodabots.sdk.core.*$* { *; }
+-keep class ai.koda.mobile.sdk.core.* { *; }
+-keep class ai.koda.mobile.sdk.core.** { *; }
+-keep class ai.koda.mobile.sdk.core.*$* { *; }
 -keep class kotlin.reflect.** { *; }
 -keep class org.jetbrains.** { *; }
 
@@ -23,12 +23,12 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
--keep,includedescriptorclasses class com.kodabots.sdk.core.**$$serializer { *; }
--keepclassmembers class com.kodabots.sdk.core.** {
+-keep,includedescriptorclasses class ai.koda.mobile.sdk.core.**$$serializer { *; }
+-keepclassmembers class ai.koda.mobile.sdk.core.** {
     *** Companion;
     *** Default;
 }
--keepclasseswithmembers class com.kodabots.sdk.core.** {
+-keepclasseswithmembers class ai.koda.mobile.sdk.core.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 

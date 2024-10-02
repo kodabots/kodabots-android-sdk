@@ -1,4 +1,4 @@
-package com.kodabots.sdk.core
+package ai.koda.mobile.sdk.core
 
 sealed class CallResponse<T> {
     class Success<T>(val value: T) : CallResponse<T>()

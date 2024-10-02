@@ -1,4 +1,4 @@
-package com.kodabots.sdk.core
+package ai.koda.mobile.sdk.core
 
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
