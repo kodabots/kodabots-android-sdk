@@ -13,6 +13,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,10 +25,9 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    val PERMISSIONS_REQUEST_CODE = 123
-    var kodaBotsFragment: KodaBotsWebViewFragment? = null
-    val callbacks: (KodaBotsCallbacks) -> Unit = {
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var kodaBotsFragment: KodaBotsWebViewFragment? = null
+    private val callbacks: (KodaBotsCallbacks) -> Unit = {
         when (it) {
             is KodaBotsCallbacks.Event -> {
                 Log.d("KodaBotsSample", "CallbackEvent ${it.type} - ${it.params}")
@@ -41,10 +43,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        consumePadding()
         binding.activityMainControlsExpander.setOnClickListener {
             binding.activityMainControlsWrapper.visibility =
                 if (binding.activityMainControlsWrapper.visibility == View.GONE) View.VISIBLE else View.GONE
         }
+
         binding.activityMainControlsInitializeWebview.setOnClickListener {
             SingleEditTextDialog(this).apply {
                 setText(
@@ -157,6 +161,22 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             }
             binding.activityMainControlsExpander.callOnClick()
+        }
+    }
+
+    private fun consumePadding() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+                        or WindowInsetsCompat.Type.displayCutout()
+            )
+            v.updatePadding(
+                left = bars.left,
+                top = bars.top,
+                right = bars.right,
+                bottom = bars.bottom,
+            )
+            WindowInsetsCompat.CONSUMED
         }
     }
 
