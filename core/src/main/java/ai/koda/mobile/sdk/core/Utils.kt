@@ -1,4 +1,4 @@
-package com.kodabots.sdk.core
+package ai.koda.mobile.sdk.core
 
 import android.os.Build
 

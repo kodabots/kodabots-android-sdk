@@ -11,7 +11,6 @@ buildscript {
         maven{
             url "https://europe-maven.pkg.dev/kodaai-mobile-sdk/kotlin-sdk"
         }
-
     }
     dependencies {
         classpath("gradle.plugin.com.google.cloud.artifactregistry:artifactregistry-gradle-plugin:2.2.1")

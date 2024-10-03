@@ -36,7 +36,7 @@ android {
             minifyEnabled false
             debuggable true
             signingConfig signingConfigs.debug
-            matchingFallbacks = ['debug', 'stage']
+            matchingFallbacks = ['debug']
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         stage {
@@ -45,7 +45,7 @@ android {
             minifyEnabled false
             debuggable true
             signingConfig signingConfigs.debug
-            matchingFallbacks = ['debug', 'stage']
+            matchingFallbacks = ['debug']
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
         }
@@ -71,8 +71,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    releaseImplementation libs.koda.core
-    debugImplementation libs.koda.core.staging
+    implementation libs.koda.core
     implementation libs.kotlin.stdlib
     implementation libs.androidx.core
     implementation libs.androidx.appcompat

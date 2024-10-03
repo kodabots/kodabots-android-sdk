@@ -47,25 +47,30 @@ android {
             buildConfigField "String", "API_VERSION", "\"v1\""
             buildConfigField "String", "REST_API_VERSION", "\"v1\""
         }
+
+        def stagingBaseUrl = properties.getProperty("STAGING_BASE_URL")
+        def stagingApiVersion = properties.getProperty("STAGING_API_VERSION")
+        def stagingRestBaseUrl = properties.getProperty("STAGING_REST_BASE_URL")
+        def stagingRestApiVersion = properties.getProperty("STAGING_REST_API_VERSION")
         debug {
             minifyEnabled false
             debuggable true
             signingConfig signingConfigs.debug
             proguardFiles 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"https://widget.app2.kodabots.com\""
-            buildConfigField "String", "REST_BASE_URL", "\"https://chatbot-bnwtfr6jae-stage.kodabots.com\""
-            buildConfigField "String", "API_VERSION", "\"v1\""
-            buildConfigField "String", "REST_API_VERSION", "\"v1\""
+            buildConfigField "String", "BASE_URL", "\"$stagingBaseUrl\""
+            buildConfigField "String", "REST_BASE_URL", "\"$stagingRestBaseUrl\""
+            buildConfigField "String", "API_VERSION", "\"$stagingApiVersion\""
+            buildConfigField "String", "REST_API_VERSION", "\"$stagingRestApiVersion\""
         }
         stage {
             minifyEnabled true
             debuggable false
             matchingFallbacks = 'debug'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"https://widget.app2.kodabots.com\""
-            buildConfigField "String", "REST_BASE_URL", "\"https://chatbot-bnwtfr6jae-stage.kodabots.com\""
-            buildConfigField "String", "API_VERSION", "\"v1\""
-            buildConfigField "String", "REST_API_VERSION", "\"v1\""
+            buildConfigField "String", "BASE_URL", "\"$stagingBaseUrl\""
+            buildConfigField "String", "REST_BASE_URL", "\"$stagingRestBaseUrl\""
+            buildConfigField "String", "API_VERSION", "\"$stagingApiVersion\""
+            buildConfigField "String", "REST_API_VERSION", "\"$stagingRestApiVersion\""
         }
     }
 
@@ -129,9 +134,9 @@ afterEvaluate {
         }
         publications {
             release(MavenPublication) {
-                from components.stage
+                from components.release
                 groupId = 'ai.koda.mobile.sdk'
-                artifactId = 'koda-core-staging'
+                artifactId = 'koda-core'
                 version = '1.2.0'
             }
         }
