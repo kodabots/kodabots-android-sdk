@@ -35,11 +35,8 @@ dependencyResolutionManagement {
 
 ## 2. Usage guide
 - In your Application class onCreate method plese invoke ```KodaBotsSDK.init(this)``` to initialize SDK
-- Before you use our webview, call ```KodaBotsSDK.requestPermissions``` method to acquire required permissions from user
-- We provide convenience method ```KodaBotsSDK.hasPermissions``` which will tell if permissions are granted
 - To obtain fragment to display KODA Bots, you need to call ```KodaBotsSDK.generateFragment()```, you can also pass user profile, blockId, background color, progress color, custom lottie animation asset path, other configs and callback to your application with stat's events and error events
 - ```KodaBotsSDK``` class also have deinitialize method which you need to call when you close application
-- ```KodaBotsSDK``` provides calls to our REST API as function with callback or suspend function if you use Kotlin Coroutines
 
 ## 3. Methods overview
 - getUnreadCount is available without initialization of webview, inside ```KodaBotsSDK```, returns unread count of messages
