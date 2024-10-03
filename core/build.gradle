@@ -8,12 +8,12 @@ android {
     Properties properties = new Properties()
     properties.load(project.rootProject.file("local.properties").newDataInputStream())
 
-    namespace "com.kodabots.sdk.core"
+    namespace "ai.koda.mobile.sdk.core"
 
     defaultConfig {
         minSdkVersion 21
-        compileSdk 34
-        targetSdkVersion 34
+        compileSdk 35
+        targetSdkVersion 35
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -58,9 +58,8 @@ android {
             buildConfigField "String", "REST_API_VERSION", "\"v1\""
         }
         stage {
-            minifyEnabled false
-            debuggable true
-            signingConfig signingConfigs.debug
+            minifyEnabled true
+            debuggable false
             matchingFallbacks = 'debug'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", "\"https://widget.app2.kodabots.com\""
@@ -130,10 +129,10 @@ afterEvaluate {
         }
         publications {
             release(MavenPublication) {
-                from components.release
-                groupId = 'com.kodabots.sdk'
-                artifactId = 'kodabots-core'
-                version = '1.1.1'
+                from components.stage
+                groupId = 'ai.koda.mobile.sdk'
+                artifactId = 'koda-core-staging'
+                version = '1.2.0'
             }
         }
     }

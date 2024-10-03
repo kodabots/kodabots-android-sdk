@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kodabots.sdk.sample">
+    package="ai.koda.mobile.sdk.sample">
 
     <application
         android:name=".SampleApplication"
