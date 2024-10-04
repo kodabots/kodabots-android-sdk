@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
         binding.activityMainControlsSendBlock.setOnClickListener {
             SingleEditTextDialog(this).apply {
                 setText(
-                    resources.getString(R.string.activity_main_dialog_sync_profile),
+                    resources.getString(R.string.activity_main_dialog_set_block_id),
                     null
                 )
             }.also {
