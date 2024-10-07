@@ -24,6 +24,7 @@ android {
     buildTypes {
         release {
             resValue "string", "app_name", "KODA.AI"
+            applicationIdSuffix '.release'
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
