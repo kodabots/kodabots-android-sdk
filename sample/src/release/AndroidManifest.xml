@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kodabots.sdk.sample">
+    package="ai.koda.mobile.sdk.sample">
 
     <application
         android:name=".SampleApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,8 +20,8 @@
         </activity>
 
         <meta-data
-            android:name="com.kodabots.sdk.ClientToken"
-            android:value="INSERT_YOUR_TOKEN_HERE" />
+            android:name="ai.koda.mobile.sdk.ClientToken"
+            android:value="${KODA_AI_CLIENT_TOKEN}" />
     </application>
 
 </manifest>

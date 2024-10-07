@@ -15,7 +15,7 @@ app/build/
 build/
 classes/
 .gradle/
-gradle/
+gradle/wrapper
 
 # Local configuration file (sdk path, etc)
 local.properties

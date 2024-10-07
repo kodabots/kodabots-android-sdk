@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kodabots.sdk.sample">
+    package="ai.koda.mobile.sdk.sample">
 
     <application
         android:name=".SampleApplication"
@@ -20,8 +20,8 @@
         </activity>
 
         <meta-data
-            android:name="com.kodabots.sdk.ClientToken"
-            android:value="INSERT_YOUR_TOKEN_HERE" />
+            android:name="ai.koda.mobile.sdk.ClientToken"
+            android:value="${KODA_AI_CLIENT_TOKEN}" />
     </application>
 
 </manifest>

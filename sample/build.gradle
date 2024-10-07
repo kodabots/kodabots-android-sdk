@@ -1,49 +1,52 @@
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
+apply plugin: "com.google.cloud.artifactregistry.gradle-plugin"
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 31
-
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
     defaultConfig {
-        applicationId "com.kodabots.sdk.sample"
-        minSdkVersion 23
-        targetSdkVersion 31
+        applicationId "ai.koda.mobile.sdk.sample"
+        namespace "ai.koda.mobile.sdk.sample"
+        minSdk 21
+        compileSdk 35
+        targetSdk 35
         versionCode 1
         versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["KODA_AI_CLIENT_TOKEN"] = properties.get("KODA_AI_CLIENT_TOKEN")
     }
 
     buildTypes {
         release {
-            resValue "string", "app_name", "KodaBotsSample"
-            minifyEnabled false
+            resValue "string", "app_name", "KODA.AI"
+            applicationIdSuffix '.release'
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
-            debuggable true
+            debuggable false
             matchingFallbacks = 'release'
         }
         debug {
-            resValue "string", "app_name", "KodaBotsSample Debug"
+            resValue "string", "app_name", "KODA.AI Debug"
             applicationIdSuffix '.debug'
-            minifyEnabled true
+            minifyEnabled false
             debuggable true
             signingConfig signingConfigs.debug
-            matchingFallbacks = 'debug'
+            matchingFallbacks = ['debug']
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
         }
         stage {
-            resValue "string", "app_name", "KodaBotsSample Stage"
+            resValue "string", "app_name", "KODA.AI Staging"
             applicationIdSuffix '.stage'
-            minifyEnabled true
+            minifyEnabled false
             debuggable true
             signingConfig signingConfigs.debug
-            matchingFallbacks = 'stage'
+            matchingFallbacks = ['debug']
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
         }
@@ -55,8 +58,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    applicationVariants.all { variant ->
-        variant.outputs.all {
+
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
             outputFileName = "KodaBotsSDKSample_${variant.name.capitalize()}_${getWorkingBranch().toUpperCase().replace("FEATURE/", "")}_${variant.versionName}_VC${variant.versionCode}_${getDateTime()}.apk"
         }
     }
@@ -68,39 +72,38 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(":core")
-//    implementation 'com.kodabots.sdk:kodabots-core:1.0.4'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.6.0'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    releaseImplementation libs.koda.core
+    stageImplementation libs.koda.core.staging
+    debugImplementation libs.koda.core.staging
+    implementation libs.kotlin.stdlib
+    implementation libs.androidx.core
+    implementation libs.androidx.appcompat
+    implementation libs.google.material
+    implementation libs.androidx.cardview
+    implementation libs.androidx.constraintlayout
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3-native-mt'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
 
-    implementation 'pub.devrel:easypermissions:3.0.0'
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.espresso.core
 }
 
-def getCommitDate() {
+static def getCommitDate() {
     return "git show -s --format=%ci".execute().text.trim()
 }
 
-def getGitHash() {
+static def getGitHash() {
     return "git rev-parse --short HEAD".execute().text.trim()
 }
 
-def getWorkingBranch() {
+static def getWorkingBranch() {
     return "git rev-parse --abbrev-ref HEAD".execute().text.trim()
 }
 
-def getDateTime() {
+static def getDateTime() {
     DateFormat df = new SimpleDateFormat("yyyyMMddHHmm");
     return df.format(new Date());
 }

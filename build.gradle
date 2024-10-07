@@ -1,30 +1,41 @@
 buildscript {
-    ext.kotlin_version = '1.6.21'
+
+    ext.kotlin_version = '2.0.0'
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven{
+            url "https://europe-maven.pkg.dev/kodaai-mobile-sdk/kotlin-sdk"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath("gradle.plugin.com.google.cloud.artifactregistry:artifactregistry-gradle-plugin:2.2.1")
+        classpath 'com.android.tools.build:gradle:8.5.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }
 }
 
+
 allprojects {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
     repositories {
         google()
         mavenCentral()
-        maven {
-            url "https://packages.fream.pl/repository/maven-kodabots-releases/"
-            credentials {
-                username "YOUR_USERNAME"
-                password "YOUR_PASSWORD"
-            }
+        maven{
+            url properties.getProperty("publishUrl")
         }
+        gradlePluginPortal()
     }
 }
 
-task clean(type: Delete) {
+apply plugin: "com.google.cloud.artifactregistry.gradle-plugin"
+
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }
