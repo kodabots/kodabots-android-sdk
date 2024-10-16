@@ -1,14 +1,17 @@
 package ai.koda.mobile.sdk.core
 
 import ai.koda.mobile.sdk.core.databinding.FragmentKodaBotsWebviewBinding
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
@@ -17,6 +20,7 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -44,6 +48,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         )
     private var isReady = false
     private var timeoutDeferred: Deferred<Unit>? = null
+    private var imageIntentPickerIntentToLaunch: Intent? = null
 
     var customConfig: KodaBotsConfig? = KodaBotsConfig()
     var callbacks: (KodaBotsCallbacks) -> Unit = {}
@@ -72,7 +77,16 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         }
     }
 
-    private val startForResult =
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        startFileChooserIntent(isGranted)
+        if (!isGranted) {
+            noCameraPermission()
+        }
+    }
+
+    private val startForFileChooserResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             handleFileChooserActivityResult(result)
         }
@@ -344,7 +358,41 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     override fun launchFileChooser(
         intent: Intent
     ) {
-        startForResult.launch(intent)
+        imageIntentPickerIntentToLaunch = intent
+        if (isCameraPermissionDeclared()) {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        } else {
+            startFileChooserIntent()
+        }
+    }
+
+    private fun isCameraPermissionDeclared() = context?.packageManager?.getPackageInfo(
+        context?.applicationContext!!.packageName,
+        PackageManager.GET_PERMISSIONS
+    )?.requestedPermissions?.contains(Manifest.permission.CAMERA) ?: false
+
+    private fun startFileChooserIntent(isCameraPermissionGranted: Boolean = true) {
+        val intent = Intent.createChooser(
+            imageIntentPickerIntentToLaunch,
+            null
+        )
+        if (isCameraPermissionGranted) {
+            startForFileChooserResult.launch(intent.apply {
+                putExtra(
+                    Intent.EXTRA_INITIAL_INTENTS,
+                    arrayOf(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
+                )
+            })
+        } else {
+            startForFileChooserResult.launch(intent)
+        }
+        imageIntentPickerIntentToLaunch = null
+    }
+
+    private fun noCameraPermission() {
+        customConfig?.noCameraPermissionInfo.let {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun handleFileChooserActivityResult(result: ActivityResult) {

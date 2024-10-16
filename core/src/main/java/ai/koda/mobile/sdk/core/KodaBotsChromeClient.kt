@@ -2,9 +2,7 @@ package ai.koda.mobile.sdk.core
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.net.Uri
-import android.provider.MediaStore
 import android.view.View
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
@@ -76,15 +74,7 @@ class KodaBotsChromeClient(
         this.filePathCallback = filePathCallback
         try {
             fileChooserLauncher.launchFileChooser(
-                Intent.createChooser(
-                    fileChooserParams.createIntent(),
-                    null
-                ).apply {
-                    putExtra(
-                        Intent.EXTRA_INITIAL_INTENTS,
-                        arrayOf(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
-                    )
-                }
+                fileChooserParams.createIntent(),
             )
         } catch (e: ActivityNotFoundException) {
             return false

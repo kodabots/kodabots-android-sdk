@@ -65,9 +65,11 @@ class MainActivity : AppCompatActivity() {
                         kodaBotsFragment = KodaBotsSDK.generateFragment(
                             callbacks = callbacks,
                             config = KodaBotsConfig().apply {
-                                progressConfig = KodaBotsProgressConfig()
-                                progressConfig?.progressColor = Color.RED
-                                progressConfig?.backgroundColor = Color.WHITE
+                                progressConfig = KodaBotsProgressConfig().apply {
+                                    progressColor = Color.RED
+                                    backgroundColor = Color.WHITE
+                                }
+                                noCameraPermissionInfo = "No camera permission, you can only choose from your files."
                             }
                         )
                         supportFragmentManager.beginTransaction().apply {
