@@ -1,14 +1,17 @@
 package ai.koda.mobile.sdk.core
 
 import ai.koda.mobile.sdk.core.databinding.FragmentKodaBotsWebviewBinding
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
@@ -17,8 +20,11 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.RenderMode
@@ -32,6 +38,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), FileChooserLauncher {
@@ -44,6 +51,8 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         )
     private var isReady = false
     private var timeoutDeferred: Deferred<Unit>? = null
+    private var imageIntentPickerIntentToLaunch: Intent? = null
+    private var tempFile: File? = null
 
     var customConfig: KodaBotsConfig? = KodaBotsConfig()
     var callbacks: (KodaBotsCallbacks) -> Unit = {}
@@ -72,7 +81,16 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         }
     }
 
-    private val startForResult =
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        startFileChooserIntent(isGranted)
+        if (!isGranted) {
+            noCameraPermission()
+        }
+    }
+
+    private val startForFileChooserResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             handleFileChooserActivityResult(result)
         }
@@ -115,6 +133,11 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
 
     override fun onDestroyView() {
         binding = null
+        try {
+            PhotoUtils(requireContext()).clearCache()
+        } catch (e: Exception) {
+            Log.e("KodaBotsSDK", e.message, e)
+        }
         super.onDestroyView()
     }
 
@@ -341,25 +364,79 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         }
     }
 
+    // If camera permission is declared in application it have to be handled
+    // https://developer.android.com/reference/android/provider/MediaStore#ACTION_IMAGE_CAPTURE
     override fun launchFileChooser(
         intent: Intent
     ) {
-        startForResult.launch(intent)
+        imageIntentPickerIntentToLaunch = intent
+        if (isCameraPermissionDeclared()) {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        } else {
+            startFileChooserIntent()
+        }
+    }
+
+    private fun isCameraPermissionDeclared() = context?.packageManager?.getPackageInfo(
+        context?.applicationContext!!.packageName,
+        PackageManager.GET_PERMISSIONS
+    )?.requestedPermissions?.contains(Manifest.permission.CAMERA) ?: false
+
+    private fun startFileChooserIntent(isCameraPermissionGranted: Boolean = true) {
+        val intent = Intent.createChooser(
+            imageIntentPickerIntentToLaunch,
+            null
+        )
+        if (isCameraPermissionGranted) {
+            tempFile = PhotoUtils(requireContext()).createTempFile()
+            startForFileChooserResult.launch(intent.apply {
+                putExtra(
+                    Intent.EXTRA_INITIAL_INTENTS,
+                    arrayOf(Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                        tempFile?.let {
+                            putExtra(
+                                MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(
+                                    requireContext(),
+                                    "${context?.applicationContext?.packageName}.koda.sdk.provider",
+                                    it
+                                )
+                            )
+                        }
+
+                    })
+                )
+            })
+        } else {
+            startForFileChooserResult.launch(intent)
+        }
+        imageIntentPickerIntentToLaunch = null
+    }
+
+    private fun noCameraPermission() {
+        customConfig?.noCameraPermissionInfo?.let {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun handleFileChooserActivityResult(result: ActivityResult) {
         if (result.resultCode == Activity.RESULT_OK) {
             if (result.data?.extras != null) {
+                // If photo is not saved to file then thumbnail is returned
+                // This condition is kind of fallback, but is not preferred to be used
                 val uri = getBitmapFromIntentExtras(result.data?.extras)
                 chromeClient.filePathCallback?.onReceiveValue(
                     uri?.let { arrayOf(it) }
                 )
-            } else {
+            } else if (result.data?.data != null) {
                 chromeClient.filePathCallback?.onReceiveValue(
                     WebChromeClient.FileChooserParams.parseResult(
                         result.resultCode,
                         result.data
                     )
+                )
+            } else {
+                chromeClient.filePathCallback?.onReceiveValue(
+                    tempFile?.toUri()?.let { arrayOf(it) }
                 )
             }
         } else {
@@ -370,6 +447,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
                 )
             )
         }
+        tempFile = null
     }
 
     private fun getBitmapFromIntentExtras(extras: Bundle?) = sdk33OrHigher {

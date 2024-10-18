@@ -8,6 +8,7 @@ class KodaBotsConfig {
     var blockId: String? = null
     var progressConfig: KodaBotsProgressConfig? = null
     var timeoutConfig: KodaBotsTimedOutConfig? = null
+    var noCameraPermissionInfo: String? = null
 }
 
 class KodaBotsProgressConfig {

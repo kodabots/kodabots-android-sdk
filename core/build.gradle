@@ -11,7 +11,7 @@ android {
     namespace "ai.koda.mobile.sdk.core"
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 23
         compileSdk 35
         targetSdkVersion 35
 
@@ -137,7 +137,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'ai.koda.mobile.sdk'
                 artifactId = 'koda-core'
-                version = '1.2.0'
+                version = '1.2.1'
             }
         }
     }

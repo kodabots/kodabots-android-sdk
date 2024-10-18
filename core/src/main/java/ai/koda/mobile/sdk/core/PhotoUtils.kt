@@ -16,8 +16,7 @@ class PhotoUtils(
     ): Uri? {
         var fos: FileOutputStream? = null
         try {
-            val dir = context.cacheDir
-            val cacheFile = File(dir, "${System.currentTimeMillis()}_image.jpeg")
+            val cacheFile = createTempFile()
             fos = FileOutputStream(cacheFile)
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
             fos.flush()
@@ -31,6 +30,22 @@ class PhotoUtils(
             } catch (e: Exception) {
                 Log.e("KodaBotsSDK", e.message ?: "Cannot close FileOutputStream")
             }
+        }
+    }
+
+    fun createTempFile(): File {
+        val dir = context.cacheDir
+        val cacheDir = File(dir, "koda_cache").apply { mkdirs() }
+        val cacheFile = File(cacheDir, "${System.currentTimeMillis()}_image.jpeg")
+        return cacheFile
+    }
+
+    fun clearCache() {
+        val dir = context.cacheDir
+        val kodaCacheDir = File(dir, "koda_cache")
+        val files = kodaCacheDir.listFiles()
+        files?.forEach { file ->
+            file.delete()
         }
     }
 }

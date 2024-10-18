@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ai.koda.mobile.sdk.sample">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:name=".SampleApplication"
         android:icon="@mipmap/ic_launcher"
