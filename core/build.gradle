@@ -136,7 +136,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'ai.koda.mobile.sdk'
-                artifactId = 'koda-core'
+                artifactId = 'koda-core-ktor3'
                 version = '1.2.1'
             }
         }
