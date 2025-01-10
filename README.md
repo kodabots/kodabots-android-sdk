@@ -17,7 +17,14 @@ dependencyResolutionManagement {
 ```
 
 2. Add dependency to your project level `build.gradle` file
-   `implementation("ai.koda.mobile.sdk:koda-core:<latest_version>") `
+   ```
+   // Use when you use Ktor2 or other networking libs
+   implementation("ai.koda.mobile.sdk:koda-core:<latest_version>")
+   
+   // Use when your project depend on Ktor 3 lib
+   implementation("ai.koda.mobile.sdk:koda-core-ktor3:<latest_version>")
+```
+   
 
 3. In your `AndroidManifest.xml` you need to add Client Token provided by KODA Bots as in example below
 ```
