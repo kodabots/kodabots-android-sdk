@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -31,6 +32,9 @@ class MainActivity : AppCompatActivity() {
         when (it) {
             is KodaBotsCallbacks.Event -> {
                 Log.d("KodaBotsSample", "CallbackEvent ${it.type} - ${it.params}")
+                when(it.type){
+                    GENERATE_TOKEN_EVENT_TYPE -> handleGenerateTokenEventCallback(it)
+                }
             }
 
             is KodaBotsCallbacks.Error -> {
@@ -166,6 +170,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleGenerateTokenEventCallback(event: KodaBotsCallbacks.Event){
+        val parameters: GenerateTokenEventParameters = Json.decodeFromString(event.params)
+        kodaBotsFragment?.sendBlock(parameters.nextBlockId, "token-123")
+    }
+
     private fun consumePadding() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val bars = insets.getInsets(
@@ -185,5 +194,9 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         scope.cancel()
         super.onDestroy()
+    }
+
+    companion object {
+        const val GENERATE_TOKEN_EVENT_TYPE = "web.chatbot.chat.custom.generate_token"
     }
 }

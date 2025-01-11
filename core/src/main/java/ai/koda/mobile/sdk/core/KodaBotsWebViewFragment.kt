@@ -326,6 +326,17 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         }
     }
 
+    fun sendBlock(blockId: String, token: String): Boolean {
+        return if (isReady) {
+            binding?.fragmentKodaBotsWebview?.callJavascript(
+                "KodaBots.sentBlock(\"${blockId}\", {token: \"${token}\"});"
+            )
+            true
+        } else {
+            false
+        }
+    }
+
     /**
      * Method used to set new user profile
      *
