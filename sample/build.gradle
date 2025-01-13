@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat
 apply plugin: "com.google.cloud.artifactregistry.gradle-plugin"
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlinx-serialization'
 
 android {
     Properties properties = new Properties()
@@ -83,8 +82,6 @@ dependencies {
 
     implementation libs.kotlinx.coroutines.core
     implementation libs.kotlinx.coroutines.android
-    implementation(libs.kotlinx.serialization.json)
-
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
