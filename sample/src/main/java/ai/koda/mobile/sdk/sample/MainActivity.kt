@@ -22,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -32,9 +31,6 @@ class MainActivity : AppCompatActivity() {
         when (it) {
             is KodaBotsCallbacks.Event -> {
                 Log.d("KodaBotsSample", "CallbackEvent ${it.type} - ${it.params}")
-                when(it.type){
-                    GENERATE_TOKEN_EVENT_TYPE -> handleGenerateTokenEventCallback(it)
-                }
             }
 
             is KodaBotsCallbacks.Error -> {
@@ -73,7 +69,8 @@ class MainActivity : AppCompatActivity() {
                                     progressColor = Color.RED
                                     backgroundColor = Color.WHITE
                                 }
-                                noCameraPermissionInfo = "No camera permission, you can only choose from your files."
+                                noCameraPermissionInfo =
+                                    "No camera permission, you can only choose from your files."
                             }
                         )
                         supportFragmentManager.beginTransaction().apply {
@@ -140,14 +137,18 @@ class MainActivity : AppCompatActivity() {
             binding.activityMainControlsExpander.callOnClick()
         }
         binding.activityMainControlsSendBlock.setOnClickListener {
-            SingleEditTextDialog(this).apply {
-                setText(
-                    resources.getString(R.string.activity_main_dialog_set_block_id),
-                    null
-                )
-            }.also {
-                it.createDialog {
-                    if (kodaBotsFragment?.sendBlock(it) == false || kodaBotsFragment == null) {
+            SendBlockWithParamsDialog(this).also {
+                it.createDialog { blockId, paramKey, paramValue ->
+                    val param = if (listOf(
+                            paramKey,
+                            paramValue
+                        ).all { it.isNotBlank() }
+                    ) mapOf(paramKey to paramValue) else null
+                    if (kodaBotsFragment?.sendBlock(
+                            blockId,
+                            param
+                        ) == false || kodaBotsFragment == null
+                    ) {
                         Snackbar.make(
                             binding.activityMainRoot,
                             resources.getString(R.string.activity_main_controls_initialize_webview),
@@ -170,11 +171,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleGenerateTokenEventCallback(event: KodaBotsCallbacks.Event){
-        val parameters: GenerateTokenEventParameters = Json.decodeFromString(event.params)
-        kodaBotsFragment?.sendBlock(parameters.nextBlockId, "token-123")
-    }
-
     private fun consumePadding() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val bars = insets.getInsets(
@@ -194,9 +190,5 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         scope.cancel()
         super.onDestroy()
-    }
-
-    companion object {
-        const val GENERATE_TOKEN_EVENT_TYPE = "web.chatbot.chat.custom.generate_token"
     }
 }

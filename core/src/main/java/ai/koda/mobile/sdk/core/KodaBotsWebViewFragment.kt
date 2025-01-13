@@ -37,6 +37,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -313,23 +314,18 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
      * Method used to send conversation blockId
      *
      * @param blockId Conversation block id
+     * @param params Additional parameters String to String
      * @return true if invoked
      */
-    fun sendBlock(blockId: String): Boolean {
+    fun sendBlock(blockId: String, params: Map<String, String>? = null): Boolean {
+        val paramsJson = Json.encodeToString(params)
         return if (isReady) {
-            binding?.fragmentKodaBotsWebview?.callJavascript(
+            params?.let {
+                binding?.fragmentKodaBotsWebview?.callJavascript(
+                    "KodaBots.sentBlock(\"${blockId}\", ${paramsJson});"
+                )
+            } ?: binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.sentBlock(\"${blockId}\");"
-            )
-            true
-        } else {
-            false
-        }
-    }
-
-    fun sendBlock(blockId: String, token: String): Boolean {
-        return if (isReady) {
-            binding?.fragmentKodaBotsWebview?.callJavascript(
-                "KodaBots.sentBlock(\"${blockId}\", {token: \"${token}\"});"
             )
             true
         } else {
