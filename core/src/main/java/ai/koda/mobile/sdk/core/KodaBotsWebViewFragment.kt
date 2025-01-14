@@ -314,17 +314,28 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
      * Method used to send conversation blockId
      *
      * @param blockId Conversation block id
-     * @param params Additional parameters String to String
+     * @param params Additional custom parameters
      * @return true if invoked
      */
     fun sendBlock(blockId: String, params: Map<String, String>? = null): Boolean {
-        val paramsJson = Json.encodeToString(params)
+        return params?.let {
+            if (params.isNotEmpty()) {
+                val paramsJson = Json.encodeToString(params)
+                return if (isReady) {
+                    binding?.fragmentKodaBotsWebview?.callJavascript(
+                        "KodaBots.sentBlock(\"${blockId}\", ${paramsJson});"
+                    )
+                    true
+                } else {
+                    false
+                }
+            } else null
+        } ?: sendBlock(blockId)
+    }
+
+    private fun sendBlock(blockId: String): Boolean {
         return if (isReady) {
-            params?.let {
-                binding?.fragmentKodaBotsWebview?.callJavascript(
-                    "KodaBots.sentBlock(\"${blockId}\", ${paramsJson});"
-                )
-            } ?: binding?.fragmentKodaBotsWebview?.callJavascript(
+            binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.sentBlock(\"${blockId}\");"
             )
             true

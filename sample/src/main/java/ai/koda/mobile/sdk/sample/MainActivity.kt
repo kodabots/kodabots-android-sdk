@@ -139,9 +139,7 @@ class MainActivity : AppCompatActivity() {
         binding.activityMainControlsSendBlock.setOnClickListener {
             SendBlockWithParamsDialog(this).also {
                 it.createDialog { blockId, paramKey, paramValue ->
-                    val param = if (listOf(paramKey, paramValue).all { it.isNotBlank() })
-                        mapOf(paramKey to paramValue)
-                    else null
+                    val param = mapOf(paramKey to paramValue)
                     if (kodaBotsFragment?.sendBlock(
                             blockId,
                             param
