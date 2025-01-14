@@ -69,7 +69,8 @@ class MainActivity : AppCompatActivity() {
                                     progressColor = Color.RED
                                     backgroundColor = Color.WHITE
                                 }
-                                noCameraPermissionInfo = "No camera permission, you can only choose from your files."
+                                noCameraPermissionInfo =
+                                    "No camera permission, you can only choose from your files."
                             }
                         )
                         supportFragmentManager.beginTransaction().apply {
@@ -136,14 +137,14 @@ class MainActivity : AppCompatActivity() {
             binding.activityMainControlsExpander.callOnClick()
         }
         binding.activityMainControlsSendBlock.setOnClickListener {
-            SingleEditTextDialog(this).apply {
-                setText(
-                    resources.getString(R.string.activity_main_dialog_set_block_id),
-                    null
-                )
-            }.also {
-                it.createDialog {
-                    if (kodaBotsFragment?.sendBlock(it) == false || kodaBotsFragment == null) {
+            SendBlockWithParamsDialog(this).also {
+                it.createDialog { blockId, paramKey, paramValue ->
+                    val param = mapOf(paramKey to paramValue)
+                    if (kodaBotsFragment?.sendBlock(
+                            blockId,
+                            param
+                        ) == false || kodaBotsFragment == null
+                    ) {
                         Snackbar.make(
                             binding.activityMainRoot,
                             resources.getString(R.string.activity_main_controls_initialize_webview),

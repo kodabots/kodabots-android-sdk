@@ -6,7 +6,7 @@
     <string name="activity_main_controls_send_block">SEND BLOCK</string>
     <string name="activity_main_controls_simulate_error">SIMULATE ERROR</string>
     <string name="activity_main_snackbar_not_initialized">WEBVIEW NOT INITIALIZED</string>
-    <string name="activity_main_dialog_set_block_id">Set blockId</string>
+    <string name="activity_main_dialog_set_block_id">Set blockId with params</string>
     <string name="activity_main_dialog_sync_profile">Sync profile</string>
     <string name="activity_main_dialog_sync_profile_first_name">First Name</string>
     <string name="activity_main_dialog_sync_profile_last_name">Last Name</string>

@@ -17,7 +17,7 @@ dependencyResolutionManagement {
 ```
 
 2. Add dependency to your project level `build.gradle` file
-   ```
+```
    // Use when you use Ktor2 or other networking libs
    implementation("ai.koda.mobile.sdk:koda-core:<latest_version>")
    
