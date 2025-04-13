@@ -172,8 +172,6 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
             )
             setErrorViewVisibility(isVisible = true)
         }
-        //TODO: Remove - testing only
-        onReady("idk")
     }
 
     private fun setErrorViewVisibility(isVisible: Boolean) {
