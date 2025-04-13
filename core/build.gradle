@@ -42,8 +42,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable false
             matchingFallbacks = 'debug'
-            buildConfigField "String", "BASE_URL", "\"https://web.kodabots.com/mobile\""
-            buildConfigField "String", "REST_BASE_URL", "\"https://chatbot-mxwaxhdter.kodabots.com\""
+            buildConfigField "String", "BASE_URL", "\"https://web.eu-pl.koda.ai\""
+            buildConfigField "String", "REST_BASE_URL", "\"https://bot.eu-pl.koda.ai\""
             buildConfigField "String", "API_VERSION", "\"v1\""
             buildConfigField "String", "REST_API_VERSION", "\"v1\""
         }
@@ -67,10 +67,6 @@ android {
             debuggable false
             matchingFallbacks = 'debug'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BASE_URL", "\"$stagingBaseUrl\""
-            buildConfigField "String", "REST_BASE_URL", "\"$stagingRestBaseUrl\""
-            buildConfigField "String", "API_VERSION", "\"$stagingApiVersion\""
-            buildConfigField "String", "REST_API_VERSION", "\"$stagingRestApiVersion\""
         }
     }
 

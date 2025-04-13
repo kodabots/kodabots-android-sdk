@@ -1,5 +1,6 @@
 package ai.koda.mobile.sdk.core
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.net.Uri
@@ -16,7 +17,8 @@ import androidx.fragment.app.Fragment
 
 class KodaBotsChromeClient(
     private val fragment: Fragment,
-    private val fileChooserLauncher: FileChooserLauncher
+    private val fileChooserLauncher: FileChooserLauncher,
+    private val requestPermissionIfNeeded: (request: WebPermissionRequest) -> Unit
 ) : WebChromeClient() {
     private var customView: View? = null
     private var originalOrientation: Int = 0
@@ -63,7 +65,7 @@ class KodaBotsChromeClient(
     }
 
     override fun onPermissionRequest(request: PermissionRequest) {
-        request.grant(request.resources)
+        requestPermissionIfNeeded(WebPermissionRequest(request))
     }
 
     override fun onShowFileChooser(
@@ -80,5 +82,31 @@ class KodaBotsChromeClient(
             return false
         }
         return true
+    }
+
+    fun onPermissionGranted(permissionRequest: WebPermissionRequest) {
+        // Assuming that there will be one permission at once
+        permissionRequest.request.grant(permissionRequest.request.resources)
+    }
+
+    fun onPermissionDenied(permissionRequest: WebPermissionRequest) {
+        permissionRequest.request.deny()
+    }
+
+    data class WebPermissionRequest(
+        val request: PermissionRequest,
+    ) {
+        fun getNativePermissionToRequest() = mapToNativePermissions(
+            request.resources
+        )
+
+        private fun mapToNativePermissions(permissions: Array<String>): Array<String> {
+            return permissions.map {
+                when (it) {
+                    PermissionRequest.RESOURCE_AUDIO_CAPTURE -> Manifest.permission.RECORD_AUDIO
+                    else -> it
+                }
+            }.toTypedArray()
+        }
     }
 }
