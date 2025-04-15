@@ -133,7 +133,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'ai.koda.mobile.sdk'
                 artifactId = 'koda-core'
-                version = '1.3.0'
+                version = '1.4.0-beta'
             }
         }
     }
