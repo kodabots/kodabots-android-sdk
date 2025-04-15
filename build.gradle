@@ -8,13 +8,13 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-        maven{
+        maven {
             url "https://europe-maven.pkg.dev/kodaai-mobile-sdk/kotlin-sdk"
         }
     }
     dependencies {
         classpath("gradle.plugin.com.google.cloud.artifactregistry:artifactregistry-gradle-plugin:2.2.1")
-        classpath 'com.android.tools.build:gradle:8.7.1'
+        classpath 'com.android.tools.build:gradle:8.7.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }
@@ -27,7 +27,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven{
+        maven {
             url properties.getProperty("publishUrl")
         }
         gradlePluginPortal()

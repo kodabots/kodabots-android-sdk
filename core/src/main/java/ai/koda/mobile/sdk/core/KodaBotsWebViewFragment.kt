@@ -48,12 +48,15 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     private val chromeClient =
         KodaBotsChromeClient(
             this@KodaBotsWebViewFragment,
-            this@KodaBotsWebViewFragment
+            this@KodaBotsWebViewFragment,
+            requestPermissionIfNeeded = ::requestPermissionIfNeeded
         )
     private var isReady = false
     private var timeoutDeferred: Deferred<Unit>? = null
     private var imageIntentPickerIntentToLaunch: Intent? = null
     private var tempFile: File? = null
+
+    private var pendingRequestPermission: KodaBotsChromeClient.WebPermissionRequest? = null
 
     var customConfig: KodaBotsConfig? = KodaBotsConfig()
     var callbacks: (KodaBotsCallbacks) -> Unit = {}
@@ -88,6 +91,20 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         startFileChooserIntent(isGranted)
         if (!isGranted) {
             noCameraPermission()
+        }
+    }
+
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissionToGrantedMap ->
+        pendingRequestPermission?.let { webRequestPermission ->
+            if (permissionToGrantedMap.filter { it.value }
+                    .map { it.key }.toTypedArray().isNotEmpty())
+                chromeClient.onPermissionGranted(
+                    webRequestPermission,
+                )
+            else
+                chromeClient.onPermissionDenied(webRequestPermission)
         }
     }
 
@@ -145,6 +162,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     private fun loadUrl() {
         setLoadingViewVisibility(isVisible = true)
         setErrorViewVisibility(isVisible = false)
+        Log.d("KodaBots", kodaBotUrl)
         binding?.fragmentKodaBotsWebview?.loadUrl(kodaBotUrl)
         timeoutDeferred = scope.async(Dispatchers.Main + KodaBotsSDK.globalExceptionHandler) {
             delay(
@@ -474,6 +492,13 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         }
     } ?: extras?.getParcelable<Bitmap>("data")?.let {
         PhotoUtils(requireContext()).handleBitmap(it)
+    }
+
+    private fun requestPermissionIfNeeded(
+        request: KodaBotsChromeClient.WebPermissionRequest
+    ) {
+        pendingRequestPermission = request
+        requestPermissionsLauncher.launch(request.getNativePermissionToRequest())
     }
 
     companion object {
