@@ -76,11 +76,14 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         ): Boolean {
             return if (request?.url.toString().startsWith("tel", true)) {
                 startActivity(Intent(Intent.ACTION_DIAL).apply {
-                    data = Uri.parse(request?.url.toString())
+                    data = request?.url.toString().toUri()
                 })
                 true
             } else {
-                false
+                startActivity(Intent(Intent.ACTION_VIEW).apply {
+                    data = request?.url ?: Uri.EMPTY
+                })
+                true
             }
         }
     }
@@ -128,7 +131,6 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
                 this.loadWithOverviewMode = true
                 this.useWideViewPort = true
                 this.domStorageEnabled = true
-                this.setSupportMultipleWindows(true)
                 this.javaScriptCanOpenWindowsAutomatically = true
                 this.mediaPlaybackRequiresUserGesture = false
                 this.defaultTextEncodingName = "UTF-8"
