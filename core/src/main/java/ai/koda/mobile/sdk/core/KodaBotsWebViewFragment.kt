@@ -62,8 +62,10 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     var callbacks: (KodaBotsCallbacks) -> Unit = {}
 
     private val kodaBotUrl
-        get() = "${BuildConfig.BASE_URL}/mobile/${BuildConfig.API_VERSION}" +
-                "/?token=${KodaBotsSDK.clientToken}"
+        get() = customConfig?.apiConfig?.baseUrl
+            ?: ("${BuildConfig.BASE_URL}/mobile/${BuildConfig.API_VERSION}" +
+                    "/?token=${KodaBotsSDK.clientToken}")
+
 
     private val webviewCallbacks = object : WebviewCallbacks {
         override fun onLoadingFinished() {
@@ -167,12 +169,17 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         Log.d("KodaBots", kodaBotUrl)
         binding?.fragmentKodaBotsWebview?.loadUrl(kodaBotUrl)
         timeoutDeferred = scope.async(Dispatchers.Main + KodaBotsSDK.globalExceptionHandler) {
-            delay(
-                TimeUnit.SECONDS.toMillis(
-                    customConfig?.timeoutConfig?.timeout ?: DEFAULT_WENT_WRONG_TIMEOUT
+            customConfig?.timeoutConfig?.timeout?.let { timeout ->
+                delay(
+                    TimeUnit.SECONDS.toMillis(
+                        timeout
+                    )
                 )
-            )
-            setErrorViewVisibility(isVisible = true)
+                setErrorViewVisibility(isVisible = true)
+            } ?: run {
+                setLoadingViewVisibility(isVisible = false)
+                setErrorViewVisibility(isVisible = false)
+            }
         }
     }
 
@@ -504,7 +511,6 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     }
 
     companion object {
-        private const val DEFAULT_WENT_WRONG_TIMEOUT = 20L
         private const val DEFAULT_LOADER_ASSET = "default_loader.json"
     }
 }

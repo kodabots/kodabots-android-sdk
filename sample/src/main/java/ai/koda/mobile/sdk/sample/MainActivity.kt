@@ -1,10 +1,12 @@
 package ai.koda.mobile.sdk.sample
 
 import ai.koda.mobile.sdk.core.CallResponse
+import ai.koda.mobile.sdk.core.KodaBotsApiConfig
 import ai.koda.mobile.sdk.core.KodaBotsCallbacks
 import ai.koda.mobile.sdk.core.KodaBotsConfig
 import ai.koda.mobile.sdk.core.KodaBotsProgressConfig
 import ai.koda.mobile.sdk.core.KodaBotsSDK
+import ai.koda.mobile.sdk.core.KodaBotsTimedOutConfig
 import ai.koda.mobile.sdk.core.KodaBotsWebViewFragment
 import ai.koda.mobile.sdk.core.UserProfile
 import ai.koda.mobile.sdk.sample.databinding.ActivityMainBinding
@@ -15,6 +17,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isGone
 import androidx.core.view.updatePadding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
@@ -46,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         consumePadding()
         binding.activityMainControlsExpander.setOnClickListener {
             binding.activityMainControlsWrapper.visibility =
-                if (binding.activityMainControlsWrapper.visibility == View.GONE) View.VISIBLE else View.GONE
+                if (binding.activityMainControlsWrapper.isGone) View.VISIBLE else View.GONE
         }
 
         binding.activityMainControlsInitializeWebview.setOnClickListener {
@@ -64,14 +67,20 @@ class MainActivity : AppCompatActivity() {
                     if (kodaBotsFragment == null) {
                         kodaBotsFragment = KodaBotsSDK.generateFragment(
                             callbacks = callbacks,
-                            config = KodaBotsConfig().apply {
-                                progressConfig = KodaBotsProgressConfig().apply {
-                                    progressColor = Color.RED
-                                    backgroundColor = Color.WHITE
-                                }
+                            config = KodaBotsConfig(
+                                progressConfig = KodaBotsProgressConfig(
+                                    progressColor = Color.RED,
+                                    backgroundColor = Color.WHITE,
+                                ),
+                                timeoutConfig = KodaBotsTimedOutConfig(
+                                    timeout = null
+                                ),
                                 noCameraPermissionInfo =
-                                    "No camera permission, you can only choose from your files."
-                            }
+                                    "No camera permission, you can only choose from your files.",
+                                apiConfig = KodaBotsApiConfig(
+                                    baseUrl = "https://webview.staging.mia.koda.ai/",
+                                )
+                            )
                         )
                         supportFragmentManager.beginTransaction().apply {
                             replace(R.id.activity_main_content_root, kodaBotsFragment!!)
@@ -121,11 +130,12 @@ class MainActivity : AppCompatActivity() {
                 )
             }.also {
                 it.createDialog { firstName, lastName, customKey ->
-                    if (kodaBotsFragment?.syncProfile(UserProfile().apply {
-                            this.first_name = firstName
-                            this.last_name = lastName
-                            this.custom_parameters["custom_key"] = customKey
-                        }) == false || kodaBotsFragment == null) {
+                    val userProfile = UserProfile(
+                        first_name = firstName,
+                        last_name = lastName,
+                        custom_parameters = hashMapOf("custom_key" to customKey)
+                    )
+                    if (kodaBotsFragment?.syncProfile(userProfile) == false || kodaBotsFragment == null) {
                         Snackbar.make(
                             binding.activityMainRoot,
                             resources.getString(R.string.activity_main_controls_initialize_webview),

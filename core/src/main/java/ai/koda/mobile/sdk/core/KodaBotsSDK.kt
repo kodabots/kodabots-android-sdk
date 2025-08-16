@@ -75,15 +75,15 @@ object KodaBotsSDK {
                 WebView(context).settings.userAgentString
             } ; Language: ${Locale.getDefault().displayCountry}"
         )
-        userProfile?.apply {
-            this.manufacturer = Build.MANUFACTURER
-            this.model = Build.MODEL
-            this.os = "Android"
-            this.os_version = Build.VERSION.SDK_INT.toString()
-            this.webview_user_agent = WebView(context).settings.userAgentString
-            this.locale = Locale.getDefault().displayCountry
-        }
-        return userProfile
+        val updatedUserProfile = userProfile?.copy(
+            manufacturer = Build.MANUFACTURER,
+            model = Build.MODEL,
+            os = "Android",
+            os_version = Build.VERSION.SDK_INT.toString(),
+            webview_user_agent = WebView(context).settings.userAgentString,
+            locale = Locale.getDefault().displayCountry
+        )
+        return updatedUserProfile
     }
 
     /**

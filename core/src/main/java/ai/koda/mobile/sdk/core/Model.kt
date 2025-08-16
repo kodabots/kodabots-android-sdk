@@ -1,37 +1,40 @@
 package ai.koda.mobile.sdk.core
 
 import androidx.annotation.Keep
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
-class UserProfile {
-    var first_name: String? = null
-    var last_name: String? = null
-    var email: String? = null
-    var os: String? = null
-    var os_version: String? = null
-    var webview_user_agent: String? = null
-    var locale: String? = null
-    var model: String? = null
-    var manufacturer: String? = null
-
+@OptIn(InternalSerializationApi::class)
+data class UserProfile(
+    val first_name: String? = null,
+    val last_name: String? = null,
+    val email: String? = null,
+    val os: String? = null,
+    val os_version: String? = null,
+    val webview_user_agent: String? = null,
+    val locale: String? = null,
+    val model: String? = null,
+    val manufacturer: String? = null,
     /**
      * Parameter used to pass custom data to KodaBots chatbot
      */
-    var custom_parameters:HashMap<String,String> = HashMap()
-}
+    val custom_parameters: HashMap<String, String> = HashMap()
+)
 
 @Serializable
 @Keep
-class GetUnreadCountResponse {
-    var status: String? = null
-    var message: String? = null
-    var response: GetUnreadCountResponseData? = null
-}
+@OptIn(InternalSerializationApi::class)
+data class GetUnreadCountResponse(
+    val status: String? = null,
+    val message: String? = null,
+    val response: GetUnreadCountResponseData? = null
+)
 
 @Serializable
 @Keep
-class GetUnreadCountResponseData {
-    var unread_counter: Int? = null
-}
+@OptIn(InternalSerializationApi::class)
+data class GetUnreadCountResponseData(
+    val unread_counter: Int? = null
+)
