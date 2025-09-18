@@ -11,9 +11,9 @@ android {
     namespace "ai.koda.mobile.sdk.core"
 
     defaultConfig {
-        minSdkVersion 23
-        compileSdk 35
-        targetSdkVersion 35
+        minSdkVersion 26
+        compileSdk 36
+        targetSdkVersion 36
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -76,6 +76,8 @@ android {
 }
 
 dependencies {
+    implementation project(":core-shared")
+
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation libs.kotlin.stdlib
     api libs.androidx.core

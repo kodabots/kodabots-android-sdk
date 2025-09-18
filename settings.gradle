@@ -1,3 +1,11 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 buildscript {
     repositories {
         google()
@@ -13,6 +21,8 @@ buildscript {
 }
 apply plugin: "com.google.cloud.artifactregistry.gradle-plugin"
 
+
 include ':core'
 include ':sample'
+include ':core-shared'
 rootProject.name = "KodaBotsSDK"

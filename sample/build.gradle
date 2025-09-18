@@ -11,9 +11,9 @@ android {
     defaultConfig {
         applicationId "ai.koda.mobile.sdk.sample"
         namespace "ai.koda.mobile.sdk.sample"
-        minSdk 23
-        compileSdk 35
-        targetSdk 35
+        minSdk 26
+        compileSdk 36
+        targetSdk 36
         versionCode 1
         versionName "1.4.1"
 
@@ -31,6 +31,7 @@ android {
             debuggable false
             matchingFallbacks = 'release'
         }
+
         debug {
             resValue "string", "app_name", "KODA.AI Debug"
             applicationIdSuffix '.debug'

@@ -1,6 +1,5 @@
 buildscript {
-
-    ext.kotlin_version = '2.0.0'
+    ext.kotlin_version = '2.2.10'
     repositories {
         google()
         mavenCentral()
@@ -13,13 +12,18 @@ buildscript {
         }
     }
     dependencies {
-        classpath("gradle.plugin.com.google.cloud.artifactregistry:artifactregistry-gradle-plugin:2.2.1")
-        classpath 'com.android.tools.build:gradle:8.7.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+        classpath(libs.artifactregistry.gradle.plugin)
+        classpath libs.gradle
+        classpath libs.kotlin.gradle.plugin
+        classpath libs.kotlin.serialization
     }
 }
 
+plugins {
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
+    alias(libs.plugins.android.lint) apply false
+}
 
 allprojects {
     Properties properties = new Properties()
@@ -34,7 +38,6 @@ allprojects {
     }
 }
 
-apply plugin: "com.google.cloud.artifactregistry.gradle-plugin"
 
 tasks.register('clean', Delete) {
     delete rootProject.buildDir
