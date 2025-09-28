@@ -1,10 +1,10 @@
-package ai.koda.mobile.sdk.core
+package ai.koda.mobile.core_shared.model
 
-import androidx.annotation.Keep
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-@Keep
 class UserProfile {
     var first_name: String? = null
     var last_name: String? = null
@@ -20,18 +20,4 @@ class UserProfile {
      * Parameter used to pass custom data to KodaBots chatbot
      */
     var custom_parameters:HashMap<String,String> = HashMap()
-}
-
-@Serializable
-@Keep
-class GetUnreadCountResponse {
-    var status: String? = null
-    var message: String? = null
-    var response: GetUnreadCountResponseData? = null
-}
-
-@Serializable
-@Keep
-class GetUnreadCountResponseData {
-    var unread_counter: Int? = null
 }

@@ -1,4 +1,4 @@
-package ai.koda.mobile.sdk.core
+package ai.koda.mobile.core_shared
 
 import android.content.Context
 import android.graphics.Bitmap

@@ -1,4 +1,4 @@
-package ai.koda.mobile.sdk.core
+package ai.koda.mobile.core_shared.model.api
 
 sealed class CallResponse<T> {
     class Success<T>(val value: T) : CallResponse<T>()

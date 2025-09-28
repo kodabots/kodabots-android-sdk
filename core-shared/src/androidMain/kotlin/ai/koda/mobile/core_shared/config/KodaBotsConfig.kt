@@ -1,9 +1,11 @@
-package ai.koda.mobile.sdk.core
+package ai.koda.mobile.core_shared.config
 
+import ai.koda.mobile.core_shared.model.UserProfile
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 
-class KodaBotsConfig {
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+actual class KodaBotsConfig {
     var userProfile = UserProfile()
     var blockId: String? = null
     var progressConfig: KodaBotsProgressConfig? = null

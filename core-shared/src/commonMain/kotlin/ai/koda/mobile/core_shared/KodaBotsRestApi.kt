@@ -1,6 +1,8 @@
-package ai.koda.mobile.sdk.core
+package ai.koda.mobile.core_shared
 
-import android.util.Log
+import ai.koda.mobile.core_shared.config.AppConfig
+import ai.koda.mobile.core_shared.model.GetUnreadCountResponse
+import ai.koda.mobile.core_shared.model.api.CallResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
@@ -38,7 +40,9 @@ internal class KodaBotsRestApi {
         install(Logging) {
             logger = object : Logger {
                 override fun log(message: String) {
-                    Log.d("KodaBotsSDK", message)
+                    // TODO: Handle logging
+//                    Log.d("KodaBotsSDK", message)
+                    print("KodaBotsSDK: $message")
                 }
             }
             level = LogLevel.ALL
@@ -73,7 +77,7 @@ internal class KodaBotsRestApi {
         private const val CODE_UNAUTHORIZED = 401
         private const val CODE_FORBIDDEN = 403
         private const val BASE_URL =
-            "${BuildConfig.REST_BASE_URL}/sdk/${BuildConfig.REST_API_VERSION}"
+            "${AppConfig.baseRestUrl}/sdk/${AppConfig.apiRestVersion}"
 
         /** Endpoints paths */
         const val UNREAD_MESSAGES = "/unread-counter"

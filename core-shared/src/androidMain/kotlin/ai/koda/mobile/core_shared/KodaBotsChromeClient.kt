@@ -1,4 +1,4 @@
-package ai.koda.mobile.sdk.core
+package ai.koda.mobile.core_shared
 
 import android.Manifest
 import android.annotation.SuppressLint

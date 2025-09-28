@@ -1,5 +1,8 @@
-package ai.koda.mobile.sdk.core
+package ai.koda.mobile.core_shared
 
+import ai.koda.mobile.core_shared.config.KodaBotsConfig
+import ai.koda.mobile.core_shared.model.UserProfile
+import ai.koda.mobile.core_shared.model.api.CallResponse
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -12,8 +15,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-
-object KodaBotsSDK {
+object AndroidKodaBotsSDK: KodaBotsSDK {
 
     private const val KODA_CLIENT_TOKEN_KEY = "ai.koda.mobile.sdk.ClientToken"
 
@@ -22,13 +24,14 @@ object KodaBotsSDK {
     }
 
     private var kodaClientScope: CoroutineScope? = null
-    var isInitialized = false
+    override var isInitialized = false
         private set
 
     /**
      * Change this field only for debug
      */
-    var clientToken: String? = null
+    override var clientToken: String? = null
+
     private var restApi: KodaBotsRestApi? = null
 
     /**
@@ -63,12 +66,12 @@ object KodaBotsSDK {
     /**
      * Method used to uninitialize SDK.
      */
-    fun uninitialize() {
+    override fun uninitialize() {
         kodaClientScope?.cancel("Koda SDK uninitialized")
         isInitialized = false
     }
 
-    internal fun gatherPhoneData(context: Context, userProfile: UserProfile? = null): UserProfile? {
+    internal override fun gatherPhoneData(userProfile: UserProfile? = null): UserProfile? {
         Log.d(
             "KodaBotsSDK",
             "Manufacturer: ${Build.MANUFACTURER} ; Model: ${Build.MODEL} ; SDK: ${Build.VERSION.SDK_INT} ; User Agent String: ${
