@@ -7,7 +7,7 @@
 
     <application>
         <provider
-            android:name="ai.koda.mobile.core_shared.KodaFileProvider"
+            android:name="ai.koda.mobile.core_shared.presentation.KodaFileProvider"
             android:authorities="${applicationId}.koda.sdk.provider"
             android:exported="false"
             android:grantUriPermissions="true">

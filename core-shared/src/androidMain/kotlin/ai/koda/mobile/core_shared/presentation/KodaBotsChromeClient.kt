@@ -1,4 +1,4 @@
-package ai.koda.mobile.core_shared
+package ai.koda.mobile.core_shared.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -11,9 +11,8 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
-
 
 class KodaBotsChromeClient(
     private val fragment: Fragment,
@@ -61,7 +60,8 @@ class KodaBotsChromeClient(
         )
         val insetsController = WindowCompat.getInsetsController(window, window.decorView)
         this.originalSystemUiBehavior = insetsController.systemBarsBehavior
-        insetsController.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        insetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
     override fun onPermissionRequest(request: PermissionRequest) {

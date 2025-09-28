@@ -1,4 +1,4 @@
-package ai.koda.mobile.core_shared
+package ai.koda.mobile.core_shared.data
 
 import android.content.Context
 import android.content.SharedPreferences

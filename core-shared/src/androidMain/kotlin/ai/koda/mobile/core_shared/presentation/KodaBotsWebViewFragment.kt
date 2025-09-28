@@ -1,5 +1,9 @@
-package ai.koda.mobile.core_shared
+package ai.koda.mobile.core_shared.presentation
 
+import ai.koda.mobile.core_shared.AndroidKodaBotsSDK
+import ai.koda.mobile.core_shared.BuildConfig
+import ai.koda.mobile.core_shared.data.KodaBotsPreferences
+import ai.koda.mobile.core_shared.R
 import ai.koda.mobile.core_shared.config.AppConfig
 import ai.koda.mobile.core_shared.config.KodaBotsConfig
 import ai.koda.mobile.core_shared.databinding.FragmentKodaBotsWebviewBinding
@@ -41,7 +45,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -83,12 +86,12 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         ): Boolean {
             return if (request?.url.toString().startsWith("tel", true)) {
                 startActivity(Intent(Intent.ACTION_DIAL).apply {
-                    data = request?.url.toString().toUri()
+                    Intent.setData = request?.url.toString().toUri()
                 })
                 true
             } else {
                 startActivity(Intent(Intent.ACTION_VIEW).apply {
-                    data = request?.url ?: Uri.EMPTY
+                    Intent.setData = request?.url ?: Uri.EMPTY
                 })
                 true
             }
@@ -337,7 +340,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     @JavascriptInterface
     fun onLinkClicked(url: String) {
         startActivity(Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(url)
+            Intent.setData = Uri.parse(url)
         })
     }
 
