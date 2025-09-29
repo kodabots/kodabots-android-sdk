@@ -1,19 +1,58 @@
 package ai.koda.mobile.core_shared
 
+import ai.koda.mobile.core_shared.model.UserProfile
+import ai.koda.mobile.core_shared.model.api.CallResponse
 import ai.koda.mobile.core_shared.screen.KodaBotsWebViewScreen
 
-abstract class KodaBotsSDK {
+object KodaBotsSDK {
 
-    abstract var isInitialized: Boolean
-    protected set
+    lateinit var driver: KodaBotsSDKDriver
 
-    abstract var clientToken: String?
+    var clientToken: String? = null
+        get() = driver.clientToken
 
-    abstract fun init(): Boolean
+    fun init(
+        driver: KodaBotsSDKDriver
+    ): Boolean {
+        this.driver = driver
+        return this.driver.init()
+    }
 
-    abstract fun uninitialize()
+    fun gatherPhoneData(userProfile: UserProfile? = null): UserProfile? {
+        return driver.gatherPhoneData(userProfile)
+    }
 
-    abstract fun gatherPhoneData()
+    fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
+        return driver.getUnreadCount(callback)
+    }
+
+    suspend fun getUnreadCount(): CallResponse<Int?> {
+        return driver.getUnreadCount()
+    }
+
+    fun generateScreen(): KodaBotsWebViewScreen? {
+        return driver.generateScreen()
+    }
+
+    fun uninitialize() {
+        driver.uninitialize()
+    }
 }
 
-expect fun generateScreen(): KodaBotsWebViewScreen
+interface KodaBotsSDKDriver {
+    var isInitialized: Boolean
+
+    var clientToken: String?
+
+    fun init(): Boolean
+
+    fun uninitialize()
+
+    fun gatherPhoneData(userProfile: UserProfile? = null): UserProfile?
+
+    fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit)
+
+    suspend fun getUnreadCount(): CallResponse<Int?>
+
+    fun generateScreen(): KodaBotsWebViewScreen?
+}

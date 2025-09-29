@@ -2,11 +2,13 @@ package ai.koda.mobile.core_shared
 
 import ai.koda.mobile.core_shared.api.KodaBotsRestApi
 import ai.koda.mobile.core_shared.config.KodaBotsConfig
+import ai.koda.mobile.core_shared.data.AndroidKodaBotsPreferencesServices
 import ai.koda.mobile.core_shared.data.KodaBotsPreferences
 import ai.koda.mobile.core_shared.model.UserProfile
 import ai.koda.mobile.core_shared.model.api.CallResponse
 import ai.koda.mobile.core_shared.presentation.KodaBotsCallbacks
 import ai.koda.mobile.core_shared.presentation.KodaBotsWebViewFragment
+import ai.koda.mobile.core_shared.screen.KodaBotsWebViewScreen
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -19,9 +21,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-object AndroidKodaBotsSDK: KodaBotsSDK {
+class AndroidKodaBotsSDKDriver(
+    private val context: Context,
+    private val config: KodaBotsConfig = KodaBotsConfig(),
+    private val callbacks: ((KodaBotsCallbacks) -> Unit)? = null
+) : KodaBotsSDKDriver {
 
-    private const val KODA_CLIENT_TOKEN_KEY = "ai.koda.mobile.sdk.ClientToken"
+    private val KODA_CLIENT_TOKEN_KEY = "ai.koda.mobile.sdk.ClientToken"
 
     internal val globalExceptionHandler = CoroutineExceptionHandler { _, exception ->
         Log.e("KodaBotsSDK", "Coroutine exception: ${exception.message}")
@@ -29,7 +35,7 @@ object AndroidKodaBotsSDK: KodaBotsSDK {
 
     private var kodaClientScope: CoroutineScope? = null
     override var isInitialized = false
-        private set
+        set
 
     /**
      * Change this field only for debug
@@ -45,7 +51,7 @@ object AndroidKodaBotsSDK: KodaBotsSDK {
      * @param context
      * @return Boolean value that indicates init state
      */
-    fun init(context: Context): Boolean {
+    override fun init(): Boolean {
         kodaClientScope?.cancel()
         kodaClientScope = CoroutineScope(SupervisorJob() + globalExceptionHandler)
 
@@ -58,7 +64,9 @@ object AndroidKodaBotsSDK: KodaBotsSDK {
         if (clientToken != null) {
             isInitialized = true
             restApi = KodaBotsRestApi()
-            KodaBotsPreferences.initialize(context)
+            KodaBotsPreferences.initialize(
+                AndroidKodaBotsPreferencesServices(context)
+            )
         } else {
             Log.d("KodaBotsSDK", "Failed to get ClientId, please check your AndroidManifest")
         }
@@ -75,7 +83,7 @@ object AndroidKodaBotsSDK: KodaBotsSDK {
         isInitialized = false
     }
 
-    internal override fun gatherPhoneData(userProfile: UserProfile? = null): UserProfile? {
+    override fun gatherPhoneData(userProfile: UserProfile?): UserProfile? {
         Log.d(
             "KodaBotsSDK",
             "Manufacturer: ${Build.MANUFACTURER} ; Model: ${Build.MODEL} ; SDK: ${Build.VERSION.SDK_INT} ; User Agent String: ${
@@ -98,7 +106,7 @@ object AndroidKodaBotsSDK: KodaBotsSDK {
      *
      * @param callback Callback that returns sealed class with result
      */
-    fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
+    override fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
         if (KodaBotsPreferences.userId != null && clientToken != null) {
             kodaClientScope?.launch(globalExceptionHandler) {
                 when (val response = restApi?.getUnreadCount()) {
@@ -125,12 +133,19 @@ object AndroidKodaBotsSDK: KodaBotsSDK {
      *
      * @return Sealed class with result
      */
-    suspend fun getUnreadCount(): CallResponse<Int?> {
+    override suspend fun getUnreadCount(): CallResponse<Int?> {
         return if (KodaBotsPreferences.userId != null && clientToken != null)
             restApi?.getUnreadCount()
                 ?: CallResponse.Error(Exception("Rest API not initialized properly")) else {
             CallResponse.Error(Exception("UserID or ClientID are null"))
         }
+    }
+
+    override fun generateScreen(): KodaBotsWebViewScreen? {
+        return generateFragment(
+            config,
+            callbacks
+        )
     }
 
     /**

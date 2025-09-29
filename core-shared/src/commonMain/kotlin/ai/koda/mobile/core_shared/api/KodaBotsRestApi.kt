@@ -2,6 +2,7 @@ package ai.koda.mobile.core_shared.api
 
 import ai.koda.mobile.core_shared.KodaBotsSDK
 import ai.koda.mobile.core_shared.config.AppConfig
+import ai.koda.mobile.core_shared.data.KodaBotsPreferences
 import ai.koda.mobile.core_shared.model.GetUnreadCountResponse
 import ai.koda.mobile.core_shared.model.api.CallResponse
 import io.ktor.client.HttpClient

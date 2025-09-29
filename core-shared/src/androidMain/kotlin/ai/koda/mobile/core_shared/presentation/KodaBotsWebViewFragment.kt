@@ -1,11 +1,12 @@
 package ai.koda.mobile.core_shared.presentation
 
-import ai.koda.mobile.core_shared.AndroidKodaBotsSDK
+import ai.koda.mobile.core_shared.AndroidKodaBotsSDKDriver
 import ai.koda.mobile.core_shared.BuildConfig
-import ai.koda.mobile.core_shared.data.KodaBotsPreferences
+import ai.koda.mobile.core_shared.KodaBotsSDK
 import ai.koda.mobile.core_shared.R
 import ai.koda.mobile.core_shared.config.AppConfig
 import ai.koda.mobile.core_shared.config.KodaBotsConfig
+import ai.koda.mobile.core_shared.data.KodaBotsPreferences
 import ai.koda.mobile.core_shared.databinding.FragmentKodaBotsWebviewBinding
 import ai.koda.mobile.core_shared.model.UserProfile
 import ai.koda.mobile.core_shared.screen.KodaBotsWebViewScreen
@@ -49,8 +50,6 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-typealias KodaBotsWebViewScreen = Fragment
-
 class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), FileChooserLauncher,
     KodaBotsWebViewScreen {
     private var binding: FragmentKodaBotsWebviewBinding? = null
@@ -73,7 +72,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
 
     private val kodaBotUrl
         get() = "${AppConfig.baseUrl}/mobile/${AppConfig.apiVersion}" +
-                "/?token=${AndroidKodaBotsSDK.clientToken}"
+                "/?token=${KodaBotsSDK.clientToken}"
 
     private val webviewCallbacks = object : WebviewCallbacks {
         override fun onLoadingFinished() {
@@ -86,12 +85,12 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         ): Boolean {
             return if (request?.url.toString().startsWith("tel", true)) {
                 startActivity(Intent(Intent.ACTION_DIAL).apply {
-                    Intent.setData = request?.url.toString().toUri()
+                    data = request?.url.toString().toUri()
                 })
                 true
             } else {
                 startActivity(Intent(Intent.ACTION_VIEW).apply {
-                    Intent.setData = request?.url ?: Uri.EMPTY
+                    data = request?.url ?: Uri.EMPTY
                 })
                 true
             }
@@ -177,7 +176,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         Log.d("KodaBots", kodaBotUrl)
         binding?.fragmentKodaBotsWebview?.loadUrl(kodaBotUrl)
         timeoutDeferred =
-            scope.async(Dispatchers.Main + AndroidKodaBotsSDK.globalExceptionHandler) {
+            scope.async(Dispatchers.Main + getGlobalExceptionHandler()) {
                 delay(
                     TimeUnit.SECONDS.toMillis(
                         customConfig?.timeoutConfig?.timeout ?: DEFAULT_WENT_WRONG_TIMEOUT
@@ -306,8 +305,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
             "KodaBots.initialize(${
                 if (customConfig?.userProfile != null) Json.encodeToString(
                     UserProfile.serializer(),
-                    AndroidKodaBotsSDK.gatherPhoneData(
-                        requireContext(),
+                    KodaBotsSDK.gatherPhoneData(
                         customConfig?.userProfile
                     )!!
                 ) else null
@@ -318,7 +316,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     @JavascriptInterface
     fun onReady(userId: String) {
         timeoutDeferred?.cancel()
-        scope.launch(Dispatchers.Main + AndroidKodaBotsSDK.globalExceptionHandler) {
+        scope.launch(Dispatchers.Main + getGlobalExceptionHandler()) {
             KodaBotsPreferences.userId = userId
             setLoadingViewVisibility(isVisible = false)
             isReady = true
@@ -340,7 +338,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     @JavascriptInterface
     fun onLinkClicked(url: String) {
         startActivity(Intent(Intent.ACTION_VIEW).apply {
-            Intent.setData = Uri.parse(url)
+            data = Uri.parse(url)
         })
     }
 
@@ -390,7 +388,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
                 "KodaBots.syncUserProfile(${
                     Json.encodeToString(
                         UserProfile.serializer(),
-                        AndroidKodaBotsSDK.gatherPhoneData(requireContext(), userProfile)!!
+                        KodaBotsSDK.gatherPhoneData(userProfile)!!
                     )
                 });"
             )
@@ -516,6 +514,9 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         pendingRequestPermission = request
         requestPermissionsLauncher.launch(request.getNativePermissionToRequest())
     }
+
+    private fun getGlobalExceptionHandler() =
+        (KodaBotsSDK.driver as AndroidKodaBotsSDKDriver).globalExceptionHandler
 
     companion object {
         private const val DEFAULT_WENT_WRONG_TIMEOUT = 20L
