@@ -30,7 +30,7 @@ object KodaBotsSDK {
         return driver.getUnreadCount()
     }
 
-    fun generateScreen(): KodaBotsWebViewScreen? {
+    fun generateScreen(): Any? {
         return driver.generateScreen()
     }
 
@@ -54,5 +54,5 @@ interface KodaBotsSDKDriver {
 
     suspend fun getUnreadCount(): CallResponse<Int?>
 
-    fun generateScreen(): KodaBotsWebViewScreen?
+    fun generateScreen(): Any?
 }
