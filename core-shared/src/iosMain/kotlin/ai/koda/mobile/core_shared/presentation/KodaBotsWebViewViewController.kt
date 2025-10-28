@@ -2,11 +2,17 @@
 
 package ai.koda.mobile.core_shared.presentation
 
+import ai.koda.mobile.core_shared.KodaBotsSDK
+import ai.koda.mobile.core_shared.config.AppConfig
 import ai.koda.mobile.core_shared.config.KodaBotsConfig
 import ai.koda.mobile.core_shared.model.UserProfile
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ExportObjCClass
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import platform.Foundation.NSBundle
 import platform.Foundation.NSNotificationCenter
@@ -18,6 +24,7 @@ import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.UIKit.UIColor
 import platform.UIKit.UIViewController
+import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationDelegateProtocol
 import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
@@ -169,8 +176,9 @@ class IosKodaBotsWebViewScreen
     }
 
     private fun loadURL() {
-        val urlString =
-            "https://google.pl" // Użyj domyślnego URL lub poprawne pole z configu
+        val urlString = "${AppConfig.baseUrl}/mobile/${AppConfig.apiVersion}" +
+                "/?token=${KodaBotsSDK.clientToken}"
+        println("KodaBotsWebView: Loading URL: $urlString")
         NSURL.URLWithString(urlString)?.let { nsUrl ->
             val request = NSURLRequest.requestWithURL(nsUrl)
             webView?.loadRequest(request)
@@ -208,6 +216,13 @@ class IosKodaBotsWebViewScreen
     fun handleAppDidEnterBackground() {
         if (isReady) {
             webView?.evaluateJavaScript("KodaBots.onPause();", completionHandler = null)
+        }
+    }
+
+    override fun webView(webView: WKWebView, didFinishNavigation: WKNavigation?) {
+        MainScope().launch(Dispatchers.Main) {
+            delay(1000)
+            initialize()
         }
     }
 
@@ -251,13 +266,28 @@ class IosKodaBotsWebViewScreen
     }
 
     fun initialize() {
-        val userProfile = customConfig?.userProfile
-        val blockId = customConfig?.blockId
-        try {
-            val jsonString = userProfile?.let { Json.encodeToString(it) } ?: "null"
-            val blockIdString = blockId ?: "null"
-            webView?.callJavascript("KodaBots.initialize($jsonString,$blockIdString);")
-        } catch (e: Exception) {
+        if (customConfig?.userProfile != null && customConfig?.blockId != null) {
+            try {
+                val userProfileData = KodaBotsSDK.gatherPhoneData(customConfig?.userProfile!!)
+                val jsonString = userProfileData?.let { Json.encodeToString(it) } ?: ""
+                val blockIdString = customConfig?.blockId ?: ""
+                webView?.callJavascript("KodaBots.initialize($jsonString,$blockIdString);")
+            } catch (e: Exception) {
+                val blockIdString = customConfig?.blockId ?: ""
+                webView?.callJavascript("KodaBots.initialize(null,$blockIdString);")
+            }
+        } else if (customConfig?.userProfile != null && customConfig?.blockId == null) {
+            try {
+                val userProfileData = KodaBotsSDK.gatherPhoneData(customConfig?.userProfile!!)
+                val jsonString = userProfileData?.let { Json.encodeToString(it) } ?: ""
+                webView?.callJavascript("KodaBots.initialize($jsonString,null);")
+            } catch (e: Exception) {
+                webView?.callJavascript("KodaBots.initialize(null,null);")
+            }
+        } else if (customConfig?.userProfile == null && customConfig?.blockId != null) {
+            val blockIdString = customConfig?.blockId ?: ""
+            webView?.callJavascript("KodaBots.initialize(null,$blockIdString);")
+        } else {
             webView?.callJavascript("KodaBots.initialize(null,null);")
         }
     }
@@ -309,11 +339,6 @@ class IosKodaBotsWebViewScreen
 fun WKWebView.callJavascript(data: String) {
     println("Calling Javascript: $data")
     this.evaluateJavaScript(data, completionHandler = null)
-}
-
-// Prosta funkcja logująca
-fun printIfNeeded(message: String) {
-    println(message)
 }
 
 interface KodaBotsCallback

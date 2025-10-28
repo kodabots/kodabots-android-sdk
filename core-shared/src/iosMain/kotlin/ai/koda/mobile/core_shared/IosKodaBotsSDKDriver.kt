@@ -43,7 +43,7 @@ class IosKodaBotsSDKDriver(
         // TODO: Uncomment it
 //        clientToken =
 //            NSBundle.mainBundle.objectForInfoDictionaryKey(KODA_CLIENT_TOKEN_KEY) as? String
-        clientToken = "test"
+        clientToken = "17ebd37d-5b6a-0a2d-dc06-1a25b7768bdf"
         if (clientToken != null) {
             isInitialized = true
             restApi = KodaBotsRestApi()

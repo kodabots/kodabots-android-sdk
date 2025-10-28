@@ -1,12 +1,12 @@
 package ai.koda.mobile.core_shared.config
 
+import ai.koda.mobile.core_shared.model.UserProfile
 import platform.UIKit.UIColor
 import platform.UIKit.UIFont
 import platform.UIKit.UIImage
 
 // Placeholder classes for types until I come up with the idea how to use platform specific implementations
 // from iOS libraries
-class UserProfile
 class LottieAnimation
 
 class KodaBotsConfig(

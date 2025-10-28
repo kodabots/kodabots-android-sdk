@@ -19,5 +19,5 @@ class UserProfile {
     /**
      * Parameter used to pass custom data to KodaBots chatbot
      */
-    var custom_parameters:HashMap<String,String> = HashMap()
+    var custom_parameters: HashMap<String, String> = HashMap()
 }

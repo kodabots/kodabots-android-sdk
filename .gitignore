@@ -40,3 +40,4 @@ gradlew.bat
 gradle-wrapper.properties
 captures/
 /.kotlin/metadata/
+/iOSApp/SampleiOS.xcodeproj/xcuserdata/radoslav.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist

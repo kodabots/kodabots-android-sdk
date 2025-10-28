@@ -29,12 +29,6 @@ final class MainViewController: UIViewController {
             let it = callback as! KodaBotsEvent
             print("KodaBotsSDK -> Event received: \(it.type) - \(it.params)")
         }
-//		switch callback {
-//		case .Event(let type, let parameters):
-//			print("KodaBotsSDK -> Event received: \(type) - \(parameters)")
-//		case .Error(let error):
-//			print("KodaBotsSDK -> Error received: \(error)")
-//		}
 	}
 
 	// MARK: - IBOUtlet
@@ -241,10 +235,8 @@ final class MainViewController: UIViewController {
 	func initializeWebview(){
 		DispatchQueue.main.async {
 			guard self.initializeKodaBot() else { return }
-//            let config = KodaBotsConfig.init(userProfile: UserProfile_(), blockId: nil, progressConfig: nil, timeoutConfig: nil)
-//			config.progressConfig = KodaBotsProgressConfig()
-//			config.progressConfig?.backgroundColor = UIColor.white
-//			config.progressConfig?.progressColor = UIColor.red
+            let config = KodaBotsConfig.init(userProfile: UserProfile(), blockId: nil, progressConfig: nil, timeoutConfig: nil)
+			config.progressConfig = KodaBotsProgressConfig(backgroundColor: UIColor.white, progressColor: UIColor.red, customAnimation: nil)
             if let viewController = KodaBotsSDK.shared.generateScreen() as? UIViewController {
 				self.kodaBotsWebView = viewController
 				self.webViewContainer.addSubview(viewController.view)
@@ -281,7 +273,7 @@ final class MainViewController: UIViewController {
 //			debugMessagesEnabled: true,
 //			path: path
 //		)
-        let config = KodaBotsConfig.init(userProfile: UserProfile_(), blockId: nil, progressConfig: nil, timeoutConfig: nil)
+        let config = KodaBotsConfig.init(userProfile: UserProfile(), blockId: nil, progressConfig: nil, timeoutConfig: nil)
 
         let driver = IosKodaBotsSDKDriver(config: config,
                                           callbacks: { _ in})
