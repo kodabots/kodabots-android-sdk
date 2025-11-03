@@ -24,18 +24,21 @@ kotlin {
     iosX64 {
         binaries.framework {
             baseName = xcfName
+            binaryOption("bundleId", "ai.koda.mobile.core.shared.kodabotskit")
         }
     }
 
     iosArm64 {
         binaries.framework {
             baseName = xcfName
+            binaryOption("bundleId", "ai.koda.mobile.core.shared.kodabotskit")
         }
     }
 
     iosSimulatorArm64 {
         binaries.framework {
             baseName = xcfName
+            binaryOption("bundleId", "ai.koda.mobile.core.shared.kodabotskit")
         }
     }
 

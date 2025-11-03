@@ -5,9 +5,6 @@ import platform.UIKit.UIColor
 import platform.UIKit.UIFont
 import platform.UIKit.UIImage
 
-// Placeholder classes for types until I come up with the idea how to use platform specific implementations
-// from iOS libraries
-class LottieAnimation
 
 class KodaBotsConfig(
     var userProfile: UserProfile = UserProfile(),
@@ -19,7 +16,6 @@ class KodaBotsConfig(
 class KodaBotsProgressConfig(
     var backgroundColor: UIColor? = null,
     var progressColor: UIColor? = null,
-    var customAnimation: LottieAnimation? = null
 )
 
 class KodaBotsTimedOutConfig(

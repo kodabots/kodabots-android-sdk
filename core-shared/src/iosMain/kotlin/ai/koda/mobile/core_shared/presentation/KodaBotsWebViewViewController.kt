@@ -9,6 +9,7 @@ import ai.koda.mobile.core_shared.model.UserProfile
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ExportObjCClass
+import kotlinx.cinterop.ObjCAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
@@ -16,13 +17,22 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import platform.Foundation.NSBundle
 import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSTimer
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLRequest
 import platform.UIKit.NSLayoutConstraint
+import platform.UIKit.NSTextAlignmentCenter
+import platform.UIKit.UIActivityIndicatorView
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationWillEnterForegroundNotification
+import platform.UIKit.UIButton
+import platform.UIKit.UIButtonTypeSystem
 import platform.UIKit.UIColor
+import platform.UIKit.UIControlEventTouchUpInside
+import platform.UIKit.UIControlStateNormal
+import platform.UIKit.UILabel
+import platform.UIKit.UIView
 import platform.UIKit.UIViewController
 import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationDelegateProtocol
@@ -43,7 +53,15 @@ class IosKodaBotsWebViewScreen
     WKScriptMessageHandlerProtocol, WKNavigationDelegateProtocol {
 
     private var webView: WKWebView? = null
+    private var loaderWrapper: UIView? = null
+    private var loaderIndicator: UIActivityIndicatorView? = null
+    private var wentWrongWrapper: UIView? = null
+    private var wentWrongImage: UIView? = null
+    private var wentWrongLabel: UILabel? = null
+    private var wentWrongButton: UIButton? = null
 
+    private val WENT_WRONG_TIMEOUT = 20.0
+    private var wentWrongTimer: NSTimer? = null
     private var isReady = false
 
     var customConfig: KodaBotsConfig? = null
@@ -89,7 +107,6 @@ class IosKodaBotsWebViewScreen
     private fun setupViews() {
         view.backgroundColor = UIColor.whiteColor
 
-        // Setup WebView programowo
         val webConfiguration = WKWebViewConfiguration()
         webView = WKWebView(frame = view.bounds, configuration = webConfiguration).apply {
             setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -103,54 +120,74 @@ class IosKodaBotsWebViewScreen
     }
 
     private fun setupLoaderWrapper() {
-//        loaderWrapper = UIView().apply {
-//            setTranslatesAutoresizingMaskIntoConstraints(false)
-//            backgroundColor = UIColor.grayColor
-//        }
-//        view.addSubview(loaderWrapper!!)
-    }
+        loaderWrapper = UIView().apply {
+            setTranslatesAutoresizingMaskIntoConstraints(false)
+            backgroundColor = UIColor.grayColor
+        }
+        view.addSubview(loaderWrapper!!)
 
-    private fun setupLoaderIndicator() {
-//        loaderIndicator = UIView().apply {
-//            setTranslatesAutoresizingMaskIntoConstraints(false)
-//            backgroundColor = UIColor.clearColor
-//        }
-//        loaderWrapper?.addSubview(loaderIndicator!!)
-    }
+        loaderIndicator = UIActivityIndicatorView().apply {
+            setTranslatesAutoresizingMaskIntoConstraints(false)
+            startAnimating()
+            customConfig?.progressConfig?.progressColor?.let {
+                color = it
+            }
+        }
+        loaderWrapper?.addSubview(loaderIndicator!!)
 
-    private fun setupWentWrongImage() {
-//        wentWrongImage = UIView().apply {
-//            setTranslatesAutoresizingMaskIntoConstraints(false)
-//            backgroundColor = UIColor.clearColor
-//        }
-//        wentWrongWrapper?.addSubview(wentWrongImage!!)
+        // Center the indicator in the loaderWrapper
+        val indicatorConstraints = listOf(
+            loaderIndicator!!.centerXAnchor.constraintEqualToAnchor(loaderWrapper!!.centerXAnchor),
+            loaderIndicator!!.centerYAnchor.constraintEqualToAnchor(loaderWrapper!!.centerYAnchor),
+            loaderIndicator!!.widthAnchor.constraintEqualToConstant(40.0),
+            loaderIndicator!!.heightAnchor.constraintEqualToConstant(40.0)
+        )
+        NSLayoutConstraint.activateConstraints(indicatorConstraints)
+
+        // Fill the loaderWrapper to overlay the main view
+        val wrapperConstraints = listOf(
+            loaderWrapper!!.topAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.topAnchor),
+            loaderWrapper!!.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
+            loaderWrapper!!.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor),
+            loaderWrapper!!.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
+        )
+        NSLayoutConstraint.activateConstraints(wrapperConstraints)
     }
 
     private fun setupWentWrongWrapper() {
-//        wentWrongWrapper = UIView().apply {
-//            setTranslatesAutoresizingMaskIntoConstraints(false)
-//            backgroundColor = UIColor.whiteColor
-//            hidden = true
-//        }
-//        view.addSubview(wentWrongWrapper!!)
-//
-//        wentWrongLabel = UILabel().apply {
-//            setTranslatesAutoresizingMaskIntoConstraints(false)
-//            text = "Coś poszło nie tak"
-//            textAlignment = NSTextAlignmentCenter
-//        }
-//        wentWrongWrapper!!.addSubview(wentWrongLabel!!)
-//
-//        wentWrongButton = UIButton.buttonWithType(UIButtonTypeSystem).apply {
-//            setTranslatesAutoresizingMaskIntoConstraints(false)
-//            setTitle("Spróbuj ponownie", forState = UIControlStateNormal)
-//            addTarget(
-//                target = this@IosKodaBotsWebViewScreen,
-//                action = sel_registerName("wentWrongButtonClicked"),
-//                forControlEvents = UIControlEventTouchUpInside
-//            )
-//        }
-//        wentWrongWrapper!!.addSubview(wentWrongButton!!)
+        wentWrongWrapper = UIView().apply {
+            setTranslatesAutoresizingMaskIntoConstraints(false)
+            backgroundColor = customConfig?.timeoutConfig?.backgroundColor ?: UIColor.whiteColor
+            hidden = true
+        }
+        view.addSubview(wentWrongWrapper!!)
+
+        wentWrongLabel = UILabel().apply {
+            setTranslatesAutoresizingMaskIntoConstraints(false)
+            text = customConfig?.timeoutConfig?.message ?: "Something went wrong."
+            textAlignment = NSTextAlignmentCenter
+        }
+        wentWrongWrapper!!.addSubview(wentWrongLabel!!)
+
+        wentWrongButton = UIButton.buttonWithType(UIButtonTypeSystem).apply {
+            setTranslatesAutoresizingMaskIntoConstraints(false)
+            setTitle(
+                customConfig?.timeoutConfig?.buttonText ?: "Try again",
+                forState = UIControlStateNormal
+            )
+            addTarget(
+                target = this@IosKodaBotsWebViewScreen,
+                action = sel_registerName("wentWrongButtonClicked"),
+                forControlEvents = UIControlEventTouchUpInside
+            )
+        }
+        wentWrongWrapper!!.addSubview(wentWrongButton!!)
+
+        wentWrongImage = UIView().apply {
+            setTranslatesAutoresizingMaskIntoConstraints(false)
+            backgroundColor = UIColor.clearColor
+        }
+        wentWrongWrapper?.addSubview(wentWrongImage!!)
     }
 
     // There constraints are set for webView and other views programmatically
@@ -163,6 +200,45 @@ class IosKodaBotsWebViewScreen
                 webView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
             )
             NSLayoutConstraint.activateConstraints(constraints)
+        }
+
+        // Layout for wentWrongWrapper and its children
+        wentWrongWrapper?.let { wrapper ->
+            wentWrongImage?.let { image ->
+                val imageConstraints = listOf(
+                    image.centerXAnchor.constraintEqualToAnchor(wrapper.centerXAnchor),
+                    image.topAnchor.constraintEqualToAnchor(wrapper.topAnchor, constant = 80.0),
+                    image.widthAnchor.constraintEqualToConstant(80.0),
+                    image.heightAnchor.constraintEqualToConstant(80.0)
+                )
+                NSLayoutConstraint.activateConstraints(imageConstraints)
+            }
+            wentWrongLabel?.let { label ->
+                val labelConstraints = listOf(
+                    label.centerXAnchor.constraintEqualToAnchor(wrapper.centerXAnchor),
+                    label.topAnchor.constraintEqualToAnchor(wentWrongImage!!.bottomAnchor, constant = 24.0),
+                    label.leadingAnchor.constraintEqualToAnchor(wrapper.leadingAnchor, constant = 32.0),
+                    label.trailingAnchor.constraintEqualToAnchor(wrapper.trailingAnchor, constant = -32.0)
+                )
+                NSLayoutConstraint.activateConstraints(labelConstraints)
+            }
+            wentWrongButton?.let { button ->
+                val buttonConstraints = listOf(
+                    button.centerXAnchor.constraintEqualToAnchor(wrapper.centerXAnchor),
+                    button.topAnchor.constraintEqualToAnchor(wentWrongLabel!!.bottomAnchor, constant = 24.0),
+                    button.widthAnchor.constraintEqualToConstant(120.0),
+                    button.heightAnchor.constraintEqualToConstant(44.0)
+                )
+                NSLayoutConstraint.activateConstraints(buttonConstraints)
+            }
+            // Fill the wrapper to the view
+            val wrapperConstraints = listOf(
+                wrapper.topAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.topAnchor),
+                wrapper.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
+                wrapper.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor),
+                wrapper.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
+            )
+            NSLayoutConstraint.activateConstraints(wrapperConstraints)
         }
     }
 
@@ -187,21 +263,20 @@ class IosKodaBotsWebViewScreen
     }
 
     private fun startWentWrongTimer() {
-//        val timeout = customConfig?.timeoutConfig?.timeout?.toDouble() ?: WENT_WRONG_TIMEOUT
-//        wentWrongTimer = NSTimer.scheduledTimerWithTimeInterval(
-//            ti = timeout,
-//            target = this,
-//            selector = sel_registerName("showWentWrong"),
-//            userInfo = null,
-//            repeats = false
-//        )
+        val timeout = customConfig?.timeoutConfig?.timeout?.toDouble() ?: WENT_WRONG_TIMEOUT
+        wentWrongTimer = NSTimer.scheduledTimerWithTimeInterval(
+            ti = timeout,
+            target = this,
+            selector = sel_registerName("showWentWrong"),
+            userInfo = null,
+            repeats = false
+        )
     }
 
-    // Metody obsługi zdarzeń - bez @ObjCAction
     @Suppress("unused")
     fun wentWrongButtonClicked() {
-//        wentWrongWrapper?.hidden = true
-//        loaderWrapper?.hidden = false
+        wentWrongWrapper?.hidden = true
+        loaderWrapper?.hidden = false
         loadURL()
     }
 
@@ -226,13 +301,13 @@ class IosKodaBotsWebViewScreen
         }
     }
 
-//    @Suppress("unused")
-//    fun showWentWrong() {
-//        wentWrongWrapper?.hidden = false
-//        loaderWrapper?.hidden = true
-//    }
-
     fun sendBlock(blockId: String, params: Map<String, String>? = null): Boolean {
+    @ObjCAction
+    fun showWentWrong() {
+        wentWrongWrapper?.hidden = false
+        loaderWrapper?.hidden = true
+    }
+
         if (!isReady) return false
         val jsCode = if (params.isNullOrEmpty()) {
             "KodaBots.sentBlock(\"$blockId\");"
@@ -304,6 +379,8 @@ class IosKodaBotsWebViewScreen
                     val userId = messageBody["userId"] as? String
                     if (userId != null) {
                         isReady = true
+                        loaderWrapper?.hidden = true
+                        wentWrongTimer?.invalidate()
                     }
                 }
 
@@ -335,9 +412,7 @@ class IosKodaBotsWebViewScreen
     }
 }
 
-// Extension do WKWebView
 fun WKWebView.callJavascript(data: String) {
     println("Calling Javascript: $data")
     this.evaluateJavaScript(data, completionHandler = null)
 }
-

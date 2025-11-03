@@ -41,3 +41,4 @@ gradle-wrapper.properties
 captures/
 /.kotlin/metadata/
 /iOSApp/SampleiOS.xcodeproj/xcuserdata/radoslav.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+/.kotlin/errors/errors-1762211946121.log
