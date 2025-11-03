@@ -48,6 +48,7 @@ class IosKodaBotsWebViewScreen
 
     var customConfig: KodaBotsConfig? = null
     var callbacks: (KodaBotsCallback) -> Unit = { }
+        get() = field
 
     override fun viewDidLoad() {
         super.viewDidLoad()
@@ -110,7 +111,6 @@ class IosKodaBotsWebViewScreen
     }
 
     private fun setupLoaderIndicator() {
-        // TODO: Jeśli dostępny multiplatformowy Lottie, użyj go tutaj
 //        loaderIndicator = UIView().apply {
 //            setTranslatesAutoresizingMaskIntoConstraints(false)
 //            backgroundColor = UIColor.clearColor
@@ -340,15 +340,4 @@ fun WKWebView.callJavascript(data: String) {
     println("Calling Javascript: $data")
     this.evaluateJavaScript(data, completionHandler = null)
 }
-
-interface KodaBotsCallback
-
-data class KodaBotsEvent(
-    val type: String,
-    val params: Map<String, String>
-) : KodaBotsCallback
-
-data class KodaBotsError(
-    val error: String
-) : KodaBotsCallback
 

@@ -8,7 +8,6 @@ import ai.koda.mobile.core_shared.model.UserProfile
 import ai.koda.mobile.core_shared.model.api.CallResponse
 import ai.koda.mobile.core_shared.presentation.IosKodaBotsWebViewScreen
 import ai.koda.mobile.core_shared.presentation.KodaBotsCallback
-import ai.koda.mobile.core_shared.screen.KodaBotsWebViewScreen
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -25,8 +24,6 @@ class IosKodaBotsSDKDriver(
     private val callbacks: ((KodaBotsCallback) -> Unit)? = null
 ) : KodaBotsSDKDriver {
 
-    private val KODA_CLIENT_TOKEN_KEY = "KodaBotsClientToken"
-
     override var isInitialized = false
     override var clientToken: String? = null
 
@@ -40,10 +37,10 @@ class IosKodaBotsSDKDriver(
      */
     override fun init(): Boolean {
         // Fetch client token from Info.plist
-        // TODO: Uncomment it
-//        clientToken =
-//            NSBundle.mainBundle.objectForInfoDictionaryKey(KODA_CLIENT_TOKEN_KEY) as? String
-        clientToken = "17ebd37d-5b6a-0a2d-dc06-1a25b7768bdf"
+        clientToken =
+            (NSBundle.mainBundle.objectForInfoDictionaryKey("KodaBotsSDK") as? Map<String, String>)?.getValue(
+                "clientToken"
+            )
         if (clientToken != null) {
             isInitialized = true
             restApi = KodaBotsRestApi()
@@ -151,8 +148,10 @@ class IosKodaBotsSDKDriver(
         return if (isInitialized) {
             IosKodaBotsWebViewScreen().apply {
                 customConfig = config
-                callbacks.let {
-                    this.callbacks = it
+                this@IosKodaBotsSDKDriver.callbacks.let { driverCallbacks ->
+                    driverCallbacks?.let {
+                        this.callbacks = it
+                    }
                 }
             }
         } else {
