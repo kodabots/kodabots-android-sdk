@@ -37,8 +37,8 @@ class IosKodaBotsSDKDriver(
      */
     override fun init(): Boolean {
         // Fetch client token from Info.plist
-        clientToken =
-            (NSBundle.mainBundle.objectForInfoDictionaryKey("KodaBotsSDK") as? Map<String, String>)?.getValue(
+        clientToken = config.customClientId
+            ?: (NSBundle.mainBundle.objectForInfoDictionaryKey("KodaBotsSDK") as? Map<String, String>)?.getValue(
                 "clientToken"
             )
         if (clientToken != null) {
@@ -148,6 +148,7 @@ class IosKodaBotsSDKDriver(
         return if (isInitialized) {
             IosKodaBotsWebViewScreen().apply {
                 customConfig = config
+                println("KodaBotsSDK: Generating iOS WebView Screen with config: $customConfig")
                 this@IosKodaBotsSDKDriver.callbacks.let { driverCallbacks ->
                     driverCallbacks?.let {
                         this.callbacks = it

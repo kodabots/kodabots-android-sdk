@@ -31,8 +31,10 @@ import platform.UIKit.UIButtonTypeSystem
 import platform.UIKit.UIColor
 import platform.UIKit.UIControlEventTouchUpInside
 import platform.UIKit.UIControlStateNormal
+import platform.UIKit.UIImageView
 import platform.UIKit.UILabel
 import platform.UIKit.UIView
+import platform.UIKit.UIViewContentMode
 import platform.UIKit.UIViewController
 import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationDelegateProtocol
@@ -56,7 +58,7 @@ class IosKodaBotsWebViewScreen
     private var loaderWrapper: UIView? = null
     private var loaderIndicator: UIActivityIndicatorView? = null
     private var wentWrongWrapper: UIView? = null
-    private var wentWrongImage: UIView? = null
+    private var wentWrongImage: UIImageView? = null
     private var wentWrongLabel: UILabel? = null
     private var wentWrongButton: UIButton? = null
 
@@ -122,7 +124,7 @@ class IosKodaBotsWebViewScreen
     private fun setupLoaderWrapper() {
         loaderWrapper = UIView().apply {
             setTranslatesAutoresizingMaskIntoConstraints(false)
-            backgroundColor = UIColor.grayColor
+            backgroundColor = customConfig?.progressConfig?.backgroundColor ?: UIColor.grayColor
         }
         view.addSubview(loaderWrapper!!)
 
@@ -165,6 +167,11 @@ class IosKodaBotsWebViewScreen
         wentWrongLabel = UILabel().apply {
             setTranslatesAutoresizingMaskIntoConstraints(false)
             text = customConfig?.timeoutConfig?.message ?: "Something went wrong."
+            font =
+                customConfig?.timeoutConfig?.messageFont ?: platform.UIKit.UIFont.systemFontOfSize(
+                    16.0
+                )
+            textColor = customConfig?.timeoutConfig?.messageTextColor ?: UIColor.redColor
             textAlignment = NSTextAlignmentCenter
         }
         wentWrongWrapper!!.addSubview(wentWrongLabel!!)
@@ -175,6 +182,11 @@ class IosKodaBotsWebViewScreen
                 customConfig?.timeoutConfig?.buttonText ?: "Try again",
                 forState = UIControlStateNormal
             )
+            setTitleColor(
+                customConfig?.timeoutConfig?.buttonColor ?: UIColor.redColor,
+                forState = UIControlStateNormal
+            )
+
             addTarget(
                 target = this@IosKodaBotsWebViewScreen,
                 action = sel_registerName("wentWrongButtonClicked"),
@@ -183,11 +195,10 @@ class IosKodaBotsWebViewScreen
         }
         wentWrongWrapper!!.addSubview(wentWrongButton!!)
 
-        wentWrongImage = UIView().apply {
+        wentWrongImage = UIImageView(customConfig?.timeoutConfig?.image).apply {
             setTranslatesAutoresizingMaskIntoConstraints(false)
-            backgroundColor = UIColor.clearColor
         }
-        wentWrongWrapper?.addSubview(wentWrongImage!!)
+        wentWrongWrapper?.addSubview(wentWrongImage as UIView)
     }
 
     // There constraints are set for webView and other views programmatically
@@ -201,36 +212,85 @@ class IosKodaBotsWebViewScreen
             )
             NSLayoutConstraint.activateConstraints(constraints)
         }
+    }
 
+    private fun setupWentWrongConstraints() {
         // Layout for wentWrongWrapper and its children
         wentWrongWrapper?.let { wrapper ->
+            println("Setting up constraints for wentWrongWrapper")
+            // Create a container view for vertical stacking
+            val stackContainer = UIView().apply {
+                setTranslatesAutoresizingMaskIntoConstraints(false)
+            }
+            wrapper.addSubview(stackContainer)
+
+            // Add image, label, and button to the container
             wentWrongImage?.let { image ->
-                val imageConstraints = listOf(
-                    image.centerXAnchor.constraintEqualToAnchor(wrapper.centerXAnchor),
-                    image.topAnchor.constraintEqualToAnchor(wrapper.topAnchor, constant = 80.0),
-                    image.widthAnchor.constraintEqualToConstant(80.0),
-                    image.heightAnchor.constraintEqualToConstant(80.0)
-                )
-                NSLayoutConstraint.activateConstraints(imageConstraints)
+                stackContainer.addSubview(image)
             }
             wentWrongLabel?.let { label ->
+                stackContainer.addSubview(label)
+            }
+            wentWrongButton?.let { button ->
+                stackContainer.addSubview(button)
+            }
+
+            // Center the container in the wrapper
+            val containerConstraints = listOf(
+                stackContainer.centerXAnchor.constraintEqualToAnchor(wrapper.centerXAnchor),
+                stackContainer.centerYAnchor.constraintEqualToAnchor(wrapper.centerYAnchor),
+                stackContainer.leadingAnchor.constraintGreaterThanOrEqualToAnchor(
+                    wrapper.leadingAnchor,
+                    constant = 32.0
+                ),
+                stackContainer.trailingAnchor.constraintLessThanOrEqualToAnchor(
+                    wrapper.trailingAnchor,
+                    constant = -32.0
+                )
+            )
+            NSLayoutConstraint.activateConstraints(containerConstraints)
+
+            // Image constraints
+            wentWrongImage?.let { imageView ->
+                val imageConstraints = listOf(
+                    imageView.topAnchor.constraintEqualToAnchor(stackContainer.topAnchor),
+                    imageView.centerXAnchor.constraintEqualToAnchor(stackContainer.centerXAnchor),
+                    imageView.leadingAnchor.constraintEqualToAnchor(stackContainer.leadingAnchor),
+                    imageView.trailingAnchor.constraintEqualToAnchor(stackContainer.trailingAnchor)
+                )
+                imageView.contentMode = UIViewContentMode.UIViewContentModeScaleAspectFit
+                NSLayoutConstraint.activateConstraints(imageConstraints)
+            }
+
+            // Label constraints
+            wentWrongLabel?.let { label ->
                 val labelConstraints = listOf(
-                    label.centerXAnchor.constraintEqualToAnchor(wrapper.centerXAnchor),
-                    label.topAnchor.constraintEqualToAnchor(wentWrongImage!!.bottomAnchor, constant = 24.0),
-                    label.leadingAnchor.constraintEqualToAnchor(wrapper.leadingAnchor, constant = 32.0),
-                    label.trailingAnchor.constraintEqualToAnchor(wrapper.trailingAnchor, constant = -32.0)
+                    label.topAnchor.constraintEqualToAnchor(
+                        wentWrongImage!!.bottomAnchor,
+                        constant = 24.0
+                    ),
+                    label.centerXAnchor.constraintEqualToAnchor(stackContainer.centerXAnchor),
+                    label.leadingAnchor.constraintEqualToAnchor(stackContainer.leadingAnchor),
+                    label.trailingAnchor.constraintEqualToAnchor(stackContainer.trailingAnchor)
                 )
                 NSLayoutConstraint.activateConstraints(labelConstraints)
             }
+
+            // Button constraints
             wentWrongButton?.let { button ->
                 val buttonConstraints = listOf(
-                    button.centerXAnchor.constraintEqualToAnchor(wrapper.centerXAnchor),
-                    button.topAnchor.constraintEqualToAnchor(wentWrongLabel!!.bottomAnchor, constant = 24.0),
+                    button.topAnchor.constraintEqualToAnchor(
+                        wentWrongLabel!!.bottomAnchor,
+                        constant = 24.0
+                    ),
+                    button.centerXAnchor.constraintEqualToAnchor(stackContainer.centerXAnchor),
                     button.widthAnchor.constraintEqualToConstant(120.0),
-                    button.heightAnchor.constraintEqualToConstant(44.0)
+                    button.heightAnchor.constraintEqualToConstant(44.0),
+                    button.bottomAnchor.constraintEqualToAnchor(stackContainer.bottomAnchor)
                 )
                 NSLayoutConstraint.activateConstraints(buttonConstraints)
             }
+
             // Fill the wrapper to the view
             val wrapperConstraints = listOf(
                 wrapper.topAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.topAnchor),
@@ -273,7 +333,7 @@ class IosKodaBotsWebViewScreen
         )
     }
 
-    @Suppress("unused")
+    @ObjCAction
     fun wentWrongButtonClicked() {
         wentWrongWrapper?.hidden = true
         loaderWrapper?.hidden = false
@@ -281,6 +341,7 @@ class IosKodaBotsWebViewScreen
     }
 
     @Suppress("unused")
+    @ObjCAction
     fun willEnterForeground() {
         if (isReady) {
             webView?.evaluateJavaScript("KodaBots.onResume();", completionHandler = null)
@@ -288,6 +349,7 @@ class IosKodaBotsWebViewScreen
     }
 
     @Suppress("unused")
+    @ObjCAction
     fun handleAppDidEnterBackground() {
         if (isReady) {
             webView?.evaluateJavaScript("KodaBots.onPause();", completionHandler = null)
@@ -301,13 +363,14 @@ class IosKodaBotsWebViewScreen
         }
     }
 
-    fun sendBlock(blockId: String, params: Map<String, String>? = null): Boolean {
     @ObjCAction
     fun showWentWrong() {
         wentWrongWrapper?.hidden = false
         loaderWrapper?.hidden = true
+        setupWentWrongConstraints()
     }
 
+    fun sendBlock(blockId: String, params: Map<String, String>? = null): Boolean {
         if (!isReady) return false
         val jsCode = if (params.isNullOrEmpty()) {
             "KodaBots.sentBlock(\"$blockId\");"
@@ -386,7 +449,12 @@ class IosKodaBotsWebViewScreen
 
                 "onStatEvent" -> {
                     val eventType = messageBody["eventType"] as? String
-                    val params = messageBody["params"] as? Map<String, String>
+
+                    // TODO: Make this cleaner by fixing serialization issues
+                    // Extract params as Map<String, String>, working around type casting issues
+                    val params = (messageBody["params"] as? Map<*, *>)?.mapNotNull { (k, v) ->
+                        (k as? String)?.let { key -> (v as? String)?.let { value -> key to value } }
+                    }?.toMap()
                     if (eventType != null && params != null) {
                         callbacks(KodaBotsEvent(eventType, params))
                     }

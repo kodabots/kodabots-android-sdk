@@ -15,8 +15,6 @@ final class MainViewController: UIViewController {
 
 	private var customClientID: String?
 	private var customURL: String?
-	// TODO: To be removed
-	//	private var serverType: KBServerType?
 
 	// MARK: - Properties
 
@@ -29,7 +27,7 @@ final class MainViewController: UIViewController {
 		}
 		if callback is KodaBotsEvent {
 			let it = callback as! KodaBotsEvent
-//			print("KodaBotsSDK -> Event received: \(it.type) - \(it.params)")
+			print("KodaBotsSDK -> Event received: \(it.type) - \(it.params)")
 		}
 	}
 
@@ -74,7 +72,7 @@ final class MainViewController: UIViewController {
 			}
 			alert.addAction(
 				UIAlertAction(
-					title: "Set (release)",
+					title: "Set",
 					style: .default,
 					handler: { [weak alert] (_) in
 						let clientID = alert?.textFields?[0].text
@@ -82,21 +80,6 @@ final class MainViewController: UIViewController {
 						guard !clientID.isEmpty else { return }
 						self.showToast("CLIENT ID SET: \(clientID)")
 						self.customClientID = clientID
-						//						self.serverType = .release
-					}
-				)
-			)
-			alert.addAction(
-				UIAlertAction(
-					title: "Set (stage)",
-					style: .default,
-					handler: { [weak alert] (_) in
-						let clientID = alert?.textFields?[0].text
-						guard let clientID else { return }
-						guard !clientID.isEmpty else { return }
-						self.showToast("CLIENT ID SET: \(clientID)")
-						self.customClientID = clientID
-						//						self.serverType = .stage
 					}
 				)
 			)
@@ -302,16 +285,6 @@ final class MainViewController: UIViewController {
 	func initializeWebview() {
 		let workItem = DispatchWorkItem {
 			guard self.initializeKodaBot() else { return }
-			let config = KodaBotsConfig.init(
-				userProfile: UserProfile(),
-				blockId: nil,
-				progressConfig: nil,
-				timeoutConfig: nil
-			)
-			config.progressConfig = KodaBotsProgressConfig(
-				backgroundColor: UIColor.white,
-				progressColor: UIColor.red,
-			)
 			if let viewController = KodaBotsSDK.shared.generateScreen()
 				as? UIViewController
 			{
@@ -343,11 +316,24 @@ final class MainViewController: UIViewController {
 	}
 
 	func initializeKodaBot() -> Bool {
+		let timeoutImage = UIImage(named: "went_wrong")
+		let timeoutConfig = KodaBotsTimedOutConfig()
+		timeoutConfig.buttonColor = UIColor.magenta
+		timeoutConfig.image = timeoutImage
+		timeoutConfig.timeout = 20
+		timeoutConfig.message = "Something went wrong!"
+		
+		let progressConfig = KodaBotsProgressConfig(
+			backgroundColor: UIColor.white,
+			progressColor: UIColor.red,
+		)
+		print(customClientID)
 		let config = KodaBotsConfig.init(
 			userProfile: UserProfile(),
 			blockId: nil,
-			progressConfig: nil,
-			timeoutConfig: nil
+			progressConfig: progressConfig,
+			timeoutConfig: timeoutConfig,
+			customClientId: customClientID
 		)
 
 		let driver = IosKodaBotsSDKDriver(
@@ -355,11 +341,5 @@ final class MainViewController: UIViewController {
 			callbacks: callbacks
 		)
 		return KodaBotsSDK.shared.doInit(driver: driver)
-	}
-
-	private func shouldInitializeWithCustomSettings() -> Bool {
-		let isClientAndServerSet = false  //(customClientID != nil && serverType != nil && ((customClientID?.isEmpty) == nil))
-		let isURLSet = customURL != nil
-		return isClientAndServerSet || isURLSet
 	}
 }
