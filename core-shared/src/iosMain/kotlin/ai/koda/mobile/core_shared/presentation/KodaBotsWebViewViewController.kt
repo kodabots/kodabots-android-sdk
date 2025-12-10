@@ -37,7 +37,10 @@ import platform.UIKit.UIView
 import platform.UIKit.UIViewContentMode
 import platform.UIKit.UIViewController
 import platform.WebKit.WKNavigation
+import platform.WebKit.WKNavigationAction
+import platform.WebKit.WKNavigationActionPolicy
 import platform.WebKit.WKNavigationDelegateProtocol
+import platform.WebKit.WKNavigationTypeLinkActivated
 import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
@@ -363,6 +366,48 @@ class IosKodaBotsWebViewScreen
         }
     }
 
+    override fun webView(
+        webView: WKWebView,
+        decidePolicyForNavigationAction: WKNavigationAction,
+        decisionHandler: (WKNavigationActionPolicy) -> Unit
+    ) {
+        val requestUrl = decidePolicyForNavigationAction.request.URL
+        
+        if (requestUrl == null) {
+            decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyAllow)
+            return
+        }
+        
+        // Handle tel: links
+        if (requestUrl.scheme == "tel") {
+            openUrlSafely(requestUrl)
+            decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyCancel)
+            return
+        }
+        
+        // Handle external links (target="_blank" or link clicks)
+        val shouldOpenExternally = decidePolicyForNavigationAction.navigationType == WKNavigationTypeLinkActivated 
+            || decidePolicyForNavigationAction.targetFrame == null
+        
+        if (shouldOpenExternally) {
+            openUrlSafely(requestUrl)
+            decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyCancel)
+            return
+        }
+        
+        decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyAllow)
+    }
+
+    private fun openUrlSafely(nsUrl: NSURL) {
+        try {
+            // Preferred modern API (iOS 10+)
+            UIApplication.sharedApplication.openURL(nsUrl, options = mapOf<Any?, Any?>(), completionHandler = null)
+        } catch (_: Throwable) {
+            // Fallback to deprecated API
+            UIApplication.sharedApplication.openURL(nsUrl)
+        }
+    }
+
     @ObjCAction
     fun showWentWrong() {
         wentWrongWrapper?.hidden = false
@@ -471,7 +516,7 @@ class IosKodaBotsWebViewScreen
                     val urlString = messageBody["url"] as? String
                     urlString?.let { url ->
                         NSURL.URLWithString(url)?.let { nsUrl ->
-                            UIApplication.sharedApplication.openURL(nsUrl)
+                            openUrlSafely(nsUrl)
                         }
                     }
                 }
