@@ -123,6 +123,10 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         setupProgress()
         setupWentWrong()
         binding?.fragmentKodaBotsWebview?.apply {
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            isFocusable = false
+            isFocusableInTouchMode = false
+            contentDescription = ""
             settings.apply {
                 this.javaScriptEnabled = true
                 this.userAgentString = "KodaBotsSDK " + this.userAgentString
