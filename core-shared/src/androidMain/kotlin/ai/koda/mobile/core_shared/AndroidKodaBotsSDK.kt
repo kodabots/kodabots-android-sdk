@@ -34,13 +34,14 @@ class AndroidKodaBotsSDKDriver(
     }
 
     private var kodaClientScope: CoroutineScope? = null
-    override var isInitialized = false
-        set
 
-    /**
-     * Change this field only for debug
-     */
-    override var clientToken: String? = null
+    private var _isInitialized = false
+    override val isInitialized: Boolean
+        get() = _isInitialized
+
+    private var _clientToken: String? = null
+    override val clientToken: String?
+        get() = _clientToken
 
     private var restApi: KodaBotsRestApi? = null
 
@@ -55,14 +56,15 @@ class AndroidKodaBotsSDKDriver(
         kodaClientScope?.cancel()
         kodaClientScope = CoroutineScope(SupervisorJob() + globalExceptionHandler)
 
-        clientToken = context.packageManager
-            .getApplicationInfo(
-                context.packageName,
-                PackageManager.GET_META_DATA
-            ).metaData?.getString(KODA_CLIENT_TOKEN_KEY)
+        _clientToken = config.customClientId
+            ?: context.packageManager
+                .getApplicationInfo(
+                    context.packageName,
+                    PackageManager.GET_META_DATA
+                ).metaData?.getString(KODA_CLIENT_TOKEN_KEY)
 
-        if (clientToken != null) {
-            isInitialized = true
+        if (_clientToken != null) {
+            _isInitialized = true
             restApi = KodaBotsRestApi()
             KodaBotsPreferences.initialize(
                 AndroidKodaBotsPreferencesServices(context)
@@ -71,7 +73,7 @@ class AndroidKodaBotsSDKDriver(
             Log.d("KodaBotsSDK", "Failed to get ClientId, please check your AndroidManifest")
         }
 
-        return isInitialized
+        return _isInitialized
     }
 
 
@@ -80,7 +82,7 @@ class AndroidKodaBotsSDKDriver(
      */
     override fun uninitialize() {
         kodaClientScope?.cancel("Koda SDK uninitialized")
-        isInitialized = false
+        _isInitialized = false
     }
 
     override fun gatherPhoneData(userProfile: UserProfile?): UserProfile? {
@@ -107,23 +109,18 @@ class AndroidKodaBotsSDKDriver(
      * @param callback Callback that returns sealed class with result
      */
     override fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
-        if (KodaBotsPreferences.userId != null && clientToken != null) {
-            kodaClientScope?.launch(globalExceptionHandler) {
-                when (val response = restApi?.getUnreadCount()) {
-                    is CallResponse.Success -> {
-                        callback.invoke(response)
-                    }
+        val userId = KodaBotsPreferences.userId
+        val token = clientToken
+        val api = restApi
+        val scope = kodaClientScope
 
-                    else -> {
-                        callback.invoke(
-                            response
-                                ?: CallResponse.Error(Exception("Rest API not initialized properly"))
-                        )
-                    }
-                }
+        if (userId != null && token != null && api != null && scope != null) {
+            scope.launch(globalExceptionHandler) {
+                val response = api.getUnreadCount()
+                callback.invoke(response)
             }
         } else {
-            callback.invoke(CallResponse.Error(Exception("UserID or ClientID are null")))
+            callback.invoke(CallResponse.Error(Exception("SDK not properly initialized: userId=$userId, token=$token, api=$api, scope=$scope")))
         }
     }
 
@@ -134,10 +131,14 @@ class AndroidKodaBotsSDKDriver(
      * @return Sealed class with result
      */
     override suspend fun getUnreadCount(): CallResponse<Int?> {
-        return if (KodaBotsPreferences.userId != null && clientToken != null)
-            restApi?.getUnreadCount()
-                ?: CallResponse.Error(Exception("Rest API not initialized properly")) else {
-            CallResponse.Error(Exception("UserID or ClientID are null"))
+        val userId = KodaBotsPreferences.userId
+        val token = clientToken
+        val api = restApi
+
+        return if (userId != null && token != null && api != null) {
+            api.getUnreadCount()
+        } else {
+            CallResponse.Error(Exception("SDK not properly initialized: userId=$userId, token=$token, api=$api"))
         }
     }
 

@@ -24,8 +24,13 @@ class IosKodaBotsSDKDriver(
     private val callbacks: ((KodaBotsCallback) -> Unit)? = null
 ) : KodaBotsSDKDriver {
 
-    override var isInitialized = false
-    override var clientToken: String? = null
+    private var _isInitialized = false
+    override val isInitialized: Boolean
+        get() = _isInitialized
+
+    private var _clientToken: String? = null
+    override val clientToken: String?
+        get() = _clientToken
 
     private var restApi: KodaBotsRestApi? = null
 
@@ -37,12 +42,12 @@ class IosKodaBotsSDKDriver(
      */
     override fun init(): Boolean {
         // Fetch client token from Info.plist
-        clientToken = config.customClientId
+        _clientToken = config.customClientId
             ?: (NSBundle.mainBundle.objectForInfoDictionaryKey("KodaBotsSDK") as? Map<String, String>)?.getValue(
                 "clientToken"
             )
-        if (clientToken != null) {
-            isInitialized = true
+        if (_clientToken != null) {
+            _isInitialized = true
             restApi = KodaBotsRestApi()
             KodaBotsPreferences.initialize(
                 IosKodaBotsPreferencesServices.shared
@@ -53,14 +58,14 @@ class IosKodaBotsSDKDriver(
             println("KodaBotsSDK: Failed to get ClientToken, please check your Info.plist")
         }
 
-        return isInitialized
+        return _isInitialized
     }
 
     /**
      * Method used to uninitialize SDK.
      */
     override fun uninitialize() {
-        isInitialized = false
+        _isInitialized = false
         println("KodaBotsSDK: SDK uninitialized")
     }
 
@@ -94,13 +99,16 @@ class IosKodaBotsSDKDriver(
      * @param callback Callback that returns sealed class with result
      */
     override fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
-        if (KodaBotsPreferences.userId != null && clientToken != null) {
+        val userId = KodaBotsPreferences.userId
+        val token = clientToken
+        val api = restApi
+
+        if (userId != null && token != null && api != null) {
             // Use simple coroutine approach for iOS
             @OptIn(DelicateCoroutinesApi::class)
             GlobalScope.launch {
                 val response = try {
-                    restApi?.getUnreadCount()
-                        ?: CallResponse.Error(Exception("Rest API not initialized properly"))
+                    api.getUnreadCount()
                 } catch (e: Exception) {
                     CallResponse.Error(e)
                 }
@@ -111,7 +119,7 @@ class IosKodaBotsSDKDriver(
                 }
             }
         } else {
-            callback.invoke(CallResponse.Error(Exception("UserID or ClientToken are null")))
+            callback.invoke(CallResponse.Error(Exception("SDK not properly initialized: userId=$userId, token=$token, api=$api")))
         }
     }
 
@@ -122,15 +130,18 @@ class IosKodaBotsSDKDriver(
      * @return Sealed class with result
      */
     override suspend fun getUnreadCount(): CallResponse<Int?> {
-        return if (KodaBotsPreferences.userId != null && clientToken != null) {
+        val userId = KodaBotsPreferences.userId
+        val token = clientToken
+        val api = restApi
+
+        return if (userId != null && token != null && api != null) {
             try {
-                restApi?.getUnreadCount()
-                    ?: CallResponse.Error(Exception("Rest API not initialized properly"))
+                api.getUnreadCount()
             } catch (e: Exception) {
                 CallResponse.Error(e)
             }
         } else {
-            CallResponse.Error(Exception("UserID or ClientToken are null"))
+            CallResponse.Error(Exception("SDK not properly initialized: userId=$userId, token=$token, api=$api"))
         }
     }
 

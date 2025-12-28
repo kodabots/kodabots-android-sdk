@@ -6,43 +6,48 @@ import ai.koda.mobile.core_shared.screen.KodaBotsWebViewScreen
 
 object KodaBotsSDK {
 
-    lateinit var driver: KodaBotsSDKDriver
+    var driver: KodaBotsSDKDriver? = null
+        private set
+
+    val isInitialized: Boolean
+        get() = driver?.isInitialized == true
 
     var clientToken: String? = null
-        get() = driver.clientToken
+        get() = driver?.clientToken
 
     fun init(
         driver: KodaBotsSDKDriver
     ): Boolean {
         this.driver = driver
-        return this.driver.init()
+        return this.driver?.init() ?: false
     }
 
     fun gatherPhoneData(userProfile: UserProfile? = null): UserProfile? {
-        return driver.gatherPhoneData(userProfile)
+        return driver?.gatherPhoneData(userProfile)
     }
 
     fun getUnreadCount(callback: (CallResponse<Int?>) -> Unit) {
-        return driver.getUnreadCount(callback)
+        driver?.getUnreadCount(callback)
     }
 
     suspend fun getUnreadCount(): CallResponse<Int?> {
-        return driver.getUnreadCount()
+        return driver?.getUnreadCount() ?: CallResponse.Error(Exception("SDK not initialized"))
     }
 
     fun generateScreen(): Any? {
-        return driver.generateScreen()
+        return driver?.generateScreen()
     }
 
     fun uninitialize() {
-        driver.uninitialize()
+        driver?.uninitialize()
+        driver = null
     }
 }
 
 interface KodaBotsSDKDriver {
-    var isInitialized: Boolean
+    val isInitialized: Boolean
 
-    var clientToken: String?
+    val clientToken: String?
 
     fun init(): Boolean
 

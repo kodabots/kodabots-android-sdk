@@ -35,15 +35,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.RenderMode
 import com.airbnb.lottie.model.KeyPath
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -53,7 +51,6 @@ import java.util.concurrent.TimeUnit
 class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), FileChooserLauncher,
     KodaBotsWebViewScreen {
     private var binding: FragmentKodaBotsWebviewBinding? = null
-    private var scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val chromeClient =
         KodaBotsChromeClient(
             this@KodaBotsWebViewFragment,
@@ -176,7 +173,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         Log.d("KodaBots", kodaBotUrl)
         binding?.fragmentKodaBotsWebview?.loadUrl(kodaBotUrl)
         timeoutDeferred =
-            scope.async(Dispatchers.Main + getGlobalExceptionHandler()) {
+            viewLifecycleOwner.lifecycleScope.async(Dispatchers.Main + getGlobalExceptionHandler()) {
                 delay(
                     TimeUnit.SECONDS.toMillis(
                         customConfig?.timeoutConfig?.timeout ?: DEFAULT_WENT_WRONG_TIMEOUT
@@ -282,7 +279,6 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
 
     override fun onPause() {
         super.onPause()
-        scope.cancel()
         if (isReady) {
             binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.onPause();"
@@ -292,7 +288,6 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
 
     override fun onResume() {
         super.onResume()
-        scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         if (isReady) {
             binding?.fragmentKodaBotsWebview?.callJavascript(
                 "KodaBots.onResume();"
@@ -316,7 +311,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     @JavascriptInterface
     fun onReady(userId: String) {
         timeoutDeferred?.cancel()
-        scope.launch(Dispatchers.Main + getGlobalExceptionHandler()) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main + getGlobalExceptionHandler()) {
             KodaBotsPreferences.userId = userId
             setLoadingViewVisibility(isVisible = false)
             isReady = true
@@ -516,7 +511,10 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     }
 
     private fun getGlobalExceptionHandler() =
-        (KodaBotsSDK.driver as AndroidKodaBotsSDKDriver).globalExceptionHandler
+        (KodaBotsSDK.driver as? AndroidKodaBotsSDKDriver)?.globalExceptionHandler
+            ?: kotlinx.coroutines.CoroutineExceptionHandler { _, exception ->
+                Log.e("KodaBotsSDK", "Coroutine exception: ${exception.message}")
+            }
 
     companion object {
         private const val DEFAULT_WENT_WRONG_TIMEOUT = 20L
