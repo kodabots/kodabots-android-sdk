@@ -22,7 +22,6 @@ buildscript {
 apply plugin: "com.google.cloud.artifactregistry.gradle-plugin"
 
 
-include ':core'
 include ':sample'
 include ':core-shared'
 rootProject.name = "KodaBotsSDK"

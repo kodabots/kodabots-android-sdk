@@ -1,5 +1,6 @@
 [versions]
 artifactregistry-gradle-plugin-version = "2.2.1"
+buildkonfig-gradle-plugin = "0.17.1"
 gradle = "8.12.3"
 gradle-artifactregistry-gradle-plugin = "2.2.1"
 kotlin = "2.2.10"
@@ -27,6 +28,7 @@ core = "1.7.0"
 [libraries]
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
 artifactregistry-gradle-plugin = { module = "gradle.plugin.com.google.cloud.artifactregistry:artifactregistry-gradle-plugin", version.ref = "gradle-artifactregistry-gradle-plugin" }
+buildkonfig-gradle-plugin = { module = "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin", version.ref = "buildkonfig-gradle-plugin" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }

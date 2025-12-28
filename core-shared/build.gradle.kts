@@ -1,8 +1,11 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("com.android.library")
     id("kotlinx-serialization")
-
+    id("com.codingfeline.buildkonfig")
 }
 
 kotlin {
@@ -110,6 +113,57 @@ kotlin {
                 implementation(libs.ktor.client.darwin)
             }
         }
+    }
+}
+
+buildkonfig {
+    packageName = "ai.koda.mobile.core_shared.config"
+    objectName = "AppConfig"
+
+    // Load properties from local.properties
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { localProperties.load(it) }
+    }
+
+    // Default config (fallback - Production)
+    defaultConfigs {
+        buildConfigField(STRING, "baseUrl",
+            localProperties.getProperty("PROD_BASE_URL") ?: "https://web.eu-pl.koda.ai")
+        buildConfigField(STRING, "apiVersion",
+            localProperties.getProperty("PROD_API_VERSION") ?: "v1")
+        buildConfigField(STRING, "baseRestUrl",
+            localProperties.getProperty("PROD_REST_BASE_URL") ?: "https://bot.eu-pl.koda.ai")
+        buildConfigField(STRING, "apiRestVersion",
+            localProperties.getProperty("PROD_API_REST_VERSION") ?: "v1")
+        buildConfigField(STRING, "environment", "production")
+    }
+
+    // Staging flavor
+    defaultConfigs("staging") {
+        buildConfigField(STRING, "baseUrl",
+            localProperties.getProperty("STAGING_BASE_URL") ?: "https://web.staging.koda.ai")
+        buildConfigField(STRING, "apiVersion",
+            localProperties.getProperty("STAGING_API_VERSION") ?: "v1")
+        buildConfigField(STRING, "baseRestUrl",
+            localProperties.getProperty("STAGING_REST_BASE_URL") ?: "https://bot.staging.koda.ai")
+        buildConfigField(STRING, "apiRestVersion",
+            localProperties.getProperty("STAGING_API_REST_VERSION") ?: "v1")
+        buildConfigField(STRING, "environment", "staging")
+    }
+
+    // Production flavor
+    defaultConfigs("prod") {
+        buildConfigField(STRING, "baseUrl",
+            localProperties.getProperty("PROD_BASE_URL") ?: "https://web.eu-pl.koda.ai")
+        buildConfigField(STRING, "apiVersion",
+            localProperties.getProperty("PROD_API_VERSION") ?: "v1")
+        buildConfigField(STRING, "baseRestUrl",
+            localProperties.getProperty("PROD_REST_BASE_URL") ?: "https://bot.eu-pl.koda.ai")
+        buildConfigField(STRING, "apiRestVersion",
+            localProperties.getProperty("PROD_API_REST_VERSION") ?: "v1")
+        buildConfigField(STRING, "environment", "production")
     }
 }
 

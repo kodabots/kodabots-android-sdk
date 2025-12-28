@@ -78,7 +78,7 @@ internal class KodaBotsRestApi {
     companion object {
         private const val CODE_UNAUTHORIZED = 401
         private const val CODE_FORBIDDEN = 403
-        private const val BASE_URL =
+        private val BASE_URL =
             "${AppConfig.baseRestUrl}/sdk/${AppConfig.apiRestVersion}"
 
         /** Endpoints paths */
