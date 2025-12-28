@@ -6,7 +6,12 @@ plugins {
     id("com.android.library")
     id("kotlinx-serialization")
     id("com.codingfeline.buildkonfig")
+    id("maven-publish")
+    id("com.google.cloud.artifactregistry.gradle-plugin")
 }
+
+group = "ai.koda.mobile.sdk"
+version = "1.5.0" // <-- Define the version here
 
 kotlin {
 
@@ -129,40 +134,64 @@ buildkonfig {
 
     // Default config (fallback - Production)
     defaultConfigs {
-        buildConfigField(STRING, "baseUrl",
-            localProperties.getProperty("PROD_BASE_URL") ?: "https://web.eu-pl.koda.ai")
-        buildConfigField(STRING, "apiVersion",
-            localProperties.getProperty("PROD_API_VERSION") ?: "v1")
-        buildConfigField(STRING, "baseRestUrl",
-            localProperties.getProperty("PROD_REST_BASE_URL") ?: "https://bot.eu-pl.koda.ai")
-        buildConfigField(STRING, "apiRestVersion",
-            localProperties.getProperty("PROD_API_REST_VERSION") ?: "v1")
+        buildConfigField(
+            STRING, "baseUrl",
+            localProperties.getProperty("PROD_BASE_URL") ?: "https://web.eu-pl.koda.ai"
+        )
+        buildConfigField(
+            STRING, "apiVersion",
+            localProperties.getProperty("PROD_API_VERSION") ?: "v1"
+        )
+        buildConfigField(
+            STRING, "baseRestUrl",
+            localProperties.getProperty("PROD_REST_BASE_URL") ?: "https://bot.eu-pl.koda.ai"
+        )
+        buildConfigField(
+            STRING, "apiRestVersion",
+            localProperties.getProperty("PROD_API_REST_VERSION") ?: "v1"
+        )
         buildConfigField(STRING, "environment", "production")
     }
 
     // Staging flavor
     defaultConfigs("staging") {
-        buildConfigField(STRING, "baseUrl",
-            localProperties.getProperty("STAGING_BASE_URL") ?: "https://web.staging.koda.ai")
-        buildConfigField(STRING, "apiVersion",
-            localProperties.getProperty("STAGING_API_VERSION") ?: "v1")
-        buildConfigField(STRING, "baseRestUrl",
-            localProperties.getProperty("STAGING_REST_BASE_URL") ?: "https://bot.staging.koda.ai")
-        buildConfigField(STRING, "apiRestVersion",
-            localProperties.getProperty("STAGING_API_REST_VERSION") ?: "v1")
+        buildConfigField(
+            STRING, "baseUrl",
+            localProperties.getProperty("STAGING_BASE_URL") ?: "https://web.staging.koda.ai"
+        )
+        buildConfigField(
+            STRING, "apiVersion",
+            localProperties.getProperty("STAGING_API_VERSION") ?: "v1"
+        )
+        buildConfigField(
+            STRING, "baseRestUrl",
+            localProperties.getProperty("STAGING_REST_BASE_URL") ?: "https://bot.staging.koda.ai"
+        )
+        buildConfigField(
+            STRING, "apiRestVersion",
+            localProperties.getProperty("STAGING_API_REST_VERSION") ?: "v1"
+        )
         buildConfigField(STRING, "environment", "staging")
     }
 
     // Production flavor
     defaultConfigs("prod") {
-        buildConfigField(STRING, "baseUrl",
-            localProperties.getProperty("PROD_BASE_URL") ?: "https://web.eu-pl.koda.ai")
-        buildConfigField(STRING, "apiVersion",
-            localProperties.getProperty("PROD_API_VERSION") ?: "v1")
-        buildConfigField(STRING, "baseRestUrl",
-            localProperties.getProperty("PROD_REST_BASE_URL") ?: "https://bot.eu-pl.koda.ai")
-        buildConfigField(STRING, "apiRestVersion",
-            localProperties.getProperty("PROD_API_REST_VERSION") ?: "v1")
+        buildConfigField(
+            STRING, "baseUrl",
+            localProperties.getProperty("PROD_BASE_URL") ?: "https://web.eu-pl.koda.ai"
+        )
+        buildConfigField(
+            STRING, "apiVersion",
+            localProperties.getProperty("PROD_API_VERSION") ?: "v1"
+        )
+        buildConfigField(
+            STRING, "baseRestUrl",
+            localProperties.getProperty("PROD_REST_BASE_URL") ?: "https://bot.eu-pl.koda.ai"
+        )
+        buildConfigField(
+            STRING, "apiRestVersion",
+            localProperties.getProperty("PROD_API_REST_VERSION") ?: "v1"
+        )
         buildConfigField(STRING, "environment", "production")
     }
 }
@@ -182,5 +211,38 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlin {
+        jvmToolchain(17)
+    }
+}
+
+val props: Properties = Properties().apply {
+    project.rootProject.file("local.properties").inputStream().use { load(it) }
+}
+
+repositories {
+    maven {
+        url = uri(props.getProperty("publishUrl") ?: "")
+    }
+}
+
+afterEvaluate {
+    configure<PublishingExtension> {
+        repositories {
+            maven {
+                url = uri(props.getProperty("publishUrl") ?: "")
+            }
+        }
+        publications {
+            create<MavenPublication>("release") {
+                groupId = "ai.koda.mobile.sdk"
+                artifactId = "koda-core"
+                version = "1.5.0"
+
+                // For Kotlin Multiplatform, publish the AAR artifact
+                artifact(tasks.getByName("bundleReleaseAar"))
+            }
+        }
     }
 }
