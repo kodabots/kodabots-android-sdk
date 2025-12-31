@@ -81,6 +81,43 @@ Add your client token to `Info.plist`:
 <string>YOUR_CLIENT_TOKEN_HERE</string>
 ```
 
+### Kotlin Multiplatform (KMP) Apps
+
+If you're integrating this SDK into a Kotlin Multiplatform app with a shared module, you **must** use `api()` instead of `implementation()` in your shared module's dependencies.
+
+#### Why `api()` is Required
+
+The SDK provides platform-specific UI components (Fragment for Android, UIViewController for iOS) that your native apps need to access directly. Using `api()` makes these types transitively available to your Android and iOS apps.
+
+#### Setup
+
+Add the dependency to your shared module's `build.gradle.kts`:
+
+```kotlin
+// shared/build.gradle.kts
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                // IMPORTANT: Use api(), not implementation()
+                api("ai.koda.mobile.sdk:koda-core:<latest_version>")
+
+                // For Ktor 3.x projects
+                api("ai.koda.mobile.sdk:koda-core-ktor3:<latest_version>")
+            }
+        }
+    }
+}
+```
+
+This allows your native apps to:
+- Access `KodaBotsSDK` directly
+- Use `KodaBotsWebViewFragment` (Android)
+- Use the generated `UIViewController` (iOS)
+- Configure `KodaBotsConfig`, `UserProfile`, and other SDK types
+
+**Note:** If you use `implementation()` instead, your native apps won't have access to the SDK's types, and you'll need to create wrapper functions in your shared module.
+
 ## Quick Start
 
 ### Android
