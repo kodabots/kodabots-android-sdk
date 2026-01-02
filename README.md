@@ -55,7 +55,9 @@ kotlin {
 
 **Why `api()` is required:** The SDK provides platform-specific UI components (Fragment for Android, UIViewController for iOS) that your native apps need to access directly. Using `api()` makes these types transitively available to your Android and iOS apps.
 
-**iOS Framework Export:** The `export()` declaration ensures that KodaBots SDK types are accessible from your iOS app when using the shared framework.
+**iOS Framework Configuration:**
+- `baseName = "Shared"` - This is the name of your iOS framework. You'll use `import Shared` in your Swift code to access the SDK. You can change "Shared" to any name that fits your project (e.g., "MyAppShared", "Core", etc.).
+- `export()` - This declaration ensures that KodaBots SDK types are accessible from your iOS app when using the shared framework.
 
 ### 3. Configure Android
 
@@ -179,11 +181,13 @@ class MainActivity : AppCompatActivity() {
 
 ### iOS
 
+> **Note:** In the examples below, we use `import Shared` instead of `import KodaBotsKit`. This is because you're integrating the SDK through your Kotlin Multiplatform shared module. The framework name "Shared" comes from the `baseName` you configured in your `build.gradle.kts` (see Installation step 2). This shared framework exports the KodaBots SDK types, making them accessible in your iOS app.
+
 #### 1. Initialize SDK
 
 ```swift
 import UIKit
-import KodaBotsKit
+import Shared
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -229,7 +233,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 ```swift
 import UIKit
-import KodaBotsKit
+import Shared
 
 class ViewController: UIViewController {
 
