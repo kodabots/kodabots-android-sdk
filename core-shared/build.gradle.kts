@@ -20,22 +20,13 @@ kotlin {
 
     val xcfName = "KodaBotsKit"
 
-    iosX64 {
-        binaries.framework {
-            baseName = xcfName
-            binaryOption("bundleId", "ai.koda.mobile.core.shared.kodabotskit")
-        }
-    }
-
-    iosArm64 {
-        binaries.framework {
-            baseName = xcfName
-            binaryOption("bundleId", "ai.koda.mobile.core.shared.kodabotskit")
-        }
-    }
-
-    iosSimulatorArm64 {
-        binaries.framework {
+    // Replace individual iOS target blocks with a single loop
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { target ->
+        target.binaries.framework {
             baseName = xcfName
             binaryOption("bundleId", "ai.koda.mobile.core.shared.kodabotskit")
         }
@@ -213,7 +204,6 @@ publishing {
     publications {
         withType<MavenPublication> {
             groupId = "ai.koda.mobile.sdk"
-            artifactId = "core-shared"
             version = "1.5.0"
         }
     }

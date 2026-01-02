@@ -4,9 +4,7 @@ A Kotlin Multiplatform SDK for integrating KodaBots AI-powered chatbot into your
 
 ## Installation
 
-### Android
-
-#### 1. Add Maven Repository
+### 1. Add Maven Repository
 
 Add the KodaBots Maven repository to your `settings.gradle.kts`:
 
@@ -24,21 +22,42 @@ dependencyResolutionManagement {
 }
 ```
 
-#### 2. Add Dependency
+### 2. Add Dependency
 
-Add the dependency to your app-level `build.gradle.kts`:
+Add the SDK dependency to your shared module's `build.gradle.kts`:
 
 ```kotlin
-dependencies {
-    // For Ktor 2.x or other networking libraries
-    implementation("ai.koda.mobile.sdk:koda-core:<latest_version>")
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                // IMPORTANT: Use api(), not implementation()
+                api("ai.koda.mobile.sdk:core-shared:1.5.0")
+            }
+        }
+    }
 
-    // For Ktor 3.x
-    implementation("ai.koda.mobile.sdk:koda-core-ktor3:<latest_version>")
+    // iOS Framework Configuration
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+
+            // Export KodaBots SDK for iOS
+            export("ai.koda.mobile.sdk:core-shared:1.5.0")
+        }
+    }
 }
 ```
 
-#### 3. Configure AndroidManifest
+**Why `api()` is required:** The SDK provides platform-specific UI components (Fragment for Android, UIViewController for iOS) that your native apps need to access directly. Using `api()` makes these types transitively available to your Android and iOS apps.
+
+**iOS Framework Export:** The `export()` declaration ensures that KodaBots SDK types are accessible from your iOS app when using the shared framework.
+
+### 3. Configure Android
 
 Add your client token to `AndroidManifest.xml`:
 
@@ -52,71 +71,25 @@ Add your client token to `AndroidManifest.xml`:
 </application>
 ```
 
-### iOS
+### 4. Configure iOS
 
-#### 1. Add XCFramework to Xcode
-
-The SDK generates an XCFramework called `KodaBotsKit`. Add it to your Xcode project:
-
-1. Build the XCFramework:
-   ```bash
-   ./gradlew :core-shared:assembleKodaBotsKitXCFramework
-   ```
-
-2. The framework will be located at:
-   ```
-   core-shared/build/XCFrameworks/release/KodaBotsKit.xcframework
-   ```
-
-3. Drag and drop `KodaBotsKit.xcframework` into your Xcode project
-
-4. In your target's settings, ensure the framework is added to "Frameworks, Libraries, and Embedded Content"
-
-#### 2. Configure Info.plist
-
-Add your client token to `Info.plist`:
+Add the required keys to your `Info.plist`:
 
 ```xml
+<!-- Client Token -->
 <key>KodaBotsClientToken</key>
 <string>YOUR_CLIENT_TOKEN_HERE</string>
+
+<!-- Privacy Permissions -->
+<key>NSMicrophoneUsageDescription</key>
+<string>We need access to your microphone to record voice messages.</string>
+
+<key>NSCameraUsageDescription</key>
+<string>We need access to your camera to take photos.</string>
+
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need access to your photo library to select photos.</string>
 ```
-
-### Kotlin Multiplatform (KMP) Apps
-
-If you're integrating this SDK into a Kotlin Multiplatform app with a shared module, you **must** use `api()` instead of `implementation()` in your shared module's dependencies.
-
-#### Why `api()` is Required
-
-The SDK provides platform-specific UI components (Fragment for Android, UIViewController for iOS) that your native apps need to access directly. Using `api()` makes these types transitively available to your Android and iOS apps.
-
-#### Setup
-
-Add the dependency to your shared module's `build.gradle.kts`:
-
-```kotlin
-// shared/build.gradle.kts
-kotlin {
-    sourceSets {
-        commonMain {
-            dependencies {
-                // IMPORTANT: Use api(), not implementation()
-                api("ai.koda.mobile.sdk:koda-core:<latest_version>")
-
-                // For Ktor 3.x projects
-                api("ai.koda.mobile.sdk:koda-core-ktor3:<latest_version>")
-            }
-        }
-    }
-}
-```
-
-This allows your native apps to:
-- Access `KodaBotsSDK` directly
-- Use `KodaBotsWebViewFragment` (Android)
-- Use the generated `UIViewController` (iOS)
-- Configure `KodaBotsConfig`, `UserProfile`, and other SDK types
-
-**Note:** If you use `implementation()` instead, your native apps won't have access to the SDK's types, and you'll need to create wrapper functions in your shared module.
 
 ## Quick Start
 
@@ -169,7 +142,19 @@ class MyApplication : Application() {
 }
 ```
 
-#### 2. Display Chatbot Fragment
+#### 2. Prepare Fragment Container
+
+Create a container in your layout XML (`res/layout/activity_main.xml`):
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+```
+
+#### 3. Display Chatbot Fragment
 
 ```kotlin
 class MainActivity : AppCompatActivity() {
@@ -183,7 +168,7 @@ class MainActivity : AppCompatActivity() {
         // Generate the chatbot fragment
         kodaBotsFragment = KodaBotsSDK.generateScreen() as? KodaBotsWebViewFragment
 
-        // Display in a container
+        // Display in the container
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container, kodaBotsFragment!!)
             commit()
@@ -230,7 +215,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         )
 
-        let success = KodaBotsSDK.shared.init(driver: driver)
+        let success = KodaBotsSDK.shared.doInit(driver: driver)
         if !success {
             print("SDK initialization failed")
         }
@@ -394,6 +379,7 @@ Main entry point for the SDK.
 ```kotlin
 object KodaBotsSDK {
     // Initialize the SDK
+    // Note: In Swift, this method is called `doInit` instead of `init`
     fun init(driver: KodaBotsSDKDriver): Boolean
 
     // Check if SDK is initialized

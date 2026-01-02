@@ -1,14 +1,10 @@
 package ai.koda.mobile.sdk.sample
 
 import ai.koda.mobile.core_shared.KodaBotsSDK
-import ai.koda.mobile.core_shared.config.KodaBotsConfig
-import ai.koda.mobile.core_shared.config.KodaBotsProgressConfig
 import ai.koda.mobile.core_shared.model.UserProfile
 import ai.koda.mobile.core_shared.model.api.CallResponse
-import ai.koda.mobile.core_shared.presentation.KodaBotsCallbacks
 import ai.koda.mobile.core_shared.presentation.KodaBotsWebViewFragment
 import ai.koda.mobile.sdk.sample.databinding.ActivityMainBinding
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
