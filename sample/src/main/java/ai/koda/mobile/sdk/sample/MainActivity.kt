@@ -1,14 +1,10 @@
 package ai.koda.mobile.sdk.sample
 
-import ai.koda.mobile.sdk.core.CallResponse
-import ai.koda.mobile.sdk.core.KodaBotsCallbacks
-import ai.koda.mobile.sdk.core.KodaBotsConfig
-import ai.koda.mobile.sdk.core.KodaBotsProgressConfig
-import ai.koda.mobile.sdk.core.KodaBotsSDK
-import ai.koda.mobile.sdk.core.KodaBotsWebViewFragment
-import ai.koda.mobile.sdk.core.UserProfile
+import ai.koda.mobile.core_shared.KodaBotsSDK
+import ai.koda.mobile.core_shared.model.UserProfile
+import ai.koda.mobile.core_shared.model.api.CallResponse
+import ai.koda.mobile.core_shared.presentation.KodaBotsWebViewFragment
 import ai.koda.mobile.sdk.sample.databinding.ActivityMainBinding
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -27,17 +23,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var kodaBotsFragment: KodaBotsWebViewFragment? = null
-    private val callbacks: (KodaBotsCallbacks) -> Unit = {
-        when (it) {
-            is KodaBotsCallbacks.Event -> {
-                Log.d("KodaBotsSample", "CallbackEvent ${it.type} - ${it.params}")
-            }
-
-            is KodaBotsCallbacks.Error -> {
-                Log.d("KodaBotsSample", "CallbackError ${it.error}")
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,17 +47,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 it.mDialog?.setOnDismissListener {
                     if (kodaBotsFragment == null) {
-                        kodaBotsFragment = KodaBotsSDK.generateFragment(
-                            callbacks = callbacks,
-                            config = KodaBotsConfig().apply {
-                                progressConfig = KodaBotsProgressConfig().apply {
-                                    progressColor = Color.RED
-                                    backgroundColor = Color.WHITE
-                                }
-                                noCameraPermissionInfo =
-                                    "No camera permission, you can only choose from your files."
-                            }
-                        )
+                        kodaBotsFragment = KodaBotsSDK.generateScreen() as? KodaBotsWebViewFragment
                         supportFragmentManager.beginTransaction().apply {
                             replace(R.id.activity_main_content_root, kodaBotsFragment!!)
                             commit()

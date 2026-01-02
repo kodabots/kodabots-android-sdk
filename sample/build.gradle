@@ -11,11 +11,11 @@ android {
     defaultConfig {
         applicationId "ai.koda.mobile.sdk.sample"
         namespace "ai.koda.mobile.sdk.sample"
-        minSdk 23
-        compileSdk 35
-        targetSdk 35
+        minSdk 26
+        compileSdk 36
+        targetSdk 36
         versionCode 1
-        versionName "1.4.1"
+        versionName "1.4.2-kmp"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["KODA_AI_CLIENT_TOKEN"] = properties.get("KODA_AI_CLIENT_TOKEN")
@@ -31,6 +31,7 @@ android {
             debuggable false
             matchingFallbacks = 'release'
         }
+
         debug {
             resValue "string", "app_name", "KODA.AI Debug"
             applicationIdSuffix '.debug'
@@ -52,11 +53,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 
     applicationVariants.configureEach { variant ->
@@ -72,7 +73,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(":core")
+    implementation project(":core-shared")
     implementation libs.kotlin.stdlib
     implementation libs.androidx.core
     implementation libs.androidx.appcompat
