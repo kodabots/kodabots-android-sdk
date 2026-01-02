@@ -1,6 +1,10 @@
 # KodaBots SDK
 
-A Kotlin Multiplatform SDK for integrating KodaBots AI-powered chatbot into your Android and iOS applications.
+A Kotlin Multiplatform SDK for integrating KodaBots AI-powered chatbot into your applications.
+
+**Supported platforms:**
+- Android (native Android apps)
+- Kotlin Multiplatform (Android + iOS)
 
 ## Installation
 
@@ -24,6 +28,22 @@ dependencyResolutionManagement {
 
 ### 2. Add Dependency
 
+Choose the appropriate dependency based on your project type:
+
+#### For Android-only Apps
+
+Add the dependency to your app-level `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("ai.koda.mobile.sdk:koda-core2-android:2.0.0")
+}
+```
+
+> **Note:** For Android-only projects, you can use `implementation()`. The Android-specific artifact includes all necessary components for the SDK to work.
+
+#### For Kotlin Multiplatform Apps
+
 Add the SDK dependency to your shared module's `build.gradle.kts`:
 
 ```kotlin
@@ -32,7 +52,7 @@ kotlin {
         commonMain {
             dependencies {
                 // IMPORTANT: Use api(), not implementation()
-                api("ai.koda.mobile.sdk:core-shared:1.5.0")
+                api("ai.koda.mobile.sdk:koda-core2:2.0.0")
             }
         }
     }
@@ -47,13 +67,13 @@ kotlin {
             isStatic = true
 
             // Export KodaBots SDK for iOS
-            export("ai.koda.mobile.sdk:core-shared:1.5.0")
+            export("ai.koda.mobile.sdk:koda-core2:2.0.0")
         }
     }
 }
 ```
 
-**Why `api()` is required:** The SDK provides platform-specific UI components (Fragment for Android, UIViewController for iOS) that your native apps need to access directly. Using `api()` makes these types transitively available to your Android and iOS apps.
+**Why `api()` is required for KMP:** The SDK provides platform-specific UI components (Fragment for Android, UIViewController for iOS) that your native apps need to access directly. Using `api()` makes these types transitively available to your Android and iOS apps.
 
 **iOS Framework Configuration:**
 - `baseName = "Shared"` - This is the name of your iOS framework. You'll use `import Shared` in your Swift code to access the SDK. You can change "Shared" to any name that fits your project (e.g., "MyAppShared", "Core", etc.).

@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "ai.koda.mobile.sdk"
-version = "1.5.0"
+version = "2.0.0"
 
 kotlin {
     androidTarget {
@@ -194,17 +194,22 @@ repositories {
     }
 }
 
-publishing {
-    repositories {
-        maven {
-            url = uri(props.getProperty("publishUrl") ?: "")
+afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                url = uri(props.getProperty("publishUrl") ?: "")
+            }
         }
-    }
 
-    publications {
-        withType<MavenPublication> {
-            groupId = "ai.koda.mobile.sdk"
-            version = "1.5.0"
+        publications {
+            withType<MavenPublication> {
+                groupId = "ai.koda.mobile.sdk"
+                version = "2.0.0"
+
+                // Change artifact name from core-shared to koda-core2
+                artifactId = artifactId.replace("core-shared", "koda-core2")
+            }
         }
     }
 }
