@@ -48,3 +48,7 @@ captures/
 *.xcuserdatad
 
 notes/
+
+/iOSApp/Pods/
+*.podspec
+Package.resolved

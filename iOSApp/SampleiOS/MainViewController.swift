@@ -323,10 +323,11 @@ final class MainViewController: UIViewController {
 		timeoutConfig.timeout = 20
 		timeoutConfig.message = "Something went wrong!"
 		
-		let progressConfig = KodaBotsProgressConfig(
-			backgroundColor: UIColor.white,
-			progressColor: UIColor.red,
-		)
+        let progressConfig = KodaBotsProgressConfig(
+            backgroundColor: UIColor.white,
+            progressColor: UIColor.red,
+            customAnimation: nil,
+        )
 		print(customClientID)
 		let config = KodaBotsConfig.init(
 			userProfile: UserProfile(),

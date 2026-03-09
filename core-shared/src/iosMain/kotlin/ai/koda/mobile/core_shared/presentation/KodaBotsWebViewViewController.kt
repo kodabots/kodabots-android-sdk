@@ -4,8 +4,12 @@ package ai.koda.mobile.core_shared.presentation
 
 import ai.koda.mobile.core_shared.KodaBotsSDK
 import ai.koda.mobile.core_shared.config.AppConfig
+import ai.koda.mobile.core_shared.config.CustomAnimation
 import ai.koda.mobile.core_shared.config.KodaBotsConfig
 import ai.koda.mobile.core_shared.model.UserProfile
+import cocoapods.lottie_ios.CompatibleAnimation
+import cocoapods.lottie_ios.CompatibleAnimationView
+import cocoapods.lottie_ios.CompatibleAnimationKeypath
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ExportObjCClass
@@ -22,7 +26,6 @@ import platform.Foundation.NSURL
 import platform.Foundation.NSURLRequest
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.NSTextAlignmentCenter
-import platform.UIKit.UIActivityIndicatorView
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationWillEnterForegroundNotification
@@ -59,7 +62,7 @@ class IosKodaBotsWebViewScreen
 
     private var webView: WKWebView? = null
     private var loaderWrapper: UIView? = null
-    private var loaderIndicator: UIActivityIndicatorView? = null
+    private var loaderAnimationView: CompatibleAnimationView? = null
     private var wentWrongWrapper: UIView? = null
     private var wentWrongImage: UIImageView? = null
     private var wentWrongLabel: UILabel? = null
@@ -131,21 +134,29 @@ class IosKodaBotsWebViewScreen
         }
         view.addSubview(loaderWrapper!!)
 
-        loaderIndicator = UIActivityIndicatorView().apply {
-            setTranslatesAutoresizingMaskIntoConstraints(false)
-            startAnimating()
-            customConfig?.progressConfig?.progressColor?.let {
-                color = it
-            }
-        }
-        loaderWrapper?.addSubview(loaderIndicator!!)
+        val animation = customConfig?.progressConfig?.customAnimation
+            ?: CustomAnimation()
 
-        // Center the indicator in the loaderWrapper
+        loaderAnimationView = CompatibleAnimationView(
+            compatibleAnimation = CompatibleAnimation(
+                name = animation.name,
+                subdirectory = animation.subdirectory,
+                bundle = animation.bundle
+            )
+        ).apply {
+            setTranslatesAutoresizingMaskIntoConstraints(false)
+            setLoopAnimationCount(-1.0)
+            customConfig?.progressConfig?.progressColor?.let {
+                setColorValue(it, forKeypath = CompatibleAnimationKeypath("**.Color"))
+            }
+            play()
+        }
+        loaderWrapper?.addSubview(loaderAnimationView!!)
         val indicatorConstraints = listOf(
-            loaderIndicator!!.centerXAnchor.constraintEqualToAnchor(loaderWrapper!!.centerXAnchor),
-            loaderIndicator!!.centerYAnchor.constraintEqualToAnchor(loaderWrapper!!.centerYAnchor),
-            loaderIndicator!!.widthAnchor.constraintEqualToConstant(40.0),
-            loaderIndicator!!.heightAnchor.constraintEqualToConstant(40.0)
+            loaderAnimationView!!.centerXAnchor.constraintEqualToAnchor(loaderWrapper!!.centerXAnchor),
+            loaderAnimationView!!.centerYAnchor.constraintEqualToAnchor(loaderWrapper!!.centerYAnchor),
+            loaderAnimationView!!.widthAnchor.constraintEqualToConstant(64.0),
+            loaderAnimationView!!.heightAnchor.constraintEqualToConstant(64.0)
         )
         NSLayoutConstraint.activateConstraints(indicatorConstraints)
 
@@ -372,36 +383,41 @@ class IosKodaBotsWebViewScreen
         decisionHandler: (WKNavigationActionPolicy) -> Unit
     ) {
         val requestUrl = decidePolicyForNavigationAction.request.URL
-        
+
         if (requestUrl == null) {
             decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyAllow)
             return
         }
-        
+
         // Handle tel: links
         if (requestUrl.scheme == "tel") {
             openUrlSafely(requestUrl)
             decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyCancel)
             return
         }
-        
+
         // Handle external links (target="_blank" or link clicks)
-        val shouldOpenExternally = decidePolicyForNavigationAction.navigationType == WKNavigationTypeLinkActivated 
-            || decidePolicyForNavigationAction.targetFrame == null
-        
+        val shouldOpenExternally =
+            decidePolicyForNavigationAction.navigationType == WKNavigationTypeLinkActivated
+                    || decidePolicyForNavigationAction.targetFrame == null
+
         if (shouldOpenExternally) {
             openUrlSafely(requestUrl)
             decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyCancel)
             return
         }
-        
+
         decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyAllow)
     }
 
     private fun openUrlSafely(nsUrl: NSURL) {
         try {
             // Preferred modern API (iOS 10+)
-            UIApplication.sharedApplication.openURL(nsUrl, options = mapOf<Any?, Any?>(), completionHandler = null)
+            UIApplication.sharedApplication.openURL(
+                nsUrl,
+                options = mapOf<Any?, Any?>(),
+                completionHandler = null
+            )
         } catch (_: Throwable) {
             // Fallback to deprecated API
             UIApplication.sharedApplication.openURL(nsUrl)
