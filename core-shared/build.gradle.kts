@@ -1,5 +1,4 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.util.Properties
 
 plugins {
@@ -13,7 +12,7 @@ plugins {
 }
 
 group = "ai.koda.mobile.sdk"
-version = "2.0.0"
+version = "2.1.0"
 
 kotlin {
     androidTarget {
@@ -232,7 +231,7 @@ afterEvaluate {
         publications {
             withType<MavenPublication> {
                 groupId = "ai.koda.mobile.sdk"
-                version = "2.0.0"
+                version = "2.1.0-preview"
 
                 // Change artifact name from core-shared to koda-core2
                 artifactId = artifactId.replace("core-shared", "koda-core2")

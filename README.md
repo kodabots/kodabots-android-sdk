@@ -67,7 +67,20 @@ kotlin {
             isStatic = true
 
             // Export KodaBots SDK for iOS
-            export("ai.koda.mobile.sdk:koda-core2:2.0.0")
+            export("ai.koda.mobile.sdk:koda-core2:2.1.0")
+        }
+    }
+
+    cocoapods {
+        // ... your existing cocoapods config ...
+        framework {
+            // ... existing framework config ...
+            export("ai.koda.mobile.sdk:koda-core2:2.1.0")  // Export SDK types to iOS
+        }
+        // Required: declare lottie-ios so Kotlin/Native can interop with it
+        pod("lottie-ios") {
+            moduleName = "Lottie"
+            version = "4.6.0"
         }
     }
 }
@@ -78,6 +91,7 @@ kotlin {
 **iOS Framework Configuration:**
 - `baseName = "Shared"` - This is the name of your iOS framework. You'll use `import Shared` in your Swift code to access the SDK. You can change "Shared" to any name that fits your project (e.g., "MyAppShared", "Core", etc.).
 - `export()` - This declaration ensures that KodaBots SDK types are accessible from your iOS app when using the shared framework.
+- `pod("lottie-ios")` - Required because KodaBots SDK uses Lottie internally. Your shared module must declare this pod so the Kotlin/Native compiler can resolve the Lottie interop types.
 
 ### 3. Configure Android
 
@@ -93,7 +107,29 @@ Add your client token to `AndroidManifest.xml`:
 </application>
 ```
 
-### 4. Configure iOS
+### 4. Configure iOS CocoaPods
+
+The SDK uses [lottie-ios](https://github.com/airbnb/lottie-ios) internally for the loading animation. You need to add it to your `Podfile` alongside your shared KMP module:
+
+```ruby
+target 'YourApp' do
+    use_frameworks!
+    platform :ios, '16.0'
+
+    pod 'Shared', :path => '../shared'  # your KMP shared module
+    pod 'lottie-ios', '4.6.0'
+end
+```
+
+Then run:
+
+```bash
+pod install
+```
+
+Open the generated `.xcworkspace` file instead of `.xcodeproj` from now on.
+
+### 5. Configure iOS
 
 Add the required keys to your `Info.plist`:
 
@@ -328,7 +364,22 @@ KodaBotsProgressConfig().apply {
 ```swift
 KodaBotsProgressConfig(
     backgroundColor: UIColor.white,         // Background color
-    progressColor: UIColor.red              // Progress indicator color
+    progressColor: UIColor.red,             // Tint color applied to the Lottie animation
+    customAnimation: nil                    // Custom Lottie animation (nil = default)
+)
+```
+
+To use a custom animation, provide a `CustomAnimation` with the name of your Lottie JSON file:
+
+```swift
+KodaBotsProgressConfig(
+    backgroundColor: UIColor.white,
+    progressColor: nil,
+    customAnimation: CustomAnimation(
+        name: "my_loader",      // Lottie JSON filename (without .json)
+        subdirectory: nil,      // Subdirectory in bundle (optional)
+        bundle: Bundle.main     // Bundle containing the file
+    )
 )
 ```
 
