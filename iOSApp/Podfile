@@ -1,0 +1,7 @@
+target 'SampleiOS' do
+    use_frameworks!
+    platform :ios, '16.0'
+
+    pod 'KodaBotsKit', :path => '../core-shared'
+    pod 'lottie-ios'
+end

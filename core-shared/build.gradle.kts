@@ -3,6 +3,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlinCocoapods)
     id("com.android.library")
     id("kotlinx-serialization")
     id("com.codingfeline.buildkonfig")
@@ -11,7 +12,7 @@ plugins {
 }
 
 group = "ai.koda.mobile.sdk"
-version = "2.0.0"
+version = "2.1.0"
 
 kotlin {
     androidTarget {
@@ -30,6 +31,31 @@ kotlin {
             baseName = xcfName
             binaryOption("bundleId", "ai.koda.mobile.core.shared.kodabotskit")
         }
+    }
+
+    cocoapods {
+        // Required properties
+        // Specify the required Pod version here
+        // Otherwise, the Gradle project version is used
+        version = "2.1.0"
+        summary = "KodaBots SDK for iOS"
+        homepage = "https://github.com/kodabots/kodabots-android-sdk"
+
+        name = "KodaBotsKit"
+        ios.deploymentTarget = "16.0"
+
+        framework {
+            baseName = xcfName
+            isStatic = false
+        }
+
+        pod("lottie-ios") {
+            moduleName = "Lottie"
+            version = "4.6.0"
+            extraOpts = listOf("-compiler-option", "-fmodules", "-compiler-option", "-fbuiltin-module-map")
+        }
+
+        extraSpecAttributes["resources"] = "['src/iosMain/resources/**']"
     }
 
     sourceSets {
@@ -205,7 +231,7 @@ afterEvaluate {
         publications {
             withType<MavenPublication> {
                 groupId = "ai.koda.mobile.sdk"
-                version = "2.0.0"
+                version = "2.1.0"
 
                 // Change artifact name from core-shared to koda-core2
                 artifactId = artifactId.replace("core-shared", "koda-core2")

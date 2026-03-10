@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '2.2.10'
+    ext.kotlin_version = '2.3.10'
     repositories {
         google()
         mavenCentral()
@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.android.lint) apply false
+    alias(libs.plugins.kotlinCocoapods) apply false
 }
 
 allprojects {

@@ -1,6 +1,9 @@
 package ai.koda.mobile.core_shared.config
 
 import ai.koda.mobile.core_shared.model.UserProfile
+import cocoapods.lottie_ios.CompatibleAnimation
+import kotlinx.cinterop.ExperimentalForeignApi
+import platform.Foundation.NSBundle
 import platform.UIKit.UIColor
 import platform.UIKit.UIFont
 import platform.UIKit.UIImage
@@ -17,6 +20,13 @@ class KodaBotsConfig(
 class KodaBotsProgressConfig(
     var backgroundColor: UIColor? = null,
     var progressColor: UIColor? = null,
+    var customAnimation: CustomAnimation? = null
+)
+
+class CustomAnimation(
+    var name: String = "default_loader",
+    var subdirectory: String? = null,
+    var bundle: NSBundle = NSBundle.mainBundle
 )
 
 class KodaBotsTimedOutConfig {

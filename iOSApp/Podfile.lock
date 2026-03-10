@@ -1,0 +1,24 @@
+PODS:
+  - KodaBotsKit (2.1.0):
+    - lottie-ios (= 4.6.0)
+  - lottie-ios (4.6.0)
+
+DEPENDENCIES:
+  - KodaBotsKit (from `../core-shared`)
+  - lottie-ios
+
+SPEC REPOS:
+  trunk:
+    - lottie-ios
+
+EXTERNAL SOURCES:
+  KodaBotsKit:
+    :path: "../core-shared"
+
+SPEC CHECKSUMS:
+  KodaBotsKit: 7538d49dafff922b536330400a1c834dd23cfe05
+  lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
+
+PODFILE CHECKSUM: ebc05793e218b98feb5b32e0a90fb2748c44c0bd
+
+COCOAPODS: 1.16.2
