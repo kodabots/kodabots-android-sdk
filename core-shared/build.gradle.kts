@@ -231,7 +231,7 @@ afterEvaluate {
         publications {
             withType<MavenPublication> {
                 groupId = "ai.koda.mobile.sdk"
-                version = "2.1.0-preview"
+                version = "2.1.0"
 
                 // Change artifact name from core-shared to koda-core2
                 artifactId = artifactId.replace("core-shared", "koda-core2")
