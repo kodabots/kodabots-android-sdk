@@ -36,7 +36,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("ai.koda.mobile.sdk:koda-core2-android:2.0.0")
+    implementation("ai.koda.mobile.sdk:koda-core2-android:2.1.0")
 }
 ```
 
@@ -52,7 +52,7 @@ kotlin {
         commonMain {
             dependencies {
                 // IMPORTANT: Use api(), not implementation()
-                api("ai.koda.mobile.sdk:koda-core2:2.0.0")
+                api("ai.koda.mobile.sdk:koda-core2:2.1.0")
             }
         }
     }
