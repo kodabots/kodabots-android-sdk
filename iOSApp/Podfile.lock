@@ -1,5 +1,5 @@
 PODS:
-  - KodaBotsKit (2.1.0):
+  - KodaBotsKit (2.2.0):
     - lottie-ios (= 4.6.0)
   - lottie-ios (4.6.0)
 
@@ -16,7 +16,7 @@ EXTERNAL SOURCES:
     :path: "../core-shared"
 
 SPEC CHECKSUMS:
-  KodaBotsKit: 7538d49dafff922b536330400a1c834dd23cfe05
+  KodaBotsKit: fa1b3e225bd8f2e9aa8379cb3fd7b70d5a09514b
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
 
 PODFILE CHECKSUM: ebc05793e218b98feb5b32e0a90fb2748c44c0bd
