@@ -197,7 +197,6 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
             fragmentKodaBotsWebviewProgress.setAnimation(
                 customConfig?.progressConfig?.customAnimationPath ?: DEFAULT_LOADER_ASSET
             )
-            fragmentKodaBotsWebviewProgress.repeatCount = 0
             fragmentKodaBotsWebviewProgress.renderMode = RenderMode.HARDWARE
         }
         customConfig?.progressConfig?.progressColor?.let { color ->
