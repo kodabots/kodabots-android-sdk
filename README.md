@@ -353,7 +353,8 @@ class KodaBotsConfig(
     var blockId: String? = null,
     var progressConfig: KodaBotsProgressConfig? = null,
     var timeoutConfig: KodaBotsTimedOutConfig? = null,
-    var customClientId: String? = null
+    var customClientId: String? = null,
+    var customClientToken: String? = null  // Override client token per-instance
 )
 ```
 
@@ -423,20 +424,13 @@ KodaBotsTimedOutConfig().apply {
 ```swift
 let timeoutConfig = KodaBotsTimedOutConfig()
 timeoutConfig.timeout = 20                  // Timeout in seconds
-timeoutConfig.image = UIImage(named: "error_image")
+timeoutConfig.image = UIImage(named: "went_wrong")
 timeoutConfig.backgroundColor = UIColor.white
 timeoutConfig.buttonText = "Retry"
 timeoutConfig.buttonColor = UIColor.blue
-timeoutConfig.buttonTextColor = UIColor.white
-timeoutConfig.buttonFont = UIFont.boldSystemFont(ofSize: 16)
-timeoutConfig.buttonFontSize = 16.0
-timeoutConfig.buttonCornerRadius = 8.0
-timeoutConfig.buttonBorderWidth = 1.0
-timeoutConfig.buttonBorderColor = UIColor.blue
 timeoutConfig.message = "Connection timed out. Please try again."
 timeoutConfig.messageTextColor = UIColor.black
 timeoutConfig.messageFont = UIFont.systemFont(ofSize: 14)
-timeoutConfig.messageFontSize = 14.0
 ```
 
 ### UserProfile
@@ -719,6 +713,37 @@ KodaBotsConfig().apply {
     customClientId = "custom_token_here"
 }
 ```
+
+### Multiple Chatbot Instances
+
+You can display multiple chatbot instances simultaneously, each connected to a different bot, by setting `customClientToken` in `KodaBotsConfig`. This overrides the global client token (from `AndroidManifest.xml` / `Info.plist`) for that specific instance.
+
+#### Android
+
+```kotlin
+val config1 = KodaBotsConfig().apply {
+    customClientToken = "token_for_bot_1"
+}
+
+val config2 = KodaBotsConfig().apply {
+    customClientToken = "token_for_bot_2"
+}
+
+val driver1 = AndroidKodaBotsSDKDriver(context = this, callbacks = callbacks, config = config1)
+val driver2 = AndroidKodaBotsSDKDriver(context = this, callbacks = callbacks, config = config2)
+```
+
+#### iOS
+
+```swift
+let config1 = KodaBotsConfig(customClientToken: "token_for_bot_1")
+let config2 = KodaBotsConfig(customClientToken: "token_for_bot_2")
+
+let driver1 = IosKodaBotsSDKDriver(config: config1, callbacks: callbacks)
+let driver2 = IosKodaBotsSDKDriver(config: config2, callbacks: callbacks)
+```
+
+Each driver generates an independent screen via `generateScreen()`.
 
 ### Custom Loading Animation (Android)
 

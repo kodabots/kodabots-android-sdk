@@ -11,6 +11,7 @@ class KodaBotsConfig {
     var timeoutConfig: KodaBotsTimedOutConfig? = null
     var noCameraPermissionInfo: String? = null
     var customClientId: String? = null
+    var customClientToken: String? = null
 }
 
 class KodaBotsProgressConfig {

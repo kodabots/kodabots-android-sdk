@@ -67,9 +67,12 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
     var customConfig: KodaBotsConfig? = KodaBotsConfig()
     var callbacks: (KodaBotsCallbacks) -> Unit = {}
 
+    private val clientToken: String
+        get() = customConfig?.customClientToken ?: KodaBotsSDK.clientToken ?: ""
+
     private val kodaBotUrl
         get() = "${AppConfig.baseUrl}/mobile/${AppConfig.apiVersion}" +
-                "/?token=${KodaBotsSDK.clientToken}"
+                "/?token=$clientToken"
 
     private val webviewCallbacks = object : WebviewCallbacks {
         override fun onLoadingFinished() {
