@@ -48,7 +48,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("ai.koda.mobile.sdk:koda-core2-android:2.1.0")
+    implementation("ai.koda.mobile.sdk:koda-core2-android:2.2.0")
 }
 ```
 
@@ -64,7 +64,7 @@ kotlin {
         commonMain {
             dependencies {
                 // IMPORTANT: Use api(), not implementation()
-                api("ai.koda.mobile.sdk:koda-core2:2.1.0")
+                api("ai.koda.mobile.sdk:koda-core2:2.2.0")
             }
         }
     }
@@ -79,7 +79,7 @@ kotlin {
             isStatic = true
 
             // Export KodaBots SDK for iOS
-            export("ai.koda.mobile.sdk:koda-core2:2.1.0")
+            export("ai.koda.mobile.sdk:koda-core2:2.2.0")
         }
     }
 
@@ -87,7 +87,7 @@ kotlin {
         // ... your existing cocoapods config ...
         framework {
             // ... existing framework config ...
-            export("ai.koda.mobile.sdk:koda-core2:2.1.0")  // Export SDK types to iOS
+            export("ai.koda.mobile.sdk:koda-core2:2.2.0")  // Export SDK types to iOS
         }
         // Required: declare lottie-ios so Kotlin/Native can interop with it
         pod("lottie-ios") {
