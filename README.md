@@ -9,13 +9,8 @@ A Kotlin Multiplatform SDK for integrating KodaBots AI-powered chatbot into your
 > [!IMPORTANT]
 > **iOS requires manual asset setup.** Unlike Android, where the SDK bundles default assets automatically, iOS developers must add two assets to their app manually:
 >
-> 1. **Loading animation** — Add `default_loader.json` to your Xcode project (ensure it is a member of your app target). The SDK looks for this file in the main app bundle by default.
-> 2. **Error screen image** — Add a "something went wrong" image to your app's asset catalog (e.g. `Assets.xcassets`) and pass it to `KodaBotsTimedOutConfig.image`:
->    ```swift
->    timeoutConfig.image = UIImage(named: "went_wrong")
->    ```
->    Without this, the timeout/error screen will show no image.
->
+> 1. **Loading animation** — Add `default_loader.json` to your Xcode project (ensure it is a member of your app target). The SDK looks for this file in the main app bundle by default or use custom loading animation by providing `KodaBotsProgressConfig.customAnimation`
+> 2. **Error screen image** — Add a "something went wrong" image to your app's asset catalog (e.g. `Assets.xcassets`) and name it "went_wrong" or use custom image by providing `KodaBotsTimedOutConfig.image`
 > Both assets are included automatically on Android.
 
 ## Installation
