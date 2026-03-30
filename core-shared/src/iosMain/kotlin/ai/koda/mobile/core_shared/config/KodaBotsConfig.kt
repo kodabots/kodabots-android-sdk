@@ -15,6 +15,7 @@ class KodaBotsConfig(
     var progressConfig: KodaBotsProgressConfig? = null,
     var timeoutConfig: KodaBotsTimedOutConfig? = null,
     var customClientId: String? = null,
+    var customClientToken: String? = null
 )
 
 class KodaBotsProgressConfig(
@@ -35,14 +36,7 @@ class KodaBotsTimedOutConfig {
     var backgroundColor: UIColor? = null
     var buttonText: String? = null
     var buttonColor: UIColor? = null
-    var buttonTextColor: UIColor? = null
-    var buttonFont: UIFont? = null
-    var buttonFontSize: Float? = null
-    var buttonCornerRadius: Float? = null
-    var buttonBorderWidth: Float? = null
-    var buttonBorderColor: UIColor? = null
     var message: String? = null
     var messageTextColor: UIColor? = null
     var messageFont: UIFont? = null
-    var messageFontSize: Float? = null
 }

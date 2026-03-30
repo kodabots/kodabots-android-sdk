@@ -8,8 +8,8 @@ import ai.koda.mobile.core_shared.config.CustomAnimation
 import ai.koda.mobile.core_shared.config.KodaBotsConfig
 import ai.koda.mobile.core_shared.model.UserProfile
 import cocoapods.lottie_ios.CompatibleAnimation
-import cocoapods.lottie_ios.CompatibleAnimationView
 import cocoapods.lottie_ios.CompatibleAnimationKeypath
+import cocoapods.lottie_ios.CompatibleAnimationView
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ExportObjCClass
@@ -269,8 +269,8 @@ class IosKodaBotsWebViewScreen
                 val imageConstraints = listOf(
                     imageView.topAnchor.constraintEqualToAnchor(stackContainer.topAnchor),
                     imageView.centerXAnchor.constraintEqualToAnchor(stackContainer.centerXAnchor),
-                    imageView.leadingAnchor.constraintEqualToAnchor(stackContainer.leadingAnchor),
-                    imageView.trailingAnchor.constraintEqualToAnchor(stackContainer.trailingAnchor)
+                    imageView.widthAnchor.constraintEqualToConstant(200.0),
+                    imageView.heightAnchor.constraintEqualToAnchor(imageView.widthAnchor)
                 )
                 imageView.contentMode = UIViewContentMode.UIViewContentModeScaleAspectFit
                 NSLayoutConstraint.activateConstraints(imageConstraints)
@@ -326,8 +326,9 @@ class IosKodaBotsWebViewScreen
     }
 
     private fun loadURL() {
+        val clientToken = customConfig?.customClientToken ?: KodaBotsSDK.clientToken ?: ""
         val urlString = "${AppConfig.baseUrl}/mobile/${AppConfig.apiVersion}" +
-                "/?token=${KodaBotsSDK.clientToken}"
+                "/?token=$clientToken"
         println("KodaBotsWebView: Loading URL: $urlString")
         NSURL.URLWithString(urlString)?.let { nsUrl ->
             val request = NSURLRequest.requestWithURL(nsUrl)

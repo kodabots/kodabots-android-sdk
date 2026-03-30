@@ -6,6 +6,13 @@ A Kotlin Multiplatform SDK for integrating KodaBots AI-powered chatbot into your
 - Android (native Android apps)
 - Kotlin Multiplatform (Android + iOS)
 
+> [!IMPORTANT]
+> **iOS requires manual asset setup.** Unlike Android, where the SDK bundles default assets automatically, iOS developers must add two assets to their app manually:
+>
+> 1. **Loading animation** — Add `default_loader.json` to your Xcode project (ensure it is a member of your app target). The SDK looks for this file in the main app bundle by default or use custom loading animation by providing `KodaBotsProgressConfig.customAnimation`
+> 2. **Error screen image** — Add a "something went wrong" image to your app's asset catalog (e.g. `Assets.xcassets`) and name it "went_wrong" or use custom image by providing `KodaBotsTimedOutConfig.image`
+> Both assets are included automatically on Android.
+
 ## Installation
 
 ### 1. Add Maven Repository
@@ -36,7 +43,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("ai.koda.mobile.sdk:koda-core2-android:2.1.0")
+    implementation("ai.koda.mobile.sdk:koda-core2-android:2.2.0")
 }
 ```
 
@@ -52,7 +59,7 @@ kotlin {
         commonMain {
             dependencies {
                 // IMPORTANT: Use api(), not implementation()
-                api("ai.koda.mobile.sdk:koda-core2:2.1.0")
+                api("ai.koda.mobile.sdk:koda-core2:2.2.0")
             }
         }
     }
@@ -67,7 +74,7 @@ kotlin {
             isStatic = true
 
             // Export KodaBots SDK for iOS
-            export("ai.koda.mobile.sdk:koda-core2:2.1.0")
+            export("ai.koda.mobile.sdk:koda-core2:2.2.0")
         }
     }
 
@@ -75,7 +82,7 @@ kotlin {
         // ... your existing cocoapods config ...
         framework {
             // ... existing framework config ...
-            export("ai.koda.mobile.sdk:koda-core2:2.1.0")  // Export SDK types to iOS
+            export("ai.koda.mobile.sdk:koda-core2:2.2.0")  // Export SDK types to iOS
         }
         // Required: declare lottie-ios so Kotlin/Native can interop with it
         pod("lottie-ios") {
@@ -341,7 +348,8 @@ class KodaBotsConfig(
     var blockId: String? = null,
     var progressConfig: KodaBotsProgressConfig? = null,
     var timeoutConfig: KodaBotsTimedOutConfig? = null,
-    var customClientId: String? = null
+    var customClientId: String? = null,
+    var customClientToken: String? = null  // Override client token per-instance
 )
 ```
 
@@ -411,20 +419,13 @@ KodaBotsTimedOutConfig().apply {
 ```swift
 let timeoutConfig = KodaBotsTimedOutConfig()
 timeoutConfig.timeout = 20                  // Timeout in seconds
-timeoutConfig.image = UIImage(named: "error_image")
+timeoutConfig.image = UIImage(named: "went_wrong")
 timeoutConfig.backgroundColor = UIColor.white
 timeoutConfig.buttonText = "Retry"
 timeoutConfig.buttonColor = UIColor.blue
-timeoutConfig.buttonTextColor = UIColor.white
-timeoutConfig.buttonFont = UIFont.boldSystemFont(ofSize: 16)
-timeoutConfig.buttonFontSize = 16.0
-timeoutConfig.buttonCornerRadius = 8.0
-timeoutConfig.buttonBorderWidth = 1.0
-timeoutConfig.buttonBorderColor = UIColor.blue
 timeoutConfig.message = "Connection timed out. Please try again."
 timeoutConfig.messageTextColor = UIColor.black
 timeoutConfig.messageFont = UIFont.systemFont(ofSize: 14)
-timeoutConfig.messageFontSize = 14.0
 ```
 
 ### UserProfile
@@ -707,6 +708,37 @@ KodaBotsConfig().apply {
     customClientId = "custom_token_here"
 }
 ```
+
+### Multiple Chatbot Instances
+
+You can display multiple chatbot instances simultaneously, each connected to a different bot, by setting `customClientToken` in `KodaBotsConfig`. This overrides the global client token (from `AndroidManifest.xml` / `Info.plist`) for that specific instance.
+
+#### Android
+
+```kotlin
+val config1 = KodaBotsConfig().apply {
+    customClientToken = "token_for_bot_1"
+}
+
+val config2 = KodaBotsConfig().apply {
+    customClientToken = "token_for_bot_2"
+}
+
+val driver1 = AndroidKodaBotsSDKDriver(context = this, callbacks = callbacks, config = config1)
+val driver2 = AndroidKodaBotsSDKDriver(context = this, callbacks = callbacks, config = config2)
+```
+
+#### iOS
+
+```swift
+let config1 = KodaBotsConfig(customClientToken: "token_for_bot_1")
+let config2 = KodaBotsConfig(customClientToken: "token_for_bot_2")
+
+let driver1 = IosKodaBotsSDKDriver(config: config1, callbacks: callbacks)
+let driver2 = IosKodaBotsSDKDriver(config: config2, callbacks: callbacks)
+```
+
+Each driver generates an independent screen via `generateScreen()`.
 
 ### Custom Loading Animation (Android)
 

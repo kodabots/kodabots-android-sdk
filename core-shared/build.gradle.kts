@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "ai.koda.mobile.sdk"
-version = "2.1.0"
+version = "2.2.0"
 
 kotlin {
     androidTarget {
@@ -37,7 +37,7 @@ kotlin {
         // Required properties
         // Specify the required Pod version here
         // Otherwise, the Gradle project version is used
-        version = "2.1.0"
+        version = "2.2.0"
         summary = "KodaBots SDK for iOS"
         homepage = "https://github.com/kodabots/kodabots-android-sdk"
 
@@ -55,7 +55,20 @@ kotlin {
             extraOpts = listOf("-compiler-option", "-fmodules", "-compiler-option", "-fbuiltin-module-map")
         }
 
-        extraSpecAttributes["resources"] = "['src/iosMain/resources/**']"
+        extraSpecAttributes["resources"] = "['src/iosMain/resources/**/*']"
+    }
+
+    tasks.matching { it.name.startsWith("syncFramework") }.configureEach {
+        doLast {
+            val frameworkDir = file("build/cocoapods/framework/KodaBotsKit.framework")
+            val resourcesDir = file("src/iosMain/resources")
+            if (frameworkDir.exists() && resourcesDir.exists()) {
+                copy {
+                    from(resourcesDir)
+                    into(frameworkDir)
+                }
+            }
+        }
     }
 
     sourceSets {
@@ -231,7 +244,7 @@ afterEvaluate {
         publications {
             withType<MavenPublication> {
                 groupId = "ai.koda.mobile.sdk"
-                version = "2.1.0"
+                version = "2.2.0"
 
                 // Change artifact name from core-shared to koda-core2
                 artifactId = artifactId.replace("core-shared", "koda-core2")
