@@ -48,7 +48,7 @@ class IosKodaBotsSDKDriver(
             )
         if (_clientToken != null) {
             _isInitialized = true
-            restApi = KodaBotsRestApi()
+            restApi = KodaBotsRestApi(customBaseRestUrl = config.customBaseRestUrl)
             KodaBotsPreferences.initialize(
                 IosKodaBotsPreferencesServices.shared
             )
