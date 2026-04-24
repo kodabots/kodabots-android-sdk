@@ -11,11 +11,6 @@ import UIKit
 
 final class MainViewController: UIViewController {
 
-	// MARK: - Properties (private)
-
-	private var customClientID: String?
-	private var customURL: String?
-
 	// MARK: - Properties
 
 	var kodaBotsWebView: UIViewController?
@@ -79,43 +74,6 @@ final class MainViewController: UIViewController {
 						guard let clientID else { return }
 						guard !clientID.isEmpty else { return }
 						self.showToast("CLIENT ID SET: \(clientID)")
-						self.customClientID = clientID
-					}
-				)
-			)
-			alert.addAction(
-				UIAlertAction(
-					title: "Cancel",
-					style: .default,
-					handler: { _ in
-						optionMenu.dismiss(animated: true, completion: nil)
-					}
-				)
-			)
-			self.present(alert, animated: true, completion: nil)
-		}
-		let setURL = UIAlertAction(
-			title: NSLocalizedString("SET URL", comment: ""),
-			style: .default
-		) { (action) in
-			let alert = UIAlertController(
-				title: "Set Url",
-				message: "",
-				preferredStyle: .alert
-			)
-			alert.addTextField { (textField) in
-				textField.placeholder = "url"
-			}
-			alert.addAction(
-				UIAlertAction(
-					title: "Set",
-					style: .default,
-					handler: { [weak alert] (_) in
-						let url = alert?.textFields?[0].text
-						guard let url else { return }
-						guard !url.isEmpty else { return }
-						self.showToast("url SET: \(url)")
-						self.customURL = url
 					}
 				)
 			)
@@ -259,7 +217,6 @@ final class MainViewController: UIViewController {
 		}
 		optionMenu.addAction(initializeAction)
 		optionMenu.addAction(setClientIDAction)
-		optionMenu.addAction(setURL)
 		optionMenu.addAction(getUnreadCountAction)
 		optionMenu.addAction(syncProfileAction)
 		optionMenu.addAction(sendBlockAction)
@@ -328,13 +285,15 @@ final class MainViewController: UIViewController {
             progressColor: UIColor.red,
             customAnimation: nil,
         )
-		print(customClientID)
 		let config = KodaBotsConfig.init(
 			userProfile: UserProfile(),
 			blockId: nil,
 			progressConfig: progressConfig,
 			timeoutConfig: timeoutConfig,
-			customClientId: customClientID
+			customClientId: nil,
+            customClientToken: nil,
+            customBaseUrl: nil,
+            customBaseRestUrl: nil
 		)
 
 		let driver = IosKodaBotsSDKDriver(
