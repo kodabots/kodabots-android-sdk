@@ -1,10 +1,15 @@
 package ai.koda.mobile.sdk.sample
 
+import ai.koda.mobile.core_shared.AndroidKodaBotsSDKDriver
 import ai.koda.mobile.core_shared.KodaBotsSDK
+import ai.koda.mobile.core_shared.config.KodaBotsConfig
+import ai.koda.mobile.core_shared.config.KodaBotsProgressConfig
 import ai.koda.mobile.core_shared.model.UserProfile
 import ai.koda.mobile.core_shared.model.api.CallResponse
+import ai.koda.mobile.core_shared.presentation.KodaBotsCallbacks
 import ai.koda.mobile.core_shared.presentation.KodaBotsWebViewFragment
 import ai.koda.mobile.sdk.sample.databinding.ActivityMainBinding
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -23,6 +28,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var kodaBotsFragment: KodaBotsWebViewFragment? = null
+    private val callbacks: (KodaBotsCallbacks) -> Unit = {
+        when (it) {
+            is KodaBotsCallbacks.Event -> Log.d("KodaBotsSample", "CallbackEvent ${it.type} - ${it.params}")
+            is KodaBotsCallbacks.Error -> Log.d("KodaBotsSample", "CallbackError ${it.error}")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,23 +46,37 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.activityMainControlsInitializeWebview.setOnClickListener {
-            SingleEditTextDialog(this).apply {
+            ThreeEditTextDialog(this).apply {
                 setText(
+                    resources.getString(R.string.activity_main_controls_initialize_webview),
+                    null,
                     resources.getString(R.string.dialog_set_token),
-                    null
+                    resources.getString(R.string.dialog_custom_base_url),
+                    resources.getString(R.string.dialog_custom_rest_url),
                 )
-                setInitialValue(KodaBotsSDK.clientToken ?: "")
+                setInitialValues(BuildConfig.KODA_AI_CLIENT_TOKEN)
             }.also {
-                it.createDialog {
-                    KodaBotsSDK.clientToken = it
-                }
-                it.mDialog?.setOnDismissListener {
-                    if (kodaBotsFragment == null) {
-                        kodaBotsFragment = KodaBotsSDK.generateScreen() as? KodaBotsWebViewFragment
-                        supportFragmentManager.beginTransaction().apply {
-                            replace(R.id.activity_main_content_root, kodaBotsFragment!!)
-                            commit()
+                it.createDialog { token, baseUrl, restUrl ->
+                    val config = KodaBotsConfig().apply {
+                        customClientToken = token.ifEmpty { null }
+                        customBaseUrl = baseUrl.ifEmpty { null }
+                        customBaseRestUrl = restUrl.ifEmpty { null }
+                        progressConfig = KodaBotsProgressConfig().apply {
+                            progressColor = Color.RED
+                            backgroundColor = Color.WHITE
                         }
+                        noCameraPermissionInfo = "No camera permission, you can only choose from your files."
+                    }
+                    if (KodaBotsSDK.init(AndroidKodaBotsSDKDriver(this, config = config, callbacks = callbacks))) {
+                        kodaBotsFragment = KodaBotsSDK.driver?.generateScreen() as? KodaBotsWebViewFragment
+                        kodaBotsFragment?.let { fragment ->
+                            supportFragmentManager.beginTransaction().apply {
+                                replace(R.id.activity_main_content_root, fragment)
+                                commit()
+                            }
+                        }
+                    } else {
+                        Log.e("KodaBotsSample", "SDK initialization failed")
                     }
                 }
             }

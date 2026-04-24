@@ -71,8 +71,7 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
         get() = customConfig?.customClientToken ?: KodaBotsSDK.clientToken ?: ""
 
     private val kodaBotUrl
-        get() = "${AppConfig.baseUrl}/mobile/${AppConfig.apiVersion}" +
-                "/?token=$clientToken"
+        get() = "${customConfig?.customBaseUrl ?: "${AppConfig.baseUrl}/mobile/${AppConfig.apiVersion}/"}?token=$clientToken"
 
     private val webviewCallbacks = object : WebviewCallbacks {
         override fun onLoadingFinished() {
@@ -83,16 +82,21 @@ class KodaBotsWebViewFragment : Fragment(R.layout.fragment_koda_bots_webview), F
             view: WebView?,
             request: WebResourceRequest?
         ): Boolean {
-            return if (request?.url.toString().startsWith("tel", true)) {
-                startActivity(Intent(Intent.ACTION_DIAL).apply {
-                    data = request?.url.toString().toUri()
-                })
-                true
-            } else {
-                startActivity(Intent(Intent.ACTION_VIEW).apply {
-                    data = request?.url ?: Uri.EMPTY
-                })
-                true
+            val url = request?.url.toString()
+            return when {
+                url.startsWith("tel", true) -> {
+                    startActivity(Intent(Intent.ACTION_DIAL).apply {
+                        data = url.toUri()
+                    })
+                    true
+                }
+                url.startsWith(customConfig?.customBaseUrl ?: AppConfig.baseUrl, true) -> false
+                else -> {
+                    startActivity(Intent(Intent.ACTION_VIEW).apply {
+                        data = request?.url ?: Uri.EMPTY
+                    })
+                    true
+                }
             }
         }
     }

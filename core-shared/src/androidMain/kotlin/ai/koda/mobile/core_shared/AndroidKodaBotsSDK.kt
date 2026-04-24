@@ -56,7 +56,7 @@ class AndroidKodaBotsSDKDriver(
         kodaClientScope?.cancel()
         kodaClientScope = CoroutineScope(SupervisorJob() + globalExceptionHandler)
 
-        _clientToken = config.customClientId
+        _clientToken = config.customClientToken
             ?: context.packageManager
                 .getApplicationInfo(
                     context.packageName,
@@ -65,7 +65,7 @@ class AndroidKodaBotsSDKDriver(
 
         if (_clientToken != null) {
             _isInitialized = true
-            restApi = KodaBotsRestApi()
+            restApi = KodaBotsRestApi(customBaseRestUrl = config.customBaseRestUrl)
             KodaBotsPreferences.initialize(
                 AndroidKodaBotsPreferencesServices(context)
             )

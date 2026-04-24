@@ -19,7 +19,7 @@ import io.ktor.http.headers
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-internal class KodaBotsRestApi {
+internal class KodaBotsRestApi(customBaseRestUrl: String? = null) {
     private val client = HttpClient {
         expectSuccess = true
 
@@ -75,11 +75,12 @@ internal class KodaBotsRestApi {
             CallResponse.Error(Exception(t.message))
         }
 
+    private val BASE_URL =
+        customBaseRestUrl ?: "${AppConfig.baseRestUrl}/sdk/${AppConfig.apiRestVersion}"
+
     companion object {
         private const val CODE_UNAUTHORIZED = 401
         private const val CODE_FORBIDDEN = 403
-        private val BASE_URL =
-            "${AppConfig.baseRestUrl}/sdk/${AppConfig.apiRestVersion}"
 
         /** Endpoints paths */
         const val UNREAD_MESSAGES = "/unread-counter"

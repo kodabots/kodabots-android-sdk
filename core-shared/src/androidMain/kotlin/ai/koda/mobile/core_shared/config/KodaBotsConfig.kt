@@ -10,8 +10,9 @@ class KodaBotsConfig {
     var progressConfig: KodaBotsProgressConfig? = null
     var timeoutConfig: KodaBotsTimedOutConfig? = null
     var noCameraPermissionInfo: String? = null
-    var customClientId: String? = null
     var customClientToken: String? = null
+    var customBaseUrl: String? = null
+    var customBaseRestUrl: String? = null
 }
 
 class KodaBotsProgressConfig {

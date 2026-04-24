@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "ai.koda.mobile.sdk"
-version = "2.2.0"
+version = "2.3.0"
 
 kotlin {
     androidTarget {
@@ -37,7 +37,7 @@ kotlin {
         // Required properties
         // Specify the required Pod version here
         // Otherwise, the Gradle project version is used
-        version = "2.2.0"
+        version = "2.3.0"
         summary = "KodaBots SDK for iOS"
         homepage = "https://github.com/kodabots/kodabots-android-sdk"
 
@@ -244,7 +244,7 @@ afterEvaluate {
         publications {
             withType<MavenPublication> {
                 groupId = "ai.koda.mobile.sdk"
-                version = "2.2.0"
+                version = "2.3.0"
 
                 // Change artifact name from core-shared to koda-core2
                 artifactId = artifactId.replace("core-shared", "koda-core2")

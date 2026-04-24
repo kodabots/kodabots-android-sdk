@@ -13,4 +13,6 @@
     <string name="activity_main_dialog_sync_profile_custom_key">Custom key</string>
     <string name="activity_main_unread_count">Unread messages: %1$d</string>
     <string name="dialog_set_token">Set client token</string>
+    <string name="dialog_custom_base_url">Custom Base URL (optional)</string>
+    <string name="dialog_custom_rest_url">Custom REST URL (optional)</string>
 </resources>

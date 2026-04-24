@@ -327,8 +327,7 @@ class IosKodaBotsWebViewScreen
 
     private fun loadURL() {
         val clientToken = customConfig?.customClientToken ?: KodaBotsSDK.clientToken ?: ""
-        val urlString = "${AppConfig.baseUrl}/mobile/${AppConfig.apiVersion}" +
-                "/?token=$clientToken"
+        val urlString = "${customConfig?.customBaseUrl ?: "${AppConfig.baseUrl}/mobile/${AppConfig.apiVersion}/"}?token=$clientToken"
         println("KodaBotsWebView: Loading URL: $urlString")
         NSURL.URLWithString(urlString)?.let { nsUrl ->
             val request = NSURLRequest.requestWithURL(nsUrl)

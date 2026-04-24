@@ -33,6 +33,12 @@ class ThreeEditTextDialog(context: Context) {
         }
     }
 
+    fun setInitialValues(value1: String = "", value2: String = "", value3: String = "") {
+        view?.findViewById<TextInputLayout>(R.id.dialog_edittext_input)?.editText?.setText(value1)
+        view?.findViewById<TextInputLayout>(R.id.dialog_edittext_input2)?.editText?.setText(value2)
+        view?.findViewById<TextInputLayout>(R.id.dialog_edittext_input3)?.editText?.setText(value3)
+    }
+
     fun setText(title: String, message: String?, hint1: String?, hint2: String, hint3: String?) {
         view?.findViewById<TextView>(R.id.dialog_edittext_message)?.text = message
         view?.findViewById<TextView>(R.id.dialog_edittext_title)?.text = title

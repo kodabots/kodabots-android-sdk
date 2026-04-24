@@ -13,8 +13,9 @@ final class MainViewController: UIViewController {
 
 	// MARK: - Properties (private)
 
-	private var customClientID: String?
-	private var customURL: String?
+	private var customClientToken: String?
+	private var customBaseUrl: String?
+	private var customBaseRestUrl: String?
 
 	// MARK: - Properties
 
@@ -78,44 +79,8 @@ final class MainViewController: UIViewController {
 						let clientID = alert?.textFields?[0].text
 						guard let clientID else { return }
 						guard !clientID.isEmpty else { return }
+						self.customClientToken = clientID
 						self.showToast("CLIENT ID SET: \(clientID)")
-						self.customClientID = clientID
-					}
-				)
-			)
-			alert.addAction(
-				UIAlertAction(
-					title: "Cancel",
-					style: .default,
-					handler: { _ in
-						optionMenu.dismiss(animated: true, completion: nil)
-					}
-				)
-			)
-			self.present(alert, animated: true, completion: nil)
-		}
-		let setURL = UIAlertAction(
-			title: NSLocalizedString("SET URL", comment: ""),
-			style: .default
-		) { (action) in
-			let alert = UIAlertController(
-				title: "Set Url",
-				message: "",
-				preferredStyle: .alert
-			)
-			alert.addTextField { (textField) in
-				textField.placeholder = "url"
-			}
-			alert.addAction(
-				UIAlertAction(
-					title: "Set",
-					style: .default,
-					handler: { [weak alert] (_) in
-						let url = alert?.textFields?[0].text
-						guard let url else { return }
-						guard !url.isEmpty else { return }
-						self.showToast("url SET: \(url)")
-						self.customURL = url
 					}
 				)
 			)
@@ -257,9 +222,36 @@ final class MainViewController: UIViewController {
 		) { (action) in
 			optionMenu.dismiss(animated: true, completion: nil)
 		}
+		let setCustomUrlsAction = UIAlertAction(
+			title: NSLocalizedString("SET CUSTOM URLS", comment: ""),
+			style: .default
+		) { (action) in
+			let alert = UIAlertController(
+				title: "Set Custom URLs",
+				message: nil,
+				preferredStyle: .alert
+			)
+			alert.addTextField { textField in
+				textField.placeholder = "Custom Base URL (optional)"
+				textField.text = self.customBaseUrl
+			}
+			alert.addTextField { textField in
+				textField.placeholder = "Custom REST URL (optional)"
+				textField.text = self.customBaseRestUrl
+			}
+			alert.addAction(UIAlertAction(title: "Set", style: .default) { [weak alert] _ in
+				self.customBaseUrl = alert?.textFields?[0].text?.isEmpty == false
+					? alert?.textFields?[0].text : nil
+				self.customBaseRestUrl = alert?.textFields?[1].text?.isEmpty == false
+					? alert?.textFields?[1].text : nil
+				self.showToast("URLs updated")
+			})
+			alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+			self.present(alert, animated: true, completion: nil)
+		}
 		optionMenu.addAction(initializeAction)
 		optionMenu.addAction(setClientIDAction)
-		optionMenu.addAction(setURL)
+		optionMenu.addAction(setCustomUrlsAction)
 		optionMenu.addAction(getUnreadCountAction)
 		optionMenu.addAction(syncProfileAction)
 		optionMenu.addAction(sendBlockAction)
@@ -328,13 +320,14 @@ final class MainViewController: UIViewController {
             progressColor: UIColor.red,
             customAnimation: nil,
         )
-		print(customClientID)
 		let config = KodaBotsConfig.init(
 			userProfile: UserProfile(),
 			blockId: nil,
 			progressConfig: progressConfig,
 			timeoutConfig: timeoutConfig,
-			customClientId: customClientID
+			customClientToken: customClientToken,
+            customBaseUrl: customBaseUrl,
+            customBaseRestUrl: customBaseRestUrl
 		)
 
 		let driver = IosKodaBotsSDKDriver(
