@@ -19,6 +19,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["KODA_AI_CLIENT_TOKEN"] = properties.get("KODA_AI_CLIENT_TOKEN")
+        buildConfigField "String", "KODA_AI_CLIENT_TOKEN", "\"${properties.getProperty('KODA_AI_CLIENT_TOKEN', '')}\""
     }
 
     buildTypes {
@@ -68,6 +69,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 

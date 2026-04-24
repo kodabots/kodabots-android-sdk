@@ -76,7 +76,7 @@ internal class KodaBotsRestApi(customBaseRestUrl: String? = null) {
         }
 
     private val BASE_URL =
-        "${customBaseRestUrl ?: AppConfig.baseRestUrl}/sdk/${AppConfig.apiRestVersion}"
+        customBaseRestUrl ?: "${AppConfig.baseRestUrl}/sdk/${AppConfig.apiRestVersion}"
 
     companion object {
         private const val CODE_UNAUTHORIZED = 401

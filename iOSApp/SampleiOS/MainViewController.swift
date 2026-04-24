@@ -11,6 +11,12 @@ import UIKit
 
 final class MainViewController: UIViewController {
 
+	// MARK: - Properties (private)
+
+	private var customClientToken: String?
+	private var customBaseUrl: String?
+	private var customBaseRestUrl: String?
+
 	// MARK: - Properties
 
 	var kodaBotsWebView: UIViewController?
@@ -73,6 +79,7 @@ final class MainViewController: UIViewController {
 						let clientID = alert?.textFields?[0].text
 						guard let clientID else { return }
 						guard !clientID.isEmpty else { return }
+						self.customClientToken = clientID
 						self.showToast("CLIENT ID SET: \(clientID)")
 					}
 				)
@@ -215,8 +222,36 @@ final class MainViewController: UIViewController {
 		) { (action) in
 			optionMenu.dismiss(animated: true, completion: nil)
 		}
+		let setCustomUrlsAction = UIAlertAction(
+			title: NSLocalizedString("SET CUSTOM URLS", comment: ""),
+			style: .default
+		) { (action) in
+			let alert = UIAlertController(
+				title: "Set Custom URLs",
+				message: nil,
+				preferredStyle: .alert
+			)
+			alert.addTextField { textField in
+				textField.placeholder = "Custom Base URL (optional)"
+				textField.text = self.customBaseUrl
+			}
+			alert.addTextField { textField in
+				textField.placeholder = "Custom REST URL (optional)"
+				textField.text = self.customBaseRestUrl
+			}
+			alert.addAction(UIAlertAction(title: "Set", style: .default) { [weak alert] _ in
+				self.customBaseUrl = alert?.textFields?[0].text?.isEmpty == false
+					? alert?.textFields?[0].text : nil
+				self.customBaseRestUrl = alert?.textFields?[1].text?.isEmpty == false
+					? alert?.textFields?[1].text : nil
+				self.showToast("URLs updated")
+			})
+			alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+			self.present(alert, animated: true, completion: nil)
+		}
 		optionMenu.addAction(initializeAction)
 		optionMenu.addAction(setClientIDAction)
+		optionMenu.addAction(setCustomUrlsAction)
 		optionMenu.addAction(getUnreadCountAction)
 		optionMenu.addAction(syncProfileAction)
 		optionMenu.addAction(sendBlockAction)
@@ -290,10 +325,9 @@ final class MainViewController: UIViewController {
 			blockId: nil,
 			progressConfig: progressConfig,
 			timeoutConfig: timeoutConfig,
-			customClientId: nil,
-            customClientToken: nil,
-            customBaseUrl: nil,
-            customBaseRestUrl: nil
+			customClientToken: customClientToken,
+            customBaseUrl: customBaseUrl,
+            customBaseRestUrl: customBaseRestUrl
 		)
 
 		let driver = IosKodaBotsSDKDriver(

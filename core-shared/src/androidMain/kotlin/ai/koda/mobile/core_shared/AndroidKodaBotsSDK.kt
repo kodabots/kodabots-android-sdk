@@ -56,7 +56,7 @@ class AndroidKodaBotsSDKDriver(
         kodaClientScope?.cancel()
         kodaClientScope = CoroutineScope(SupervisorJob() + globalExceptionHandler)
 
-        _clientToken = config.customClientId
+        _clientToken = config.customClientToken
             ?: context.packageManager
                 .getApplicationInfo(
                     context.packageName,

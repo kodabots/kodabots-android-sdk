@@ -42,7 +42,7 @@ class IosKodaBotsSDKDriver(
      */
     override fun init(): Boolean {
         // Fetch client token from Info.plist
-        _clientToken = config.customClientId
+        _clientToken = config.customClientToken
             ?: (NSBundle.mainBundle.objectForInfoDictionaryKey("KodaBotsSDK") as? Map<String, String>)?.getValue(
                 "clientToken"
             )
