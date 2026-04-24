@@ -273,7 +273,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 progressColor: UIColor.red
             ),
             timeoutConfig: nil,
-            customClientId: nil
+            customClientToken: nil
         )
 
         let driver = IosKodaBotsSDKDriver(
@@ -341,7 +341,9 @@ class KodaBotsConfig {
     var progressConfig: KodaBotsProgressConfig?  // Loading screen customization
     var timeoutConfig: KodaBotsTimedOutConfig?   // Timeout screen customization
     var noCameraPermissionInfo: String?          // Message when camera permission denied
-    var customClientId: String?                  // Override client token
+    var customClientToken: String?               // Override client token from manifest
+    var customBaseUrl: String? = null            // Override chatbot web URL
+    var customBaseRestUrl: String? = null        // Override REST API base URL
 }
 ```
 
@@ -353,8 +355,9 @@ class KodaBotsConfig(
     var blockId: String? = null,
     var progressConfig: KodaBotsProgressConfig? = null,
     var timeoutConfig: KodaBotsTimedOutConfig? = null,
-    var customClientId: String? = null,
-    var customClientToken: String? = null  // Override client token per-instance
+    var customClientToken: String? = null,       // Override client token from Info.plist
+    var customBaseUrl: String? = null,           // Override chatbot web URL
+    var customBaseRestUrl: String? = null        // Override REST API base URL
 )
 ```
 
@@ -710,9 +713,33 @@ Override the client token from manifest/Info.plist:
 
 ```kotlin
 KodaBotsConfig().apply {
-    customClientId = "custom_token_here"
+    customClientToken = "custom_token_here"
 }
 ```
+
+### Custom Base URLs
+
+Override the default chatbot web URL and REST API URL. This is useful for staging environments or white-label deployments:
+
+#### Android
+
+```kotlin
+val config = KodaBotsConfig().apply {
+    customBaseUrl = "https://staging.example.com/mobile/v1/"  // Chatbot web URL (include trailing slash)
+    customBaseRestUrl = "https://staging-api.example.com/sdk/v1"  // REST API base URL
+}
+```
+
+#### iOS
+
+```swift
+let config = KodaBotsConfig(
+    customBaseUrl: "https://staging.example.com/mobile/v1/",  // Chatbot web URL (include trailing slash)
+    customBaseRestUrl: "https://staging-api.example.com/sdk/v1"  // REST API base URL
+)
+```
+
+Both fields are optional. When `nil`, the SDK uses its built-in default URLs.
 
 ### Multiple Chatbot Instances
 
