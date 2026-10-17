@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "ai.koda.mobile.sdk"
-version = "2.3.0"
+version = "2.4.0"
 
 kotlin {
     androidTarget {
@@ -37,13 +37,15 @@ kotlin {
         // Required properties
         // Specify the required Pod version here
         // Otherwise, the Gradle project version is used
-        version = "2.3.0"
+        version = "2.4.0"
         summary = "KodaBots SDK for iOS"
         homepage = "https://github.com/kodabots/kodabots-android-sdk"
 
         name = "KodaBotsKit"
         ios.deploymentTarget = "16.0"
-
+        specRepos {
+            url("https://github.com/CocoaPods/Specs.git")
+        }
         framework {
             baseName = xcfName
             isStatic = false
@@ -122,6 +124,31 @@ kotlin {
     }
 }
 
+// Fix deployment target
+tasks.matching {
+    it.name == "podInstallSyntheticIos"
+}.configureEach {
+    doLast {
+        val podsProject = layout.buildDirectory.file(
+            "cocoapods/synthetic/ios/Pods/Pods.xcodeproj/project.pbxproj"
+        ).get().asFile
+
+        check(podsProject.exists()) {
+            "Pods not found: $podsProject"
+        }
+
+        val original = podsProject.readText()
+        val patched = original.replace(
+            Regex("""IPHONEOS_DEPLOYMENT_TARGET\s*=\s*13\.0\s*;"""),
+            "IPHONEOS_DEPLOYMENT_TARGET = 15.0;"
+        )
+
+        if (patched != original) {
+            podsProject.writeText(patched)
+        }
+    }
+}
+
 buildkonfig {
     packageName = "ai.koda.mobile.core_shared.config"
     objectName = "AppConfig"
@@ -195,7 +222,7 @@ buildkonfig {
 
 android {
     namespace = "ai.koda.mobile.core_shared"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         minSdk = 26
     }
@@ -244,7 +271,7 @@ afterEvaluate {
         publications {
             withType<MavenPublication> {
                 groupId = "ai.koda.mobile.sdk"
-                version = "2.3.0"
+                version = "2.4.0"
 
                 // Change artifact name from core-shared to koda-core2
                 artifactId = artifactId.replace("core-shared", "koda-core2")
