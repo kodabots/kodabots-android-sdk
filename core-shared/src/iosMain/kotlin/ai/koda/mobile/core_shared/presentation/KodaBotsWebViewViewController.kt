@@ -504,6 +504,7 @@ class IosKodaBotsWebViewScreen
                     if (userId != null) {
                         isReady = true
                         loaderWrapper?.hidden = true
+                        wentWrongWrapper?.hidden = true
                         wentWrongTimer?.invalidate()
                     }
                 }
