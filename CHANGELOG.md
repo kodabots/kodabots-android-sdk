@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Build compatibility
+
+- Pinned BuildKonfig to 0.21.2 and constrained the Kotlin Gradle plugin to prevent a transitive upgrade to Kotlin 2.4.
+- Standardized Kotlin plugins, the standard library, and test libraries on Kotlin 2.3.21, with language/API level 2.3 and JVM target 17.
+- Replaced the serialization Gradle plugin dependency in `commonMain` with the multiplatform JSON runtime.
+- Aligned coroutine dependencies on 1.11.0 and removed the legacy `native-mt` dependency.
+- Migrated the Android sample from `kotlinOptions` to `compilerOptions`.
+- Aligned Lottie's deployment target in the synthetic CocoaPods project with the SDK's iOS 16 minimum for current Xcode builds.
+
 ## 2.3.0
 
 ### New features
