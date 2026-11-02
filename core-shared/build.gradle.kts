@@ -53,7 +53,7 @@ kotlin {
 
         pod("lottie-ios") {
             moduleName = "Lottie"
-            version = "4.6.0"
+            version = "4.6.1"
             extraOpts = listOf("-compiler-option", "-fmodules", "-compiler-option", "-fbuiltin-module-map")
         }
 
@@ -124,30 +124,30 @@ kotlin {
     }
 }
 
-// Fix deployment target
-tasks.matching {
-    it.name == "podInstallSyntheticIos"
-}.configureEach {
-    doLast {
-        val podsProject = layout.buildDirectory.file(
-            "cocoapods/synthetic/ios/Pods/Pods.xcodeproj/project.pbxproj"
-        ).get().asFile
-
-        check(podsProject.exists()) {
-            "Pods not found: $podsProject"
-        }
-
-        val original = podsProject.readText()
-        val patched = original.replace(
-            Regex("""IPHONEOS_DEPLOYMENT_TARGET\s*=\s*13\.0\s*;"""),
-            "IPHONEOS_DEPLOYMENT_TARGET = 15.0;"
-        )
-
-        if (patched != original) {
-            podsProject.writeText(patched)
-        }
-    }
-}
+//// Fix deployment target
+//tasks.matching {
+//    it.name == "podInstallSyntheticIos"
+//}.configureEach {
+//    doLast {
+//        val podsProject = layout.buildDirectory.file(
+//            "cocoapods/synthetic/ios/Pods/Pods.xcodeproj/project.pbxproj"
+//        ).get().asFile
+//
+//        check(podsProject.exists()) {
+//            "Pods not found: $podsProject"
+//        }
+//
+//        val original = podsProject.readText()
+//        val patched = original.replace(
+//            Regex("""IPHONEOS_DEPLOYMENT_TARGET\s*=\s*13\.0\s*;"""),
+//            "IPHONEOS_DEPLOYMENT_TARGET = 15.0;"
+//        )
+//
+//        if (patched != original) {
+//            podsProject.writeText(patched)
+//        }
+//    }
+//}
 
 buildkonfig {
     packageName = "ai.koda.mobile.core_shared.config"
@@ -222,7 +222,7 @@ buildkonfig {
 
 android {
     namespace = "ai.koda.mobile.core_shared"
-    compileSdk = 37
+    compileSdk = 36
     defaultConfig {
         minSdk = 26
     }
