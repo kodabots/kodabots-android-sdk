@@ -5,7 +5,6 @@ import ai.koda.mobile.core_shared.config.AppConfig
 import ai.koda.mobile.core_shared.data.KodaBotsPreferences
 import ai.koda.mobile.core_shared.model.GetUnreadCountResponse
 import ai.koda.mobile.core_shared.model.api.CallResponse
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpTimeout
@@ -20,7 +19,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 internal class KodaBotsRestApi(customBaseRestUrl: String? = null) {
-    private val client = HttpClient {
+    private val client = createHttpClient {
         expectSuccess = true
 
         install(ContentNegotiation) {

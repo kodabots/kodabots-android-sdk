@@ -280,13 +280,18 @@ final class MainViewController: UIViewController {
 			if let viewController = KodaBotsSDK.shared.generateScreen()
 				as? UIViewController
 			{
+				if let previousViewController = self.kodaBotsWebView {
+					previousViewController.willMove(toParent: nil)
+					previousViewController.view.removeFromSuperview()
+					previousViewController.removeFromParent()
+				}
+
 				self.kodaBotsWebView = viewController
 				self.kodaBotsWebViewHandle = KodaBotsWebViewScreenHandle(
 					webViewScreen: viewController
 				)
-				self.webViewContainer.addSubview(viewController.view)
 				self.addChild(viewController)
-				viewController.didMove(toParent: self)
+				self.webViewContainer.addSubview(viewController.view)
 				viewController.view.translatesAutoresizingMaskIntoConstraints = false
 				NSLayoutConstraint.activate([
 					viewController.view.bottomAnchor.constraint(
@@ -302,6 +307,7 @@ final class MainViewController: UIViewController {
 						equalTo: self.webViewContainer.trailingAnchor
 					),
 				])
+				viewController.didMove(toParent: self)
 			}
 		}
 		DispatchQueue.main.async(execute: workItem)

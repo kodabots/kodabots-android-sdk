@@ -1,9 +1,20 @@
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 apply plugin: "com.google.cloud.artifactregistry.gradle-plugin"
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+
+kotlin {
+    jvmToolchain(17)
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+        languageVersion = KotlinVersion.KOTLIN_2_3
+        apiVersion = KotlinVersion.KOTLIN_2_3
+    }
+}
 
 android {
     Properties properties = new Properties()
@@ -57,10 +68,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach {
             outputFileName = "KodaBotsSDKSample_${variant.name.capitalize()}_${getWorkingBranch().toUpperCase().replace("FEATURE/", "")}_${variant.versionName}_VC${variant.versionCode}_${getDateTime()}.apk"
