@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 2.4.0
+
+### Bug fixes
+
+- iOS: the timeout error screen is now hidden when the chatbot finishes loading after the timeout has already fired. Previously it could stay over the conversation and was still read by VoiceOver.
+- The HTTP client now uses explicit platform engines (OkHttp on Android, Darwin on iOS) instead of ServiceLoader discovery, which avoids disk reads during SDK initialization.
+
+### Dependencies
+
+- Updated lottie-ios to 4.6.1. If your shared module or `Podfile` declares `lottie-ios`, update it to the same version.
+- Updated Ktor to 3.5.2, kotlinx-coroutines to 1.11.0 and kotlinx-serialization to 1.11.0.
 
 ### Build compatibility
 

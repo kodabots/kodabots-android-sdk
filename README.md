@@ -6,6 +6,11 @@ A Kotlin Multiplatform SDK for integrating KodaBots AI-powered chatbot into your
 - Android (native Android apps)
 - Kotlin Multiplatform (Android + iOS)
 
+**Requirements:**
+- Android: `minSdk` 26, JVM target 17
+- iOS: iOS 16.0, CocoaPods
+- Kotlin Multiplatform projects: Kotlin 2.3 or newer
+
 > [!IMPORTANT]
 > **iOS requires manual asset setup.** Unlike Android, where the SDK bundles default assets automatically, iOS developers must add two assets to their app manually:
 >
@@ -48,7 +53,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("ai.koda.mobile.sdk:koda-core2-android:2.2.0")
+    implementation("ai.koda.mobile.sdk:koda-core2-android:2.4.0")
 }
 ```
 
@@ -64,7 +69,7 @@ kotlin {
         commonMain {
             dependencies {
                 // IMPORTANT: Use api(), not implementation()
-                api("ai.koda.mobile.sdk:koda-core2:2.2.0")
+                api("ai.koda.mobile.sdk:koda-core2:2.4.0")
             }
         }
     }
@@ -79,7 +84,7 @@ kotlin {
             isStatic = true
 
             // Export KodaBots SDK for iOS
-            export("ai.koda.mobile.sdk:koda-core2:2.2.0")
+            export("ai.koda.mobile.sdk:koda-core2:2.4.0")
         }
     }
 
@@ -87,12 +92,12 @@ kotlin {
         // ... your existing cocoapods config ...
         framework {
             // ... existing framework config ...
-            export("ai.koda.mobile.sdk:koda-core2:2.2.0")  // Export SDK types to iOS
+            export("ai.koda.mobile.sdk:koda-core2:2.4.0")  // Export SDK types to iOS
         }
         // Required: declare lottie-ios so Kotlin/Native can interop with it
         pod("lottie-ios") {
             moduleName = "Lottie"
-            version = "4.6.0"
+            version = "4.6.1"
         }
     }
 }
@@ -129,7 +134,7 @@ target 'YourApp' do
     platform :ios, '16.0'
 
     pod 'Shared', :path => '../shared'  # your KMP shared module
-    pod 'lottie-ios', '4.6.0'
+    pod 'lottie-ios', '4.6.1'
 end
 ```
 
