@@ -8,20 +8,15 @@
 
 import UIKit
 
-@UIApplicationMain
+@main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
-    var window: UIWindow?
-    var rootCoordinator: RootCoordinator?
-    
-    func applicationDidFinishLaunching(_ application: UIApplication) {
-        window = UIWindow(frame: UIScreen.main.bounds)
-        let mainViewController = UINavigationController()
-        rootCoordinator = RootCoordinator(navigationController: mainViewController)
-        window?.rootViewController = mainViewController
-        rootCoordinator?.start()
+
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
         UIPickerView.appearance().tintColor = UIColor.blue
-        window?.makeKeyAndVisible()
+        return true
     }
 }
 

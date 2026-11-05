@@ -297,7 +297,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\n";
+			shellScript = "
+";
 		};
 		AE0F8165D4DDFB168AF6A500 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -307,9 +308,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleiOS/Pods-SampleiOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleiOS/Pods-SampleiOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -324,9 +329,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleiOS/Pods-SampleiOS-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleiOS/Pods-SampleiOS-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -510,10 +519,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SampleiOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = KodaSample;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Camera needed";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Micro needed";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera is needed for testing purposes only. ";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone is needed for testing purposes only. ";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Photo lib needed";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -547,10 +555,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SampleiOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = KodaSample;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Camera needed";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Micro needed";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera is needed for testing purposes only. ";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone is needed for testing purposes only. ";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Photo lib needed";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

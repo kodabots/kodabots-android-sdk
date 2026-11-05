@@ -1,5 +1,4 @@
 buildscript {
-    ext.kotlin_version = '2.3.10'
     repositories {
         google()
         mavenCentral()
@@ -14,7 +13,11 @@ buildscript {
     dependencies {
         classpath(libs.artifactregistry.gradle.plugin)
         classpath libs.gradle
-        classpath libs.kotlin.gradle.plugin
+        classpath(libs.kotlin.gradle.plugin) {
+            version {
+                strictly(libs.versions.kotlin.get())
+            }
+        }
         classpath libs.kotlin.serialization
         classpath libs.buildkonfig.gradle.plugin
     }

@@ -1,5 +1,7 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -12,10 +14,20 @@ plugins {
 }
 
 group = "ai.koda.mobile.sdk"
-version = "2.3.0"
+version = "2.4.0"
+val iosDeploymentTarget = "16.0"
 
 kotlin {
+    jvmToolchain(17)
+    compilerOptions {
+        languageVersion.set(KotlinVersion.KOTLIN_2_3)
+        apiVersion.set(KotlinVersion.KOTLIN_2_3)
+    }
+
     androidTarget {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
         publishLibraryVariants("release")
     }
 
@@ -37,13 +49,15 @@ kotlin {
         // Required properties
         // Specify the required Pod version here
         // Otherwise, the Gradle project version is used
-        version = "2.3.0"
+        version = "2.4.0"
         summary = "KodaBots SDK for iOS"
         homepage = "https://github.com/kodabots/kodabots-android-sdk"
 
         name = "KodaBotsKit"
-        ios.deploymentTarget = "16.0"
-
+        ios.deploymentTarget = iosDeploymentTarget
+        specRepos {
+            url("https://github.com/CocoaPods/Specs.git")
+        }
         framework {
             baseName = xcfName
             isStatic = false
@@ -51,7 +65,7 @@ kotlin {
 
         pod("lottie-ios") {
             moduleName = "Lottie"
-            version = "4.6.0"
+            version = "4.6.1"
             extraOpts = listOf("-compiler-option", "-fmodules", "-compiler-option", "-fbuiltin-module-map")
         }
 
@@ -75,7 +89,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                implementation(libs.kotlin.serialization)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.logging)
                 implementation(libs.ktor.client.content.negotiation)
@@ -98,7 +113,6 @@ kotlin {
                 api(libs.androidx.constraintlayout)
                 api(libs.google.material)
 
-                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.coroutines.android)
 
                 implementation(libs.androidx.security.crypto)
@@ -119,6 +133,23 @@ kotlin {
                 implementation(libs.ktor.client.darwin)
             }
         }
+    }
+}
+
+// Align Lottie's iOS 13 targets in the synthetic Pods project with the SDK minimum.
+tasks.matching { it.name == "podInstallSyntheticIos" }.configureEach {
+    doLast {
+        val podsProject = layout.buildDirectory.file(
+            "cocoapods/synthetic/ios/Pods/Pods.xcodeproj/project.pbxproj"
+        ).get().asFile
+        check(podsProject.exists()) { "Pods project not found: $podsProject" }
+
+        val original = podsProject.readText()
+        val patched = original.replace(
+            Regex("""IPHONEOS_DEPLOYMENT_TARGET\s*=\s*13\.0\s*;"""),
+            "IPHONEOS_DEPLOYMENT_TARGET = $iosDeploymentTarget;"
+        )
+        if (patched != original) podsProject.writeText(patched)
     }
 }
 
@@ -212,10 +243,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-        jvmToolchain(17)
-    }
-
     publishing {
         singleVariant("release") {
             withSourcesJar()
@@ -244,7 +271,7 @@ afterEvaluate {
         publications {
             withType<MavenPublication> {
                 groupId = "ai.koda.mobile.sdk"
-                version = "2.3.0"
+                version = "2.4.0"
 
                 // Change artifact name from core-shared to koda-core2
                 artifactId = artifactId.replace("core-shared", "koda-core2")
